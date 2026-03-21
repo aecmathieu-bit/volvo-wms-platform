@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V15 - Distribution complète</title>
+<title>SupplyPilot Volvo V17 - WMS avancé</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -23,17 +23,18 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V15</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V17</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
       <button class="nav-btn" data-page="inventory"><span>Inventaire</span><span class="count" id="navInventory">0</span></button>
       <button class="nav-btn" data-page="procurement"><span>Approvisionnement</span><span class="count" id="navPO">0</span></button>
+      <button class="nav-btn" data-page="wms"><span>WMS avancé</span><span class="count" id="navWms">0</span></button>
       <button class="nav-btn" data-page="production"><span>Production</span><span class="count" id="navProd">0%</span></button>
       <button class="nav-btn" data-page="distribution"><span>Distribution</span><span class="count" id="navDist">0</span></button>
       <button class="nav-btn" data-page="map"><span>Carte réseau</span><span class="count" id="navMap">0</span></button>
     </div>
-    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
+    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Réservations</span><strong id="sideReservations">0</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
   </aside>
   <main class="main">
     <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable avec distribution complète.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button></div></div>
@@ -64,6 +65,32 @@
     <section class="page hidden" id="page-procurement">
       <div class="card" style="margin-bottom:12px"><div class="section-title">Créer une PO</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="poSkuInput" placeholder="SKU ex: VOL-0001"><button id="createPoBtn">Créer PO</button></div></div>
       <div class="card"><div class="section-title">Purchase Orders</div><div class="table-wrap"><table><thead><tr><th>PO</th><th>SKU</th><th>Description</th><th>Fournisseur</th><th>Qté</th><th>Valeur</th><th>Statut</th></tr></thead><tbody id="poBody"></tbody></table></div></div>
+    </section>
+
+    <section class="page hidden" id="page-wms">
+      <div class="grid-kpi">
+        <div class="card"><div class="kpi-l">Réservations</div><div class="kpi-v" id="wmsReservationsCount">0</div><div class="kpi-s">Stock réservé commandes</div></div>
+        <div class="card"><div class="kpi-l">Quarantaine</div><div class="kpi-v" id="wmsQuarantineCount">0</div><div class="kpi-s">Lots bloqués qualité</div></div>
+        <div class="card"><div class="kpi-l">Lots / séries</div><div class="kpi-v" id="wmsLotsCount">0</div><div class="kpi-s">Traçabilité active</div></div>
+        <div class="card"><div class="kpi-l">Scans</div><div class="kpi-v" id="wmsScansCount">0</div><div class="kpi-s">Simulations code-barres</div></div>
+        <div class="card"><div class="kpi-l">Mouvements</div><div class="kpi-v" id="wmsMovesCount">0</div><div class="kpi-s">Journal complet</div></div>
+        <div class="card"><div class="kpi-l">Utilisateurs WMS</div><div class="kpi-v" id="wmsUsersCount">0</div><div class="kpi-s">Rôles opérationnels</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Réservation de stock par commande</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Réservation</th><th>Commande</th><th>SKU</th><th>Lot</th><th>Qté</th><th>Statut</th></tr></thead><tbody id="wmsReservationsBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Quarantaine / contrôle qualité</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Hold</th><th>Lot</th><th>SKU</th><th>Raison</th><th>Qté</th><th>Statut</th></tr></thead><tbody id="wmsQualityBody"></tbody></table></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Lots / séries</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Lot</th><th>SKU</th><th>Emplacement</th><th>Série</th><th>Qté</th><th>Disponibilité</th></tr></thead><tbody id="wmsLotsBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Scan code-barres simulé</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Heure</th><th>Type</th><th>Code</th><th>Utilisateur</th><th>Résultat</th></tr></thead><tbody id="wmsScansBody"></tbody></table></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Journal complet des mouvements</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>SKU</th><th>Lot</th><th>De</th><th>Vers</th><th>Qté</th><th>Type</th></tr></thead><tbody id="wmsMovesBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Fiche WMS</div><div class="detail-box" id="wmsDetail"></div></div>
+      </div>
     </section>
 
     <section class="page hidden" id="page-production">
@@ -151,8 +178,8 @@
 </div>
 
 <script>
-const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."}};
-let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null;
+const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},wms:{title:"WMS avancé",sub:"Réservations, qualité, lots, scans et journal complet des mouvements."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."}};
+let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],wmsReservations=[],wmsQualityHolds=[],wmsLots=[],wmsScans=[],wmsMoves=[],wmsUsers=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedReservationId=null,selectedHoldId=null,selectedLotId=null,selectedScanId=null;
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -163,7 +190,7 @@ function badge(status){if(['OK','Disponible','Complété','Livré','Livrée','Co
 function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
-  inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[];
+  inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; wmsReservations=[]; wmsQualityHolds=[]; wmsLots=[]; wmsScans=[]; wmsMoves=[]; wmsUsers=[];
   for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,price,value:stock*price,alert:stock<40?'Critique':stock<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
   purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>({id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty:rand(10,80),value:rand(10,80)*x.price,status:i%3===0?'BROUILLON':'OUVERTE'}));
   productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
@@ -185,9 +212,17 @@ function renderAll(){
   document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(purchaseOrders.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
   document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(purchaseOrders.length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
+  document.getElementById('sideReservations').textContent=num(wmsReservations.length);
+  document.getElementById('navWms').textContent=num(wmsReservations.length+wmsQualityHolds.length);
+  document.getElementById('wmsReservationsCount').textContent=num(wmsReservations.length);document.getElementById('wmsQuarantineCount').textContent=num(wmsQualityHolds.length);document.getElementById('wmsLotsCount').textContent=num(wmsLots.length);document.getElementById('wmsScansCount').textContent=num(wmsScans.length);document.getElementById('wmsMovesCount').textContent=num(wmsMoves.length);document.getElementById('wmsUsersCount').textContent=num(wmsUsers.length);
   document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
   document.getElementById('dashboardPoBody').innerHTML=purchaseOrders.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('poBody').innerHTML=purchaseOrders.map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.description}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${currency(x.value)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('wmsReservationsBody').innerHTML=wmsReservations.map(x=>`<tr data-reservation="${x.id}"><td>${x.id}</td><td>${x.orderId}</td><td>${x.sku}</td><td>${x.lotId}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('wmsQualityBody').innerHTML=wmsQualityHolds.map(x=>`<tr data-hold="${x.id}"><td>${x.id}</td><td>${x.lotId}</td><td>${x.sku}</td><td>${x.reason}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('wmsLotsBody').innerHTML=wmsLots.map(x=>`<tr data-lot="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.location}</td><td>${x.serial}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('wmsScansBody').innerHTML=wmsScans.map(x=>`<tr data-scan="${x.id}"><td>${x.time}</td><td>${x.type}</td><td>${x.code}</td><td>${x.user}</td><td>${badge(x.result)}</td></tr>`).join('');
+  document.getElementById('wmsMovesBody').innerHTML=wmsMoves.map(x=>`<tr><td>${x.date}</td><td>${x.sku}</td><td>${x.lotId}</td><td>${x.from}</td><td>${x.to}</td><td>${num(x.qty)}</td><td>${x.type}</td></tr>`).join('');
   const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
   document.getElementById('prodOfCount').textContent=num(manufacturingOrders.length);document.getElementById('prodVinCount').textContent=num(vehicleBuilds.length);document.getElementById('prodBomAvg').textContent=num(bomAvg);document.getElementById('prodPartsUse').textContent=num(partsUse);document.getElementById('prodInBuild').textContent=num(inBuild);document.getElementById('prodModelCount').textContent=num(masterPlan.length);
   document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.name}</td><td>${pct(x.availability)}</td><td>${pct(x.performance)}</td><td>${pct(x.quality)}</td><td>${badge(pct(x.trs))}</td></tr>`).join('');
@@ -211,8 +246,37 @@ function bindDistributionClicks(){
   document.querySelectorAll('[data-of]').forEach(tr=>tr.onclick=()=>{selectedOfId=tr.dataset.of;renderManufacturingOrderDetail(true);});
   document.querySelectorAll('[data-vin]').forEach(tr=>tr.onclick=()=>{selectedVin=tr.dataset.vin;renderVehicleBuildDetail(true);});
   document.querySelectorAll('[data-bom]').forEach(tr=>tr.onclick=()=>{selectedBomModel=tr.dataset.bom;renderBomDetail(true);});
-  renderManufacturingOrderDetail(false); renderVehicleBuildDetail(false); renderBomDetail(false);
+  document.querySelectorAll('[data-reservation]').forEach(tr=>tr.onclick=()=>{selectedReservationId=tr.dataset.reservation;renderWmsReservationDetail(true);});
+  document.querySelectorAll('[data-hold]').forEach(tr=>tr.onclick=()=>{selectedHoldId=tr.dataset.hold;renderWmsQualityDetail(true);});
+  document.querySelectorAll('[data-lot]').forEach(tr=>tr.onclick=()=>{selectedLotId=tr.dataset.lot;renderWmsLotDetail(true);});
+  document.querySelectorAll('[data-scan]').forEach(tr=>tr.onclick=()=>{selectedScanId=tr.dataset.scan;renderWmsScanDetail(true);});
+  renderManufacturingOrderDetail(false); renderVehicleBuildDetail(false); renderBomDetail(false); renderWmsReservationDetail(false);
 }
+function renderWmsReservationDetail(open=false){
+  const r=wmsReservations.find(x=>x.id===selectedReservationId)||wmsReservations[0], lot=wmsLots.find(x=>x.id===r.lotId)||wmsLots[0], hold=wmsQualityHolds.find(x=>x.lotId===r.lotId);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Réservation</div><div style="font-size:20px;font-weight:800">${r.id}</div><div class="sub">Commande ${r.orderId}</div></div><div><div class="kpi-l">VIN / Dealer</div><div>${r.vin}</div><div class="sub">${r.dealer}</div></div><div><div class="kpi-l">SKU</div><div>${r.sku}</div><div class="sub">Lot ${r.lotId}</div></div><div><div class="kpi-l">Quantité</div><div style="font-size:22px;font-weight:800">${num(r.qty)}</div></div><div><div class="kpi-l">Emplacement</div><div>${lot.location}</div><div class="sub">Série ${lot.serial}</div></div><div><div class="kpi-l">Statut</div><div>${badge(r.status)}</div><div class="sub">${hold?'Hold qualité actif':'Lot libéré'}</div></div></div>`;
+  document.getElementById('wmsDetail').innerHTML=body;
+  if(open) openSlide(`Réservation ${r.id}`, `${r.orderId} • ${r.sku}`, body);
+}
+function renderWmsQualityDetail(open=false){
+  const h=wmsQualityHolds.find(x=>x.id===selectedHoldId)||wmsQualityHolds[0], lot=wmsLots.find(x=>x.id===h.lotId)||wmsLots[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Quality hold</div><div style="font-size:20px;font-weight:800">${h.id}</div><div class="sub">${h.reason}</div></div><div><div class="kpi-l">Lot</div><div>${h.lotId}</div><div class="sub">${h.sku}</div></div><div><div class="kpi-l">Qté bloquée</div><div style="font-size:22px;font-weight:800">${num(h.qty)}</div></div><div><div class="kpi-l">Emplacement</div><div>${lot.location}</div><div class="sub">${lot.serial}</div></div><div><div class="kpi-l">Statut</div><div>${badge(h.status)}</div></div><div><div class="kpi-l">Action recommandée</div><div>${h.status==='Ouvert'?'Inspection qualité prioritaire':'Analyse en cours'}</div></div></div>`;
+  document.getElementById('wmsDetail').innerHTML=body;
+  if(open) openSlide(`Hold qualité ${h.id}`, `${h.sku} • ${h.reason}`, body);
+}
+function renderWmsLotDetail(open=false){
+  const l=wmsLots.find(x=>x.id===selectedLotId)||wmsLots[0], res=wmsReservations.filter(x=>x.lotId===l.id), hold=wmsQualityHolds.find(x=>x.lotId===l.id);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Lot</div><div style="font-size:20px;font-weight:800">${l.id}</div><div class="sub">${l.sku}</div></div><div><div class="kpi-l">Série</div><div>${l.serial}</div><div class="sub">${l.location}</div></div><div><div class="kpi-l">Qté</div><div style="font-size:22px;font-weight:800">${num(l.qty)}</div></div><div><div class="kpi-l">Réservations</div><div style="font-size:22px;font-weight:800">${num(res.length)}</div></div><div><div class="kpi-l">Disponibilité</div><div>${badge(l.status)}</div></div><div><div class="kpi-l">Qualité</div><div>${hold?badge(hold.status):badge('OK')}</div></div></div>`;
+  document.getElementById('wmsDetail').innerHTML=body;
+  if(open) openSlide(`Lot ${l.id}`, `${l.sku} • ${l.serial}`, body);
+}
+function renderWmsScanDetail(open=false){
+  const s=wmsScans.find(x=>x.id===selectedScanId)||wmsScans[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Scan</div><div style="font-size:20px;font-weight:800">${s.id}</div><div class="sub">${s.time}</div></div><div><div class="kpi-l">Type</div><div>${s.type}</div><div class="sub">Code ${s.code}</div></div><div><div class="kpi-l">Utilisateur</div><div>${s.user}</div></div><div><div class="kpi-l">Résultat</div><div>${badge(s.result)}</div></div><div><div class="kpi-l">Règle</div><div>${s.type==='EMPLACEMENT'?'Validation zone et capacité':'Traçabilité article / lot / VIN'}</div></div><div><div class="kpi-l">Suite</div><div>${s.result==='Erreur lecture'?'Re-scan requis':'Flux validé'}</div></div></div>`;
+  document.getElementById('wmsDetail').innerHTML=body;
+  if(open) openSlide(`Scan ${s.id}`, `${s.type} • ${s.code}`, body);
+}
+
 function renderDealerDetail(open=false){
   const d=dealers.find(x=>x.code===selectedDealerCode)||dealers[0],orders=vehicleOrders.filter(x=>x.dealerCode===d.code),delivered=deliveryHistory.filter(x=>x.dealer===d.name&&x.status==='Livré').length;
   const body=`<div class="detail-grid"><div><div class="kpi-l">Concessionnaire</div><div style="font-size:20px;font-weight:800">${d.name}</div><div class="sub">${d.city}, ${d.province}</div></div><div><div class="kpi-l">Contact</div><div>${d.contact}</div><div class="sub">${d.email}<br>${d.phone}</div></div><div><div class="kpi-l">Commandes ouvertes</div><div style="font-size:22px;font-weight:800">${num(orders.length)}</div></div><div><div class="kpi-l">Livré 30 jours</div><div style="font-size:22px;font-weight:800">${num(d.delivered30)}</div></div><div><div class="kpi-l">OTD</div><div style="font-size:22px;font-weight:800">${pct(d.otd)}</div></div><div><div class="kpi-l">Historique livré</div><div style="font-size:22px;font-weight:800">${num(delivered)}</div></div></div>`;
