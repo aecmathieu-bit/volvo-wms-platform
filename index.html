@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V19 - Démo premium</title>
+<title>SupplyPilot Volvo V15 - Distribution complète</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -19,42 +19,25 @@
 .slide-sub{font-size:12px;color:var(--muted);margin-top:4px}
 
 
-body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at top right, rgba(96,200,255,.14), transparent 34%),radial-gradient(circle at top left, rgba(158,141,255,.12), transparent 28%),radial-gradient(circle at bottom center, rgba(34,217,107,.08), transparent 30%);pointer-events:none;z-index:0}
-.app,.slideover,.slideover-backdrop{position:relative;z-index:1}
-.sidebar{background:linear-gradient(180deg,#090d29 0%, #0c1030 50%, #0a0f2b 100%);box-shadow:inset -1px 0 0 rgba(255,255,255,.05)}
-.main{background:linear-gradient(180deg,rgba(255,255,255,.01),rgba(255,255,255,0))}
-.logo{margin:-4px -4px 12px;padding:10px 8px 16px;position:relative}
-.logo::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,transparent,rgba(96,200,255,.35),transparent)}
-.logo-badge{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));box-shadow:0 10px 30px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.08)}
-.logo-title{font-size:19px;letter-spacing:.18em}
-.logo-sub{color:#d4ddff}
-.title{font-size:30px;letter-spacing:-.02em}
-button{background:linear-gradient(180deg,#2d3476,#22295f);border:1px solid rgba(255,255,255,.12);color:var(--txt);border-radius:11px;padding:10px 14px;font-weight:700;box-shadow:0 8px 18px rgba(0,0,0,.18)}
-button:hover{transform:translateY(-1px);box-shadow:0 12px 24px rgba(0,0,0,.22)}
-.card,.panel,.slideover{background:linear-gradient(180deg,rgba(44,51,114,.96),rgba(32,38,88,.98));box-shadow:0 18px 36px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.06)}
-.card{border-color:rgba(255,255,255,.10)}
-.card:hover{border-color:rgba(96,200,255,.18)}
-.kpi-v{letter-spacing:-.03em;text-shadow:0 0 24px rgba(96,200,255,.10)}
-.section-title{display:flex;align-items:center;gap:8px}
-.section-title::before{content:"";width:8px;height:8px;border-radius:999px;background:linear-gradient(180deg,#60c8ff,#9e8dff);box-shadow:0 0 0 6px rgba(96,200,255,.10)}
-th{background:rgba(22,27,72,.92)}
-table tr:hover td{background:rgba(255,255,255,.02)}
-#networkMap{border-radius:14px;overflow:hidden;box-shadow:0 20px 36px rgba(0,0,0,.22)}
-.panel-line strong,.panel-line span:last-child{font-weight:700}
-.toolbar{align-items:center}
-.premium-chip{display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;background:rgba(96,200,255,.10);border:1px solid rgba(96,200,255,.16);font-size:11px;color:#cfeeff;font-weight:700;margin-top:8px}
-body.presentation .sidebar{width:88px;min-width:88px;padding:14px 10px}
-body.presentation .app{grid-template-columns:88px 1fr}
-body.presentation .logo-title,body.presentation .logo-sub,body.presentation .side-label,body.presentation .panel,body.presentation .nav-btn span:first-child{display:none}
-body.presentation .logo{justify-content:center}
-body.presentation .nav-btn{justify-content:center;padding:12px 8px}
-body.presentation .count{margin:0}
-body.presentation .main{padding:20px 22px}
-body.presentation .title{font-size:34px}
+body.premium{--bg:#09111f;--bg2:#101b2f;--side:#0b1323;--card:#12203a;--card2:#0f1a2f;--line:rgba(255,255,255,.08);--muted:#9fb3d9;--txt:#f4f7ff}
+body.premium .card,body.premium .panel{box-shadow:0 14px 34px rgba(0,0,0,.24)}
+body.premium .header{padding:6px 0 8px;border-bottom:1px solid rgba(255,255,255,.05);margin-bottom:18px}
+body.premium .title{font-size:28px;letter-spacing:.02em}
+body.premium .logo-badge{background:linear-gradient(135deg,#17325d,#0f5aa6)}
+body.premium .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02)),var(--card)}
+body.premium .kpi-v{font-size:32px}
+body.presentation .app{grid-template-columns:84px 1fr}
+body.presentation .logo-title,body.presentation .logo-sub,body.presentation .side-label,body.presentation .nav-btn span:first-child,body.presentation .panel h4,body.presentation .panel .panel-line span:first-child{display:none}
+body.presentation .sidebar{padding:14px 10px}
+body.presentation .nav-btn{justify-content:center;padding:10px 6px}
+body.presentation .count{margin-left:0}
+body.presentation .panel-line{justify-content:center}
+body.presentation .panel .panel-line strong{display:block}
+body.presentation .panel{padding:10px}
 
 </style>
 </head>
-<body>
+<body class="premium">
 <div class="app">
   <aside class="sidebar">
     <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V15</div></div></div>
@@ -71,7 +54,7 @@ body.presentation .title{font-size:34px}
     <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
   </aside>
   <main class="main">
-    <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Version démo premium.</div><div class="premium-chip">Volvo premium demo</div></div><div class="toolbar"><button id="presentBtn">Mode présentation</button><button id="regenBtn">Régénérer données</button></div></div>
+    <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable avec distribution complète.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button><button id="presentationBtn">Mode présentation</button><button id="premiumBtn">Look premium</button></div></div>
 
     <section class="page" id="page-dashboard">
       <div class="grid-kpi">
@@ -416,7 +399,6 @@ document.getElementById('closeSlide').addEventListener('click',closeSlide);
 document.getElementById('slideoverBackdrop').addEventListener('click',closeSlide);
 document.getElementById('createPoBtn').addEventListener('click',createPO);
 document.getElementById('regenBtn').addEventListener('click',()=>{generateData();renderAll();setPage('dashboard');});
-document.getElementById('presentBtn').addEventListener('click',()=>{document.body.classList.toggle('presentation');setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},220);});
 generateData();renderAll();window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
 </script>
 </body>
