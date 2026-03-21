@@ -399,6 +399,8 @@ document.getElementById('closeSlide').addEventListener('click',closeSlide);
 document.getElementById('slideoverBackdrop').addEventListener('click',closeSlide);
 document.getElementById('createPoBtn').addEventListener('click',createPO);
 document.getElementById('regenBtn').addEventListener('click',()=>{generateData();renderAll();setPage('dashboard');});
+document.getElementById('presentationBtn').addEventListener('click',()=>{document.body.classList.toggle('presentation');setTimeout(()=>{resizeCharts&&resizeCharts();if(typeof refreshVisibleVisuals==='function')refreshVisibleVisuals();if(typeof networkMap!=='undefined'&&networkMap)networkMap.invalidateSize();},180);});
+document.getElementById('premiumBtn').addEventListener('click',()=>{document.body.classList.toggle('premium');setTimeout(()=>{resizeCharts&&resizeCharts();if(typeof refreshVisibleVisuals==='function')refreshVisibleVisuals();if(typeof networkMap!=='undefined'&&networkMap)networkMap.invalidateSize();},180);});
 generateData();renderAll();window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
 </script>
 </body>
