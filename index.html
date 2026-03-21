@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V17 - WMS avancé</title>
+<title>SupplyPilot Volvo V15 - Distribution complète</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -23,18 +23,18 @@
 <body>
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V17</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V15</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
       <button class="nav-btn" data-page="inventory"><span>Inventaire</span><span class="count" id="navInventory">0</span></button>
       <button class="nav-btn" data-page="procurement"><span>Approvisionnement</span><span class="count" id="navPO">0</span></button>
-      <button class="nav-btn" data-page="wms"><span>WMS avancé</span><span class="count" id="navWms">0</span></button>
       <button class="nav-btn" data-page="production"><span>Production</span><span class="count" id="navProd">0%</span></button>
       <button class="nav-btn" data-page="distribution"><span>Distribution</span><span class="count" id="navDist">0</span></button>
       <button class="nav-btn" data-page="map"><span>Carte réseau</span><span class="count" id="navMap">0</span></button>
+      <button class="nav-btn" data-page="governance"><span>Gestion / Gouvernance</span><span class="count" id="navGov">0</span></button>
     </div>
-    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Réservations</span><strong id="sideReservations">0</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
+    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
   </aside>
   <main class="main">
     <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable avec distribution complète.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button></div></div>
@@ -65,32 +65,6 @@
     <section class="page hidden" id="page-procurement">
       <div class="card" style="margin-bottom:12px"><div class="section-title">Créer une PO</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="poSkuInput" placeholder="SKU ex: VOL-0001"><button id="createPoBtn">Créer PO</button></div></div>
       <div class="card"><div class="section-title">Purchase Orders</div><div class="table-wrap"><table><thead><tr><th>PO</th><th>SKU</th><th>Description</th><th>Fournisseur</th><th>Qté</th><th>Valeur</th><th>Statut</th></tr></thead><tbody id="poBody"></tbody></table></div></div>
-    </section>
-
-    <section class="page hidden" id="page-wms">
-      <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">Réservations</div><div class="kpi-v" id="wmsReservationsCount">0</div><div class="kpi-s">Stock réservé commandes</div></div>
-        <div class="card"><div class="kpi-l">Quarantaine</div><div class="kpi-v" id="wmsQuarantineCount">0</div><div class="kpi-s">Lots bloqués qualité</div></div>
-        <div class="card"><div class="kpi-l">Lots / séries</div><div class="kpi-v" id="wmsLotsCount">0</div><div class="kpi-s">Traçabilité active</div></div>
-        <div class="card"><div class="kpi-l">Scans</div><div class="kpi-v" id="wmsScansCount">0</div><div class="kpi-s">Simulations code-barres</div></div>
-        <div class="card"><div class="kpi-l">Mouvements</div><div class="kpi-v" id="wmsMovesCount">0</div><div class="kpi-s">Journal complet</div></div>
-        <div class="card"><div class="kpi-l">Utilisateurs WMS</div><div class="kpi-v" id="wmsUsersCount">0</div><div class="kpi-s">Rôles opérationnels</div></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card"><div class="section-title">Réservation de stock par commande</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Réservation</th><th>Commande</th><th>SKU</th><th>Lot</th><th>Qté</th><th>Statut</th></tr></thead><tbody id="wmsReservationsBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Quarantaine / contrôle qualité</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Hold</th><th>Lot</th><th>SKU</th><th>Raison</th><th>Qté</th><th>Statut</th></tr></thead><tbody id="wmsQualityBody"></tbody></table></div></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card"><div class="section-title">Lots / séries</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Lot</th><th>SKU</th><th>Emplacement</th><th>Série</th><th>Qté</th><th>Disponibilité</th></tr></thead><tbody id="wmsLotsBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Scan code-barres simulé</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Heure</th><th>Type</th><th>Code</th><th>Utilisateur</th><th>Résultat</th></tr></thead><tbody id="wmsScansBody"></tbody></table></div></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card"><div class="section-title">Journal complet des mouvements</div><div class="table-wrap"><table><thead><tr><th>Date</th><th>SKU</th><th>Lot</th><th>De</th><th>Vers</th><th>Qté</th><th>Type</th></tr></thead><tbody id="wmsMovesBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Fiche WMS</div><div class="detail-box" id="wmsDetail"></div></div>
-      </div>
     </section>
 
     <section class="page hidden" id="page-production">
@@ -165,6 +139,53 @@
   </main>
 </div>
 
+
+    <section class="page hidden" id="page-governance">
+      <div class="kpi-grid">
+        <div class="card"><div class="kpi-l">Utilisateurs</div><div class="kpi-v" id="govUsers">0</div><div class="kpi-s">Actifs dans la plateforme</div></div>
+        <div class="card"><div class="kpi-l">Approbations ouvertes</div><div class="kpi-v" id="govApprovals">0</div><div class="kpi-s">En attente d'action</div></div>
+        <div class="card"><div class="kpi-l">Notifications</div><div class="kpi-v" id="govNotifications">0</div><div class="kpi-s">Centre d'alertes</div></div>
+        <div class="card"><div class="kpi-l">Actions utilisateurs</div><div class="kpi-v" id="govActions">0</div><div class="kpi-s">Journal complet</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title">Utilisateurs et rôles</div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Nom</th><th>Rôle</th><th>Département</th><th>Dernière action</th><th>Statut</th></tr></thead><tbody id="usersBody"></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">Approbations</div>
+          <div class="table-wrap">
+            <table><thead><tr><th>ID</th><th>Type</th><th>Département</th><th>Responsable</th><th>Statut</th></tr></thead><tbody id="approvalsBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="section-title">Centre de notifications</div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Date</th><th>Source</th><th>Message</th><th>Priorité</th></tr></thead><tbody id="govNotificationsBody"></tbody></table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">KPI par département</div>
+          <div class="table-wrap">
+            <table><thead><tr><th>Département</th><th>KPI principal</th><th>Valeur</th><th>Tendance</th></tr></thead><tbody id="deptKpiBody"></tbody></table>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="section-title">Journal des actions utilisateurs</div>
+        <div class="table-wrap">
+          <table><thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Module</th><th>Détail</th></tr></thead><tbody id="userActionsBody"></tbody></table>
+        </div>
+      </div>
+    </section>
+
 <div class="slideover-backdrop" id="slideoverBackdrop"></div>
 <div class="slideover" id="slideover">
   <div class="slide-head">
@@ -178,8 +199,8 @@
 </div>
 
 <script>
-const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},wms:{title:"WMS avancé",sub:"Réservations, qualité, lots, scans et journal complet des mouvements."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."}};
-let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],wmsReservations=[],wmsQualityHolds=[],wmsLots=[],wmsScans=[],wmsMoves=[],wmsUsers=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedReservationId=null,selectedHoldId=null,selectedLotId=null,selectedScanId=null;
+const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
+let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null;
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -190,7 +211,7 @@ function badge(status){if(['OK','Disponible','Complété','Livré','Livrée','Co
 function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
-  inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; wmsReservations=[]; wmsQualityHolds=[]; wmsLots=[]; wmsScans=[]; wmsMoves=[]; wmsUsers=[];
+  inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
   for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,price,value:stock*price,alert:stock<40?'Critique':stock<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
   purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>({id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty:rand(10,80),value:rand(10,80)*x.price,status:i%3===0?'BROUILLON':'OUVERTE'}));
   productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
@@ -204,34 +225,43 @@ function generateData(){
   routes=dealers.map((d,i)=>{const carrier=transporters[i%transporters.length],util=rand(62,100),status=i%5===0?'Retard':i%3===0?'Planifiée':'En transit',eta=`${rand(4,48)} h`,truck=`TRK-${String(200+i).padStart(3,'0')}`;return{id:`RTE-${String(i+1).padStart(3,'0')}`,dealer:d.name,dealerCode:d.code,transporteur:carrier.name,carrierType:carrier.type,capacity:carrier.capacity,utilization:util,truck,eta,status,lat:d.lat,lng:d.lng,stopCount:1,alert:status==='Retard'?'Retard météo / trafic':'Aucune'};});
   vehicleOrders=Array.from({length:24},(_,i)=>{const dealer=dealers[i%dealers.length],route=routes[i%routes.length],model=pick(models),vin=makeVin(100+i),status=['Prévue','En production','À quai','Expédié','Livré'][i%5],eta=route.eta,pod=status==='Livré'?(i%2===0?'Reçue':'Signée'): 'En attente';return{id:`SO-${String(3001+i).padStart(5,'0')}`,vin,model,color:pick(colors),dealerCode:dealer.code,dealer:dealer.name,routeId:route.id,eta,status,pod,carrier:route.transporteur,price:rand(168000,245000)};});
   deliveryHistory=vehicleOrders.slice(0,18).map((o,i)=>({date:`2026-03-${String((i%18)+1).padStart(2,'0')}`,dealer:o.dealer,vin:o.vin,routeId:o.routeId,status:i%4===0?'Retard':i%3===0?'Livré':'En transit'}));
-  // WMS advanced seeded data
-  wmsUsers=[
-    {id:'USR-001',name:'Marie Gagnon',role:'Superviseure WMS',shift:'Jour'},
-    {id:'USR-002',name:'Alex Roy',role:'Cariste',shift:'Jour'},
-    {id:'USR-003',name:'Nicolas Tremblay',role:'Qualité',shift:'Soir'},
-    {id:'USR-004',name:'Sophie Bouchard',role:'Préparatrice',shift:'Jour'}
+  govUsersData=[
+    {id:'USR-001',name:'Mathieu AEC',role:'Estimateur / Admin',department:'Direction',lastAction:'Validation transport',status:'Actif'},
+    {id:'USR-002',name:'Julie Tremblay',role:'Planificatrice',department:'Manufacture',lastAction:'Ordre OF-0004',status:'Actif'},
+    {id:'USR-003',name:'Marc Gagnon',role:'Superviseur WMS',department:'Entrepôt',lastAction:'Réallocation lot 2026-041',status:'Actif'},
+    {id:'USR-004',name:'Sophie Roy',role:'Coordonnatrice transport',department:'Distribution',lastAction:'ETA route RTE-003',status:'Actif'},
+    {id:'USR-005',name:'Éric Boucher',role:'Qualité',department:'Qualité',lastAction:'Blocage qualité',status:'Actif'},
+    {id:'USR-006',name:'Nadia Côté',role:'Acheteuse',department:'Approvisionnement',lastAction:'PO-0008',status:'Actif'}
   ];
-  vehicleOrders.slice(0,24).forEach((o,i)=>{
-    const item=inventory[(i*7)%inventory.length];
-    const lotId=`LOTW-${String(i+1).padStart(4,'0')}`;
-    wmsLots.push({id:lotId,sku:item.sku,location:item.location,serial:`SER-${2026}${String(1000+i).padStart(4,'0')}`,qty:rand(4,28),status:i%6===0?'Quarantaine':i%4===0?'Réservé':'Disponible'});
-    wmsReservations.push({id:`RES-${String(i+1).padStart(4,'0')}`,orderId:o.id,vin:o.vin,dealer:o.dealer,sku:item.sku,lotId,qty:rand(1,4),status:i%5===0?'Allouée':i%3===0?'Prélevée':'Réservée'});
-  });
-  wmsLots.filter((l,idx)=>idx%6===0).slice(0,8).forEach((l,i)=>{
-    wmsQualityHolds.push({id:`HOLD-${String(i+1).padStart(3,'0')}`,lotId:l.id,sku:l.sku,reason:i%2===0?'Inspection visuelle':'Écart dimensionnel',qty:rand(1,6),status:i%3===0?'En analyse':'Ouvert'});
-  });
-  const scanTypes=['SKU','EMPLACEMENT','LOT','VIN'];
-  for(let i=1;i<=18;i++){
-    const lot=wmsLots[(i-1)%wmsLots.length];
-    const user=wmsUsers[(i-1)%wmsUsers.length];
-    wmsScans.push({id:`SCN-${String(i).padStart(4,'0')}`,time:`2026-03-${String((i%9)+11).padStart(2,'0')} ${String(7+(i%10)).padStart(2,'0')}:${String((i*7)%60).padStart(2,'0')}`,type:scanTypes[i%scanTypes.length],code:i%4===0?lot.serial:i%4===1?lot.location:i%4===2?lot.id:lot.sku,user:user.name,result:i%7===0?'Erreur lecture':i%5===0?'Avertissement':'OK'});
-  }
-  const moveTypes=['Putaway','Réappro','Transfert','Picking','Cycle count'];
-  for(let i=1;i<=28;i++){
-    const lot=wmsLots[(i-1)%wmsLots.length];
-    wmsMoves.push({date:`2026-03-${String((i%9)+10).padStart(2,'0')} ${String(6+(i%12)).padStart(2,'0')}:${String((i*11)%60).padStart(2,'0')}`,sku:lot.sku,lotId:lot.id,from:i%5===0?'QC-HOLD':i%2===0?'DOCK-01':lot.location,to:i%5===0?lot.location:i%2===0?lot.location:'LINE-FEED',qty:rand(1,8),type:moveTypes[i%moveTypes.length]});
-  }
-  selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model; selectedReservationId=wmsReservations[0].id; selectedHoldId=wmsQualityHolds[0].id; selectedLotId=wmsLots[0].id; selectedScanId=wmsScans[0].id;
+  govApprovalsData=[
+    {id:'APP-001',type:'PO > 250k$',department:'Approvisionnement',owner:'Mathieu AEC',status:'Ouvert'},
+    {id:'APP-002',type:'Déblocage qualité',department:'Qualité',owner:'Éric Boucher',status:'En revue'},
+    {id:'APP-003',type:'Route urgente',department:'Distribution',owner:'Sophie Roy',status:'Ouvert'},
+    {id:'APP-004',type:'Ajustement inventaire',department:'Entrepôt',owner:'Marc Gagnon',status:'Approuvé'}
+  ];
+  govNotificationsData=[
+    {id:'NTF-001',date:'2026-03-21 08:10',source:'Distribution',message:'RTE-003 sous surveillance météo',priority:'Moyenne'},
+    {id:'NTF-002',date:'2026-03-21 08:22',source:'Qualité',message:'LOT-2026-0041 en quarantaine',priority:'Élevée'},
+    {id:'NTF-003',date:'2026-03-21 08:34',source:'Approvisionnement',message:'PO-0008 dépasse le seuil d’approbation',priority:'Élevée'},
+    {id:'NTF-004',date:'2026-03-21 09:05',source:'Manufacture',message:'OF-0004 replanifié sur ligne Cabine',priority:'Faible'}
+  ];
+  deptKpiData=[
+    {department:'Manufacture',kpi:'TRS',value:pct(productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length),trend:'Stable'},
+    {department:'Entrepôt',kpi:'Articles critiques',value:num(inventory.filter(x=>x.alert==='Critique').length),trend:'À réduire'},
+    {department:'Distribution',kpi:'Routes en retard',value:num(routes.filter(x=>x.status==='Retard').length),trend:'Sous contrôle'},
+    {department:'Approvisionnement',kpi:'PO ouvertes',value:num(purchaseOrders.length),trend:'Suivi quotidien'},
+    {department:'Qualité',kpi:'Lots bloqués',value:'4',trend:'À surveiller'}
+  ];
+  userActionsData=[
+    {date:'2026-03-21 08:00',user:'Mathieu AEC',action:'Validation approvisionnement',module:'Approvisionnement',detail:'APP-001'},
+    {date:'2026-03-21 08:18',user:'Julie Tremblay',action:'Replanification OF',module:'Manufacture',detail:'OF-0004'},
+    {date:'2026-03-21 08:27',user:'Marc Gagnon',action:'Ajustement lot',module:'WMS',detail:'LOT-2026-0041'},
+    {date:'2026-03-21 08:41',user:'Sophie Roy',action:'Mise à jour ETA',module:'Distribution',detail:'RTE-003'},
+    {date:'2026-03-21 09:03',user:'Éric Boucher',action:'Blocage qualité',module:'Qualité',detail:'HOLD-009'},
+    {date:'2026-03-21 09:16',user:'Nadia Côté',action:'Création PO',module:'Approvisionnement',detail:'PO-0008'}
+  ];
+  selectedUserId=govUsersData[0].id; selectedApprovalId=govApprovalsData[0].id; selectedNotificationId=govNotificationsData[0].id;
+  selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model;
 }
 function renderAll(){
   const totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
@@ -239,17 +269,9 @@ function renderAll(){
   document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(purchaseOrders.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
   document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(purchaseOrders.length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
-  document.getElementById('sideReservations').textContent=num(wmsReservations.length);
-  document.getElementById('navWms').textContent=num(wmsReservations.length+wmsQualityHolds.length);
-  document.getElementById('wmsReservationsCount').textContent=num(wmsReservations.length);document.getElementById('wmsQuarantineCount').textContent=num(wmsQualityHolds.length);document.getElementById('wmsLotsCount').textContent=num(wmsLots.length);document.getElementById('wmsScansCount').textContent=num(wmsScans.length);document.getElementById('wmsMovesCount').textContent=num(wmsMoves.length);document.getElementById('wmsUsersCount').textContent=num(wmsUsers.length);
   document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
   document.getElementById('dashboardPoBody').innerHTML=purchaseOrders.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('poBody').innerHTML=purchaseOrders.map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.description}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${currency(x.value)}</td><td>${badge(x.status)}</td></tr>`).join('');
-  document.getElementById('wmsReservationsBody').innerHTML=wmsReservations.map(x=>`<tr data-reservation="${x.id}"><td>${x.id}</td><td>${x.orderId}</td><td>${x.sku}</td><td>${x.lotId}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
-  document.getElementById('wmsQualityBody').innerHTML=wmsQualityHolds.map(x=>`<tr data-hold="${x.id}"><td>${x.id}</td><td>${x.lotId}</td><td>${x.sku}</td><td>${x.reason}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
-  document.getElementById('wmsLotsBody').innerHTML=wmsLots.map(x=>`<tr data-lot="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.location}</td><td>${x.serial}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
-  document.getElementById('wmsScansBody').innerHTML=wmsScans.map(x=>`<tr data-scan="${x.id}"><td>${x.time}</td><td>${x.type}</td><td>${x.code}</td><td>${x.user}</td><td>${badge(x.result)}</td></tr>`).join('');
-  document.getElementById('wmsMovesBody').innerHTML=wmsMoves.map(x=>`<tr><td>${x.date}</td><td>${x.sku}</td><td>${x.lotId}</td><td>${x.from}</td><td>${x.to}</td><td>${num(x.qty)}</td><td>${x.type}</td></tr>`).join('');
   const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
   document.getElementById('prodOfCount').textContent=num(manufacturingOrders.length);document.getElementById('prodVinCount').textContent=num(vehicleBuilds.length);document.getElementById('prodBomAvg').textContent=num(bomAvg);document.getElementById('prodPartsUse').textContent=num(partsUse);document.getElementById('prodInBuild').textContent=num(inBuild);document.getElementById('prodModelCount').textContent=num(masterPlan.length);
   document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.name}</td><td>${pct(x.availability)}</td><td>${pct(x.performance)}</td><td>${pct(x.quality)}</td><td>${badge(pct(x.trs))}</td></tr>`).join('');
@@ -264,7 +286,14 @@ function renderAll(){
   document.getElementById('routesBody').innerHTML=routes.map(x=>`<tr data-route="${x.id}"><td>${x.id}</td><td>${x.transporteur}</td><td>${x.truck}</td><td>${num(x.capacity)}</td><td>${pct(x.utilization)}</td><td>${x.eta}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('historyBody').innerHTML=deliveryHistory.map(x=>`<tr><td>${x.date}</td><td>${x.dealer}</td><td>${x.vin}</td><td>${x.routeId}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('notificationsBody').innerHTML=routes.map(x=>`<tr><td>${x.id}</td><td>${x.alert}</td><td>${x.eta}</td><td>${x.status==='Retard'?'Replanifier':'Surveiller'}</td></tr>`).join('');
-  bindDistributionClicks(); renderDealerDetail(); renderRouteDetail(); renderOrderTimeline(); refreshVisibleVisuals();
+  document.getElementById('navGov').textContent=num(govApprovalsData.filter(x=>x.status!=='Approuvé').length);
+  document.getElementById('govUsers').textContent=num(govUsersData.length); document.getElementById('govApprovals').textContent=num(govApprovalsData.filter(x=>x.status!=='Approuvé').length); document.getElementById('govNotifications').textContent=num(govNotificationsData.length); document.getElementById('govActions').textContent=num(userActionsData.length);
+  document.getElementById('usersBody').innerHTML=govUsersData.map(x=>`<tr data-user="${x.id}"><td>${x.name}</td><td>${x.role}</td><td>${x.department}</td><td>${x.lastAction}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('approvalsBody').innerHTML=govApprovalsData.map(x=>`<tr data-approval="${x.id}"><td>${x.id}</td><td>${x.type}</td><td>${x.department}</td><td>${x.owner}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('govNotificationsBody').innerHTML=govNotificationsData.map(x=>`<tr data-notification="${x.id}"><td>${x.date}</td><td>${x.source}</td><td>${x.message}</td><td>${badge(x.priority)}</td></tr>`).join('');
+  document.getElementById('deptKpiBody').innerHTML=deptKpiData.map(x=>`<tr><td>${x.department}</td><td>${x.kpi}</td><td>${x.value}</td><td>${x.trend}</td></tr>`).join('');
+  document.getElementById('userActionsBody').innerHTML=userActionsData.map(x=>`<tr><td>${x.date}</td><td>${x.user}</td><td>${x.action}</td><td>${x.module}</td><td>${x.detail}</td></tr>`).join('');
+  bindDistributionClicks(); bindGovernanceClicks(); renderDealerDetail(); renderRouteDetail(); renderOrderTimeline(); renderUserDetail(); renderApprovalDetail(); renderNotificationDetail(); refreshVisibleVisuals();
 }
 function bindDistributionClicks(){
   document.querySelectorAll('[data-dealer]').forEach(tr=>tr.onclick=()=>{selectedDealerCode=tr.dataset.dealer;renderDealerDetail(true);});
@@ -273,35 +302,12 @@ function bindDistributionClicks(){
   document.querySelectorAll('[data-of]').forEach(tr=>tr.onclick=()=>{selectedOfId=tr.dataset.of;renderManufacturingOrderDetail(true);});
   document.querySelectorAll('[data-vin]').forEach(tr=>tr.onclick=()=>{selectedVin=tr.dataset.vin;renderVehicleBuildDetail(true);});
   document.querySelectorAll('[data-bom]').forEach(tr=>tr.onclick=()=>{selectedBomModel=tr.dataset.bom;renderBomDetail(true);});
-  document.querySelectorAll('[data-reservation]').forEach(tr=>tr.onclick=()=>{selectedReservationId=tr.dataset.reservation;renderWmsReservationDetail(true);});
-  document.querySelectorAll('[data-hold]').forEach(tr=>tr.onclick=()=>{selectedHoldId=tr.dataset.hold;renderWmsQualityDetail(true);});
-  document.querySelectorAll('[data-lot]').forEach(tr=>tr.onclick=()=>{selectedLotId=tr.dataset.lot;renderWmsLotDetail(true);});
-  document.querySelectorAll('[data-scan]').forEach(tr=>tr.onclick=()=>{selectedScanId=tr.dataset.scan;renderWmsScanDetail(true);});
-  renderManufacturingOrderDetail(false); renderVehicleBuildDetail(false); renderBomDetail(false); renderWmsReservationDetail(false);
+  renderManufacturingOrderDetail(false); renderVehicleBuildDetail(false); renderBomDetail(false);
 }
-function renderWmsReservationDetail(open=false){
-  const r=wmsReservations.find(x=>x.id===selectedReservationId)||wmsReservations[0], lot=wmsLots.find(x=>x.id===r.lotId)||wmsLots[0], hold=wmsQualityHolds.find(x=>x.lotId===r.lotId);
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Réservation</div><div style="font-size:20px;font-weight:800">${r.id}</div><div class="sub">Commande ${r.orderId}</div></div><div><div class="kpi-l">VIN / Dealer</div><div>${r.vin}</div><div class="sub">${r.dealer}</div></div><div><div class="kpi-l">SKU</div><div>${r.sku}</div><div class="sub">Lot ${r.lotId}</div></div><div><div class="kpi-l">Quantité</div><div style="font-size:22px;font-weight:800">${num(r.qty)}</div></div><div><div class="kpi-l">Emplacement</div><div>${lot.location}</div><div class="sub">Série ${lot.serial}</div></div><div><div class="kpi-l">Statut</div><div>${badge(r.status)}</div><div class="sub">${hold?'Hold qualité actif':'Lot libéré'}</div></div></div>`;
-  document.getElementById('wmsDetail').innerHTML=body;
-  if(open) openSlide(`Réservation ${r.id}`, `${r.orderId} • ${r.sku}`, body);
-}
-function renderWmsQualityDetail(open=false){
-  const h=wmsQualityHolds.find(x=>x.id===selectedHoldId)||wmsQualityHolds[0], lot=wmsLots.find(x=>x.id===h.lotId)||wmsLots[0];
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Quality hold</div><div style="font-size:20px;font-weight:800">${h.id}</div><div class="sub">${h.reason}</div></div><div><div class="kpi-l">Lot</div><div>${h.lotId}</div><div class="sub">${h.sku}</div></div><div><div class="kpi-l">Qté bloquée</div><div style="font-size:22px;font-weight:800">${num(h.qty)}</div></div><div><div class="kpi-l">Emplacement</div><div>${lot.location}</div><div class="sub">${lot.serial}</div></div><div><div class="kpi-l">Statut</div><div>${badge(h.status)}</div></div><div><div class="kpi-l">Action recommandée</div><div>${h.status==='Ouvert'?'Inspection qualité prioritaire':'Analyse en cours'}</div></div></div>`;
-  document.getElementById('wmsDetail').innerHTML=body;
-  if(open) openSlide(`Hold qualité ${h.id}`, `${h.sku} • ${h.reason}`, body);
-}
-function renderWmsLotDetail(open=false){
-  const l=wmsLots.find(x=>x.id===selectedLotId)||wmsLots[0], res=wmsReservations.filter(x=>x.lotId===l.id), hold=wmsQualityHolds.find(x=>x.lotId===l.id);
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Lot</div><div style="font-size:20px;font-weight:800">${l.id}</div><div class="sub">${l.sku}</div></div><div><div class="kpi-l">Série</div><div>${l.serial}</div><div class="sub">${l.location}</div></div><div><div class="kpi-l">Qté</div><div style="font-size:22px;font-weight:800">${num(l.qty)}</div></div><div><div class="kpi-l">Réservations</div><div style="font-size:22px;font-weight:800">${num(res.length)}</div></div><div><div class="kpi-l">Disponibilité</div><div>${badge(l.status)}</div></div><div><div class="kpi-l">Qualité</div><div>${hold?badge(hold.status):badge('OK')}</div></div></div>`;
-  document.getElementById('wmsDetail').innerHTML=body;
-  if(open) openSlide(`Lot ${l.id}`, `${l.sku} • ${l.serial}`, body);
-}
-function renderWmsScanDetail(open=false){
-  const s=wmsScans.find(x=>x.id===selectedScanId)||wmsScans[0];
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Scan</div><div style="font-size:20px;font-weight:800">${s.id}</div><div class="sub">${s.time}</div></div><div><div class="kpi-l">Type</div><div>${s.type}</div><div class="sub">Code ${s.code}</div></div><div><div class="kpi-l">Utilisateur</div><div>${s.user}</div></div><div><div class="kpi-l">Résultat</div><div>${badge(s.result)}</div></div><div><div class="kpi-l">Règle</div><div>${s.type==='EMPLACEMENT'?'Validation zone et capacité':'Traçabilité article / lot / VIN'}</div></div><div><div class="kpi-l">Suite</div><div>${s.result==='Erreur lecture'?'Re-scan requis':'Flux validé'}</div></div></div>`;
-  document.getElementById('wmsDetail').innerHTML=body;
-  if(open) openSlide(`Scan ${s.id}`, `${s.type} • ${s.code}`, body);
+function bindGovernanceClicks(){
+  document.querySelectorAll('[data-user]').forEach(tr=>tr.onclick=()=>{selectedUserId=tr.dataset.user;renderUserDetail(true);});
+  document.querySelectorAll('[data-approval]').forEach(tr=>tr.onclick=()=>{selectedApprovalId=tr.dataset.approval;renderApprovalDetail(true);});
+  document.querySelectorAll('[data-notification]').forEach(tr=>tr.onclick=()=>{selectedNotificationId=tr.dataset.notification;renderNotificationDetail(true);});
 }
 
 function renderDealerDetail(open=false){
@@ -339,6 +345,23 @@ function renderBomDetail(open=false){
   const rows=b.topParts.map((p,i)=>`<div class="timeline-row"><div class="sub">Famille ${i+1}</div><div><strong>${p}</strong><div class="sub">Consommation planifiée ${num(Math.round(b.consumptionDay/(i+2)))}/jour</div></div></div>`).join('');
   const body=`<div class="detail-grid"><div><div class="kpi-l">Modèle</div><div style="font-size:20px;font-weight:800">${b.model}</div><div class="sub">Nomenclature principale</div></div><div><div class="kpi-l">Familles</div><div style="font-size:22px;font-weight:800">${num(b.families)}</div></div><div><div class="kpi-l">Pièces BOM</div><div style="font-size:22px;font-weight:800">${num(b.bomParts)}</div></div><div><div class="kpi-l">Consommation/jour</div><div style="font-size:22px;font-weight:800">${num(b.consumptionDay)}</div></div><div><div class="kpi-l">Articles critiques</div><div>${badge(b.critical)}</div></div><div><div class="kpi-l">Risque</div><div>${b.critical>5?'Surveiller approvisionnement':'Niveau acceptable'}</div></div></div><div style="margin-top:12px">${rows}</div>`;
   if(open){openSlide(`BOM ${b.model}`, `Nomenclature et consommation`, body);}
+}
+
+
+function renderUserDetail(open=false){
+  const u=govUsersData.find(x=>x.id===selectedUserId)||govUsersData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Utilisateur</div><div style="font-size:20px;font-weight:800">${u.name}</div><div class="sub">${u.id}</div></div><div><div class="kpi-l">Rôle</div><div>${u.role}</div><div class="sub">${u.department}</div></div><div><div class="kpi-l">Dernière action</div><div>${u.lastAction}</div><div class="sub">${u.status}</div></div><div><div class="kpi-l">Portée</div><div>${u.department==='Direction'?'Inter-départements':'Opérationnelle'}</div></div></div>`;
+  if(open){openSlide(`Utilisateur ${u.id}`, u.name, body);}
+}
+function renderApprovalDetail(open=false){
+  const a=govApprovalsData.find(x=>x.id===selectedApprovalId)||govApprovalsData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Approbation</div><div style="font-size:20px;font-weight:800">${a.id}</div><div class="sub">${a.type}</div></div><div><div class="kpi-l">Département</div><div>${a.department}</div><div class="sub">Responsable ${a.owner}</div></div><div><div class="kpi-l">Statut</div><div>${badge(a.status)}</div></div><div><div class="kpi-l">Prochaine action</div><div>${a.status==='Approuvé'?'Aucune':'Validation requise'}</div></div></div>`;
+  if(open){openSlide(`Approbation ${a.id}`, a.type, body);}
+}
+function renderNotificationDetail(open=false){
+  const n=govNotificationsData.find(x=>x.id===selectedNotificationId)||govNotificationsData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Notification</div><div style="font-size:20px;font-weight:800">${n.id}</div><div class="sub">${n.date}</div></div><div><div class="kpi-l">Source</div><div>${n.source}</div><div class="sub">${badge(n.priority)}</div></div><div><div class="kpi-l">Message</div><div>${n.message}</div></div><div><div class="kpi-l">Action suggérée</div><div>${n.priority==='Élevée'?'Escalader immédiatement':'Suivi standard'}</div></div></div>`;
+  if(open){openSlide(`Notification ${n.id}`, n.source, body);}
 }
 
 function chartOptions(percent=false){return{responsive:true,maintainAspectRatio:false,animation:false,scales:{x:{ticks:{color:'#aeb8ea'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#aeb8ea',callback:v=>percent?v+'%':v},grid:{color:'rgba(255,255,255,.09)'}}},plugins:{legend:{labels:{color:'#eef2ff'}}}}}
