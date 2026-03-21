@@ -204,7 +204,34 @@ function generateData(){
   routes=dealers.map((d,i)=>{const carrier=transporters[i%transporters.length],util=rand(62,100),status=i%5===0?'Retard':i%3===0?'Planifiée':'En transit',eta=`${rand(4,48)} h`,truck=`TRK-${String(200+i).padStart(3,'0')}`;return{id:`RTE-${String(i+1).padStart(3,'0')}`,dealer:d.name,dealerCode:d.code,transporteur:carrier.name,carrierType:carrier.type,capacity:carrier.capacity,utilization:util,truck,eta,status,lat:d.lat,lng:d.lng,stopCount:1,alert:status==='Retard'?'Retard météo / trafic':'Aucune'};});
   vehicleOrders=Array.from({length:24},(_,i)=>{const dealer=dealers[i%dealers.length],route=routes[i%routes.length],model=pick(models),vin=makeVin(100+i),status=['Prévue','En production','À quai','Expédié','Livré'][i%5],eta=route.eta,pod=status==='Livré'?(i%2===0?'Reçue':'Signée'): 'En attente';return{id:`SO-${String(3001+i).padStart(5,'0')}`,vin,model,color:pick(colors),dealerCode:dealer.code,dealer:dealer.name,routeId:route.id,eta,status,pod,carrier:route.transporteur,price:rand(168000,245000)};});
   deliveryHistory=vehicleOrders.slice(0,18).map((o,i)=>({date:`2026-03-${String((i%18)+1).padStart(2,'0')}`,dealer:o.dealer,vin:o.vin,routeId:o.routeId,status:i%4===0?'Retard':i%3===0?'Livré':'En transit'}));
-  selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model;
+  // WMS advanced seeded data
+  wmsUsers=[
+    {id:'USR-001',name:'Marie Gagnon',role:'Superviseure WMS',shift:'Jour'},
+    {id:'USR-002',name:'Alex Roy',role:'Cariste',shift:'Jour'},
+    {id:'USR-003',name:'Nicolas Tremblay',role:'Qualité',shift:'Soir'},
+    {id:'USR-004',name:'Sophie Bouchard',role:'Préparatrice',shift:'Jour'}
+  ];
+  vehicleOrders.slice(0,24).forEach((o,i)=>{
+    const item=inventory[(i*7)%inventory.length];
+    const lotId=`LOTW-${String(i+1).padStart(4,'0')}`;
+    wmsLots.push({id:lotId,sku:item.sku,location:item.location,serial:`SER-${2026}${String(1000+i).padStart(4,'0')}`,qty:rand(4,28),status:i%6===0?'Quarantaine':i%4===0?'Réservé':'Disponible'});
+    wmsReservations.push({id:`RES-${String(i+1).padStart(4,'0')}`,orderId:o.id,vin:o.vin,dealer:o.dealer,sku:item.sku,lotId,qty:rand(1,4),status:i%5===0?'Allouée':i%3===0?'Prélevée':'Réservée'});
+  });
+  wmsLots.filter((l,idx)=>idx%6===0).slice(0,8).forEach((l,i)=>{
+    wmsQualityHolds.push({id:`HOLD-${String(i+1).padStart(3,'0')}`,lotId:l.id,sku:l.sku,reason:i%2===0?'Inspection visuelle':'Écart dimensionnel',qty:rand(1,6),status:i%3===0?'En analyse':'Ouvert'});
+  });
+  const scanTypes=['SKU','EMPLACEMENT','LOT','VIN'];
+  for(let i=1;i<=18;i++){
+    const lot=wmsLots[(i-1)%wmsLots.length];
+    const user=wmsUsers[(i-1)%wmsUsers.length];
+    wmsScans.push({id:`SCN-${String(i).padStart(4,'0')}`,time:`2026-03-${String((i%9)+11).padStart(2,'0')} ${String(7+(i%10)).padStart(2,'0')}:${String((i*7)%60).padStart(2,'0')}`,type:scanTypes[i%scanTypes.length],code:i%4===0?lot.serial:i%4===1?lot.location:i%4===2?lot.id:lot.sku,user:user.name,result:i%7===0?'Erreur lecture':i%5===0?'Avertissement':'OK'});
+  }
+  const moveTypes=['Putaway','Réappro','Transfert','Picking','Cycle count'];
+  for(let i=1;i<=28;i++){
+    const lot=wmsLots[(i-1)%wmsLots.length];
+    wmsMoves.push({date:`2026-03-${String((i%9)+10).padStart(2,'0')} ${String(6+(i%12)).padStart(2,'0')}:${String((i*11)%60).padStart(2,'0')}`,sku:lot.sku,lotId:lot.id,from:i%5===0?'QC-HOLD':i%2===0?'DOCK-01':lot.location,to:i%5===0?lot.location:i%2===0?lot.location:'LINE-FEED',qty:rand(1,8),type:moveTypes[i%moveTypes.length]});
+  }
+  selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model; selectedReservationId=wmsReservations[0].id; selectedHoldId=wmsQualityHolds[0].id; selectedLotId=wmsLots[0].id; selectedScanId=wmsScans[0].id;
 }
 function renderAll(){
   const totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
