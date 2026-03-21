@@ -87,7 +87,7 @@ function setPage(page){activePage=page;document.querySelectorAll(".nav-btn").for
 function createPO(){const sku=document.getElementById("poSkuInput").value.trim().toUpperCase();if(!sku)return;const item=inventory.find(x=>x.sku===sku);if(!item){alert("SKU introuvable");return;}purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,"0")}`,sku:item.sku,description:item.description,supplier:item.supplier,qty:rand(10,60),value:rand(10,60)*item.price,status:"BROUILLON"});document.getElementById("poSkuInput").value="";renderAll();setPage("procurement");}
 document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>setPage(btn.dataset.page)));
 document.getElementById("createPoBtn").addEventListener("click",createPO);
-document.getElementById("regenBtn").addEventListener("click",()=>{generateData();renderAll();window.addEventListener("resize",()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener("load",()=>setTimeout(()=>refreshVisibleVisuals(),250));setPage("dashboard");});
+document.getElementById("regenBtn").addEventListener("click",()=>{generateData();renderAll();setPage("dashboard");});
 generateData();renderAll();window.addEventListener("resize",()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener("load",()=>setTimeout(()=>refreshVisibleVisuals(),250));
 </script>
 </body>
