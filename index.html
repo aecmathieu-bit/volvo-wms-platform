@@ -444,6 +444,10 @@ function stockAction(type){
   const qty=Math.max(0,parseInt(document.getElementById('stockActionQty')?.value||'0',10));
   if(!qty){alert('Entre une quantité valide');return;}
   const previousAlert=item.alert;
+  if(type==='add'){
+    item.available+=qty;
+    addUserAction(`Ajout de ${qty} unités sur ${item.sku}`);
+  }
   if(type==='remove'){
     if(item.available<qty){alert('Stock disponible insuffisant');return;}
     item.available-=qty;
@@ -454,10 +458,20 @@ function stockAction(type){
     item.available-=qty; item.reserved+=qty;
     addUserAction(`Réservation de ${qty} unités sur ${item.sku}`);
   }
+  if(type==='release'){
+    if(item.reserved<qty){alert('Stock réservé insuffisant');return;}
+    item.reserved-=qty; item.available+=qty;
+    addUserAction(`Libération de ${qty} unités réservées sur ${item.sku}`);
+  }
   if(type==='quarantine'){
     if(item.available<qty){alert('Stock disponible insuffisant');return;}
     item.available-=qty; item.quarantine+=qty;
     addUserAction(`Quarantaine de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='dequarantine'){
+    if(item.quarantine<qty){alert('Stock quarantaine insuffisant');return;}
+    item.quarantine-=qty; item.available+=qty;
+    addUserAction(`Sortie de quarantaine de ${qty} unités sur ${item.sku}`);
   }
   recalcItem(item);
   pushInventoryAlert(item,previousAlert,type,qty);
@@ -483,11 +497,14 @@ function renderInventoryDetail(open=false){
     <div class="section-title">Actions de stock</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
       <input id="stockActionQty" type="number" min="1" value="5" style="max-width:120px" placeholder="Qté">
+      <button onclick="stockAction('add')">Ajouter stock</button>
       <button onclick="stockAction('remove')">Retirer stock</button>
       <button onclick="stockAction('reserve')">Réserver</button>
+      <button onclick="stockAction('release')">Libérer réservation</button>
       <button onclick="stockAction('quarantine')">Mettre en quarantaine</button>
+      <button onclick="stockAction('dequarantine')">Sortir de quarantaine</button>
     </div>
-    <div class="sub">Version minimale sécuritaire : retrait, réservation et quarantaine. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
+    <div class="sub">Actions de stock complètes : ajout, retrait, réservation, libération, quarantaine et sortie de quarantaine. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
   </div>
   <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
     <div class="section-title">Historique récent</div>${history}
