@@ -37,7 +37,7 @@ body.presentation .panel{padding:10px}
 
 
 .toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:2500;pointer-events:none}
-.toast{min-width:320px;max-width:420px;background:rgba(13,16,48,.96);border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:14px;padding:12px 14px;box-shadow:0 18px 40px rgba(0,0,0,.35);pointer-events:auto}
+.toast{min-width:320px;max-width:420px;background:rgba(13,16,48,.96);border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:14px;padding:12px 14px;box-shadow:0 18px 40px rgba(0,0,0,.35);pointer-events:auto;cursor:pointer}
 .toast-title{font-weight:800;font-size:14px;margin-bottom:4px}
 .toast-sub{font-size:12px;color:var(--muted);line-height:1.4}
 .toast.warn{border-left-color:var(--orange)}
@@ -229,7 +229,7 @@ body.presentation .panel{padding:10px}
 
 <script>
 const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
-let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null;
+let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null;
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -239,14 +239,39 @@ function pct(n){return (Math.round((n||0)*10)/10).toFixed(1)+'%'}
 function badge(status){if(['OK','Disponible','Complété','Livré','Livrée','Confirmé'].includes(status))return `<span class="badge ok">${status}</span>`;if(['A surveiller','Partiel','En transit','OUVERTE','BROUILLON','Planifiée','Planifié','À quai','Assemblage','Prévue'].includes(status))return `<span class="badge warn">${status}</span>`;if(['Critique','Retard','Bloqué'].includes(status))return `<span class="badge crit">${status}</span>`;if(['En production','Inspection','Expédié'].includes(status))return `<span class="badge info">${status}</span>`;return `<span class="badge purple">${status}</span>`;}
 function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
 function nowStamp(){return new Date().toISOString().slice(0,16).replace('T',' ');}
-function showToast(title,message,level='info'){
+function showToast(title,message,level='info',onClick=null){
   const wrap=document.getElementById('toastWrap'); if(!wrap) return;
   const el=document.createElement('div');
   el.className=`toast ${level==='Critique'?'crit':level==='A surveiller'?'warn':''}`.trim();
-  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div>`;
+  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div><div class="toast-sub" style="margin-top:8px;font-weight:700;color:var(--txt)">Cliquer pour créer une PO</div>`;
+  if(typeof onClick==='function'){
+    el.addEventListener('click',()=>{ onClick(); el.remove(); });
+  }
   wrap.appendChild(el);
-  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(6px)';el.style.transition='all .25s ease';},3600);
-  setTimeout(()=>el.remove(),3950);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(6px)';el.style.transition='all .25s ease';},5200);
+  setTimeout(()=>el.remove(),5600);
+}
+function openInventoryAlertAction(sku){
+  const item=inventory.find(x=>x.sku===sku);
+  if(!item) return;
+  selectedAlertSku=sku;
+  const suggestedQty=Math.max(10, Math.ceil((90-item.available)+Math.max(10,item.reserved)));
+  const urgency=item.alert==='Critique'?'Élevée':'Moyenne';
+  const body=`<div class="detail-grid"><div><div class="kpi-l">SKU</div><div style="font-size:20px;font-weight:800">${item.sku}</div><div class="sub">${item.description}</div></div><div><div class="kpi-l">Fournisseur</div><div>${item.supplier}</div><div class="sub">Emplacement ${item.location}</div></div><div><div class="kpi-l">Disponible</div><div style="font-size:22px;font-weight:800">${num(item.available)}</div></div><div><div class="kpi-l">Réservé</div><div style="font-size:22px;font-weight:800">${num(item.reserved)}</div></div><div><div class="kpi-l">Quarantaine</div><div style="font-size:22px;font-weight:800">${num(item.quarantine)}</div></div><div><div class="kpi-l">Statut</div><div>${badge(item.alert)}</div></div><div><div class="kpi-l">Urgence</div><div>${badge(urgency)}</div></div><div><div class="kpi-l">Commande suggérée</div><input id="alertPoQty" type="number" value="${suggestedQty}" style="width:100%"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="btn orange" onclick="createPOFromAlert(false)">Créer PO brouillon</button><button class="btn blue" onclick="createPOFromAlert(true)">Créer et envoyer PO</button><button class="btn" onclick="setPage('procurement');closeSlide();">Voir approvisionnement</button></div>`;
+  openSlide(`Alerte inventaire ${item.sku}`, `${item.description} • action approvisionnement`, body);
+}
+function createPOFromAlert(sendNow=false){
+  const item=inventory.find(x=>x.sku===selectedAlertSku);
+  if(!item) return;
+  const qty=Math.max(1, parseInt(document.getElementById('alertPoQty')?.value||'0',10));
+  const status=sendNow?'ENVOYÉE':'BROUILLON';
+  purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty,value:qty*item.price,status});
+  govNotificationsData.unshift({id:`NOT-PO-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${status==='ENVOYÉE'?'PO envoyée':'PO créée'} pour ${item.sku} (${num(qty)} u.)`,priority:item.alert,module:'Procurement'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  addUserAction(`${status==='ENVOYÉE'?'Création et envoi':'Création'} de PO pour ${item.sku} (${num(qty)} u.)`);
+  renderAll();
+  setPage('procurement');
+  closeSlide();
 }
 function pushInventoryAlert(item,previousAlert,actionType,qty){
   const worsened = (previousAlert==='OK' && item.alert!=='OK') || (previousAlert==='A surveiller' && item.alert==='Critique');
@@ -254,7 +279,7 @@ function pushInventoryAlert(item,previousAlert,actionType,qty){
   const sourceAction = actionType==='remove'?'Retrait de stock':actionType==='reserve'?'Réservation':'Quarantaine';
   const title = item.alert==='Critique' ? `Alerte critique • ${item.sku}` : `Alerte inventaire • ${item.sku}`;
   const message = `${sourceAction} de ${qty} unités. Disponible ${num(item.available)} • Statut ${item.alert}.`;
-  showToast(title,message,item.alert);
+  showToast(title,message,item.alert,()=>openInventoryAlertAction(item.sku));
   govNotificationsData.unshift({id:`NOT-INV-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Inventaire',message:`${item.sku} est passé à ${item.alert.toLowerCase()} après ${sourceAction.toLowerCase()} (${qty} u.)`,priority:item.alert,module:'WMS'});
   if(govNotificationsData.length>80) govNotificationsData.pop();
 }
