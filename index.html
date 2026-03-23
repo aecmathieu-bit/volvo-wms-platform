@@ -448,6 +448,10 @@ function addUserAction(message){
   userActionsData.unshift({date:new Date().toISOString().slice(0,16).replace('T',' '),user:'Mathieu AEC',action:message,module:'WMS'});
   if(userActionsData.length>80) userActionsData.pop();
 }
+function getAdjustmentReason(){
+  return document.getElementById('stockAdjustReason')?.value || 'Ajustement inventaire';
+}
+
 function stockAction(type){
   const item=inventory.find(x=>x.sku===selectedInventorySku);
   if(!item) return;
@@ -458,10 +462,21 @@ function stockAction(type){
     item.available+=qty;
     addUserAction(`Ajout de ${qty} unités sur ${item.sku}`);
   }
+  if(type==='adjust_plus'){
+    const reason=getAdjustmentReason();
+    item.available+=qty;
+    addUserAction(`Ajustement +${qty} sur ${item.sku} • ${reason}`);
+  }
   if(type==='remove'){
     if(item.available<qty){alert('Stock disponible insuffisant');return;}
     item.available-=qty;
     addUserAction(`Retrait de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='adjust_minus'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    const reason=getAdjustmentReason();
+    item.available-=qty;
+    addUserAction(`Ajustement -${qty} sur ${item.sku} • ${reason}`);
   }
   if(type==='reserve'){
     if(item.available<qty){alert('Stock disponible insuffisant');return;}
@@ -507,14 +522,23 @@ function renderInventoryDetail(open=false){
     <div class="section-title">Actions de stock</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
       <input id="stockActionQty" type="number" min="1" value="5" style="max-width:120px" placeholder="Qté">
+      <select id="stockAdjustReason" style="max-width:220px">
+        <option value="Erreur de comptage">Erreur de comptage</option>
+        <option value="Casse / perte">Casse / perte</option>
+        <option value="Correction système">Correction système</option>
+        <option value="Réception oubliée">Réception oubliée</option>
+        <option value="Autre ajustement">Autre ajustement</option>
+      </select>
       <button onclick="stockAction('add')">Ajouter stock</button>
       <button onclick="stockAction('remove')">Retirer stock</button>
       <button onclick="stockAction('reserve')">Réserver</button>
       <button onclick="stockAction('release')">Libérer réservation</button>
       <button onclick="stockAction('quarantine')">Mettre en quarantaine</button>
       <button onclick="stockAction('dequarantine')">Sortir de quarantaine</button>
+      <button onclick="stockAction('adjust_plus')">Ajustement +</button>
+      <button onclick="stockAction('adjust_minus')">Ajustement -</button>
     </div>
-    <div class="sub">Actions de stock complètes : ajout, retrait, réservation, libération, quarantaine et sortie de quarantaine. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
+    <div class="sub">Actions de stock complètes : ajout, retrait, réservation, libération, quarantaine, sortie de quarantaine et ajustements d’inventaire avec motif. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
   </div>
   <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
     <div class="section-title">Historique récent</div>${history}
