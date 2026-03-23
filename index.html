@@ -55,6 +55,7 @@ body.presentation .panel{padding:10px}
       <button class="nav-btn" data-page="inventory"><span>Inventaire</span><span class="count" id="navInventory">0</span></button>
       <button class="nav-btn" data-page="procurement"><span>Approvisionnement</span><span class="count" id="navPO">0</span></button>
       <button class="nav-btn" data-page="receiving"><span>Réception+</span><span class="count" id="navReceiving">0</span></button>
+      <button class="nav-btn" data-page="putaway"><span>Putaway+</span><span class="count" id="navPutaway">0</span></button>
       <button class="nav-btn" data-page="production"><span>Production</span><span class="count" id="navProd">0%</span></button>
       <button class="nav-btn" data-page="distribution"><span>Distribution</span><span class="count" id="navDist">0</span></button>
       <button class="nav-btn" data-page="map"><span>Carte réseau</span><span class="count" id="navMap">0</span></button>
@@ -108,6 +109,19 @@ body.presentation .panel{padding:10px}
       <div class="grid-2">
         <div class="card"><div class="section-title">Réceptions intelligentes</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Réception</th><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Attendu</th><th>Reçu</th><th>Écart</th><th>Putaway suggéré</th><th>Statut</th></tr></thead><tbody id="receiptsBody"></tbody></table></div></div>
         <div class="card"><div class="section-title">Synthèse réception</div><div id="receivingDetail"></div></div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="page-putaway">
+      <div class="grid-kpi">
+        <div class="card"><div class="kpi-l">Tâches putaway</div><div class="kpi-v" id="putCount">0</div><div class="kpi-s">Liées aux réceptions postées</div></div>
+        <div class="card"><div class="kpi-l">À ranger</div><div class="kpi-v" id="putToStore">0</div><div class="kpi-s">En attente de rangement</div></div>
+        <div class="card"><div class="kpi-l">En cours</div><div class="kpi-v" id="putInProgress">0</div><div class="kpi-s">Traitement opérateur</div></div>
+        <div class="card"><div class="kpi-l">Rangées</div><div class="kpi-v" id="putDone">0</div><div class="kpi-s">Confirmées en emplacement</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Tâches de putaway intelligentes</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Tâche</th><th>Réception</th><th>SKU</th><th>Qté</th><th>Source</th><th>Destination</th><th>Statut</th></tr></thead><tbody id="putawayBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Synthèse putaway</div><div id="putawayDetail"></div></div>
       </div>
     </section>
 
@@ -247,8 +261,8 @@ body.presentation .panel{padding:10px}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées. Cliquer sur le statut pour le faire avancer."},receiving:{title:"Réception plus intelligente",sub:"Réception partielle, inspection, écarts et mise en stock intelligente."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
-let inventory=[],purchaseOrders=[],receipts=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null,selectedPoId=null,selectedReceiptId=null;
+const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées. Cliquer sur le statut pour le faire avancer."},receiving:{title:"Réception plus intelligente",sub:"Réception partielle, inspection, écarts et mise en stock intelligente."},putaway:{title:"Putaway intelligent",sub:"Rangement suggéré, confirmation opérateur et transfert vers emplacement final."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
+let inventory=[],purchaseOrders=[],receipts=[],putawayTasks=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null,selectedPoId=null,selectedReceiptId=null,selectedPutawayId=null;
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -305,7 +319,7 @@ function pushInventoryAlert(item,previousAlert,actionType,qty){
 
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
-  inventory=[]; purchaseOrders=[]; receipts=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
+  inventory=[]; purchaseOrders=[]; receipts=[]; putawayTasks=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
   for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);const reserved=rand(0,Math.max(1,Math.floor(stock*0.18))),quarantine=rand(0,Math.max(1,Math.floor(stock*0.08))),available=Math.max(0,stock-reserved-quarantine);
   inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,available,reserved,quarantine,price,value:stock*price,alert:available<40?'Critique':available<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
   purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>{const qty=rand(10,80),status=i%7===0?'FERMÉE':i%5===0?'ENVOYÉE':i%3===0?'BROUILLON':'OUVERTE',priority=x.alert==='Critique'?'Haute':i%2===0?'Moyenne':'Basse',urgency=x.alert==='Critique'?'Critique':status==='BROUILLON'?'Normale':'Élevée',createdAt=`2026-03-${String(rand(10,22)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`,sentAt=['ENVOYÉE','FERMÉE'].includes(status)?`2026-03-${String(rand(12,23)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,closedAt=status==='FERMÉE'?`2026-03-${String(rand(18,24)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,leadDays=rand(3,14);return{id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty,qtySuggested:qty,priority,urgency,leadDays,createdAt,sentAt,closedAt,value:qty*x.price,status};});
@@ -357,6 +371,8 @@ function generateData(){
   ];
   receipts=activePurchaseOrdersForReceipts();
   selectedReceiptId=receipts[0]?.id||null;
+  putawayTasks=buildPutawayTasksFromReceipts();
+  selectedPutawayId=putawayTasks[0]?.id||null;
   selectedUserId=govUsersData[0].id; selectedApprovalId=govApprovalsData[0].id; selectedNotificationId=govNotificationsData[0].id;
   selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model;
 }
@@ -378,7 +394,7 @@ function renderAll(){
   const activePO=purchaseOrders.filter(x=>x.status!=='FERMÉE'),closedPO=purchaseOrders.filter(x=>x.status==='FERMÉE'),totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
   document.getElementById('kpiSku').textContent=num(inventory.length);document.getElementById('kpiInv').textContent=currency(totalInv);document.getElementById('kpiPO').textContent=num(activePO.length);document.getElementById('kpiTRS').textContent=pct(avgTRS);document.getElementById('kpiDealers').textContent=num(dealers.length);document.getElementById('kpiRoutes').textContent=num(routes.length);
   document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(activePO.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
-  document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(activePO.length);document.getElementById('navReceiving').textContent=num(receipts.filter(x=>x.status!=='Postée').length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
+  document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(activePO.length);document.getElementById('navReceiving').textContent=num(receipts.filter(x=>x.status!=='Postée').length);document.getElementById('navPutaway').textContent=num(putawayTasks.filter(x=>x.status!=='Rangé').length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
   document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr onclick="selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${num(x.available)}</td><td>${num(x.reserved)}</td><td>${num(x.quarantine)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
   document.getElementById('dashboardPoBody').innerHTML=activePO.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
@@ -386,6 +402,8 @@ function renderAll(){
   document.getElementById('poClosedBody').innerHTML=closedPO.slice().reverse().map(x=>`<tr data-po="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${currency(x.value)}</td><td>${(x.createdAt||'—').slice(0,16)}</td><td>${x.closedAt||'—'}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('recCount').textContent=num(receipts.length);document.getElementById('recExpected').textContent=num(receipts.filter(x=>x.status==='Attendue').length);document.getElementById('recPartial').textContent=num(receipts.filter(x=>x.status==='Partielle').length);document.getElementById('recInspect').textContent=num(receipts.filter(x=>x.status==='Inspection').length);document.getElementById('recComplete').textContent=num(receipts.filter(x=>x.status==='Complète').length);document.getElementById('recPosted').textContent=num(receipts.filter(x=>x.status==='Postée').length);
   document.getElementById('receiptsBody').innerHTML=receipts.map(x=>`<tr data-receipt="${x.id}"><td>${x.id}</td><td>${x.poId}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.expected)}</td><td>${num(x.received)}</td><td>${num(x.variance)}</td><td>${x.putaway}</td><td><span style="cursor:pointer" title="Cliquer pour passer à l'étape suivante" onclick="event.stopPropagation();advanceReceiptStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
+  document.getElementById('putCount').textContent=num(putawayTasks.length);document.getElementById('putToStore').textContent=num(putawayTasks.filter(x=>x.status==='À ranger').length);document.getElementById('putInProgress').textContent=num(putawayTasks.filter(x=>x.status==='En cours').length);document.getElementById('putDone').textContent=num(putawayTasks.filter(x=>x.status==='Rangé').length);
+  document.getElementById('putawayBody').innerHTML=putawayTasks.map(x=>`<tr data-putaway="${x.id}"><td>${x.id}</td><td>${x.receiptId}</td><td>${x.sku}</td><td>${num(x.qty)}</td><td>${x.source}</td><td>${x.destination}</td><td><span style="cursor:pointer" title="Cliquer pour passer à l'étape suivante" onclick="event.stopPropagation();advancePutawayStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
   const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
   document.getElementById('prodOfCount').textContent=num(manufacturingOrders.length);document.getElementById('prodVinCount').textContent=num(vehicleBuilds.length);document.getElementById('prodBomAvg').textContent=num(bomAvg);document.getElementById('prodPartsUse').textContent=num(partsUse);document.getElementById('prodInBuild').textContent=num(inBuild);document.getElementById('prodModelCount').textContent=num(masterPlan.length);
   document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.name}</td><td>${pct(x.availability)}</td><td>${pct(x.performance)}</td><td>${pct(x.quality)}</td><td>${badge(pct(x.trs))}</td></tr>`).join('');
@@ -407,7 +425,7 @@ function renderAll(){
   document.getElementById('govNotificationsBody').innerHTML=govNotificationsData.map(x=>`<tr data-notification="${x.id}"><td>${x.date}</td><td>${x.source}</td><td>${x.message}</td><td>${badge(x.priority)}</td></tr>`).join('');
   document.getElementById('deptKpiBody').innerHTML=deptKpiData.map(x=>`<tr><td>${x.department}</td><td>${x.kpi}</td><td>${x.value}</td><td>${x.trend}</td></tr>`).join('');
   document.getElementById('userActionsBody').innerHTML=userActionsData.map(x=>`<tr><td>${x.date}</td><td>${x.user}</td><td>${x.action}</td><td>${x.module}</td><td>${x.detail}</td></tr>`).join('');
-  bindDistributionClicks(); bindReceivingClicks(); bindGovernanceClicks(); renderDealerDetail(); renderRouteDetail(); renderOrderTimeline(); renderReceivingDetail(); renderUserDetail(); renderApprovalDetail(); renderNotificationDetail(); refreshVisibleVisuals();
+  bindDistributionClicks(); bindReceivingClicks(); bindPutawayClicks(); bindGovernanceClicks(); renderDealerDetail(); renderRouteDetail(); renderOrderTimeline(); renderReceivingDetail(); renderPutawayDetail(); renderUserDetail(); renderApprovalDetail(); renderNotificationDetail(); refreshVisibleVisuals();
 }
 
 function bindReceivingClicks(){
@@ -432,6 +450,27 @@ function renderReceivingDetail(open=false, receiptId=null){
   if(open) openSlide(`Réception ${rec.id}`, `${rec.sku} • ${rec.supplier}`, body);
 }
 
+function bindPutawayClicks(){
+  document.querySelectorAll('[data-putaway]').forEach(tr=>{
+    tr.onclick=()=>{
+      selectedPutawayId=tr.dataset.putaway;
+      renderPutawayDetail(true, selectedPutawayId);
+    };
+  });
+}
+
+function renderPutawayDetail(open=false, putawayId=null){
+  const targetId=putawayId || selectedPutawayId;
+  const task=putawayTasks.find(x=>x.id===targetId)||putawayTasks[0];
+  if(!task){ const el=document.getElementById('putawayDetail'); if(el) el.innerHTML='<div class="sub">Aucune tâche de putaway disponible.</div>'; return; }
+  selectedPutawayId=task.id;
+  const item=inventory.find(x=>x.sku===task.sku);
+  const rec=receipts.find(x=>x.id===task.receiptId);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Tâche</div><div style="font-size:20px;font-weight:800">${task.id}</div><div class="sub">Réception ${task.receiptId}</div></div><div><div class="kpi-l">SKU</div><div>${task.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Qté</div><div style="font-size:22px;font-weight:800">${num(task.qty)}</div></div><div><div class="kpi-l">Source</div><div>${task.source}</div></div><div><div class="kpi-l">Destination suggérée</div><div>${task.suggestedBin}</div></div><div><div class="kpi-l">Destination finale</div><div>${task.destination}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(task.status)}</div></div><div><div class="kpi-l">Opérateur</div><div>${task.operator}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception liée</div><div><strong>${rec?rec.status:'—'}</strong><div class="sub">Le putaway n'est créé qu'après une réception postée</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Rangé = mise à jour de l'emplacement principal</div></div></div><div class="timeline-row"><div class="sub">Notes</div><div><strong>${task.notes}</strong></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advancePutawayStatus('${task.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${task.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const box=document.getElementById('putawayDetail'); if(box) box.innerHTML=body;
+  if(open) openSlide(`Putaway ${task.id}`, `${task.sku} • ${task.operator}`, body);
+}
+
 function advanceReceiptStatus(id){
   const rec=receipts.find(x=>x.id===id); if(!rec) return;
   const current=rec.status, next=receiptStatusNext(current);
@@ -446,12 +485,32 @@ function advanceReceiptStatus(id){
     const item=inventory.find(x=>x.sku===rec.sku);
     if(item){ item.available+=rec.received; item.stock+=rec.received; item.value=item.stock*item.price; recalcItem(item); }
     rec.posted=true;
+    ensurePutawayTaskForReceipt(rec);
   }
   govNotificationsData.unshift({id:`NOT-REC-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Réception',message:`${rec.id} : ${current} → ${next} (${rec.sku})`,priority:next==='Inspection'?'Élevée':next==='Postée'?'Faible':'Moyenne',module:'Receiving'});
   if(govNotificationsData.length>80) govNotificationsData.pop();
   addUserAction(`Réception ${rec.id} : ${current} → ${next}`);
   renderAll();
   if(activePage==='receiving') renderReceivingDetail(true, rec.id);
+}
+
+function advancePutawayStatus(id){
+  const task=putawayTasks.find(x=>x.id===id); if(!task) return;
+  const current=task.status, next=putawayStatusNext(current);
+  if(current===next) return;
+  task.status=next;
+  task.notes=next==='En cours'?'Rangement commencé par l'opérateur':'Putaway confirmé, emplacement mis à jour';
+  if(next==='Rangé'){
+    const item=inventory.find(x=>x.sku===task.sku);
+    const rec=receipts.find(x=>x.id===task.receiptId);
+    if(item){ item.location=task.destination || task.suggestedBin || item.location; }
+    if(rec){ rec.postedPutaway=true; }
+  }
+  govNotificationsData.unshift({id:`NOT-PUT-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Putaway',message:`${task.id} : ${current} → ${next} (${task.sku})`,priority:next==='Rangé'?'Faible':'Moyenne',module:'Putaway'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  addUserAction(`Putaway ${task.id} : ${current} → ${next}`);
+  renderAll();
+  if(activePage==='putaway') renderPutawayDetail(true, task.id);
 }
 
 function bindDistributionClicks(){
