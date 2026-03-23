@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V1.1 - Import / Export Excel</title>
+<title>SupplyPilot Volvo V1.2 - Sauvegarde locale</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -49,7 +49,7 @@ body.presentation .panel{padding:10px}
 <body class="premium">
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.1</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.2</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
@@ -69,7 +69,7 @@ body.presentation .panel{padding:10px}
     <div class="header">
       <div>
         <div class="title">SupplyPilot Volvo V1.1</div>
-        <div class="sub">WMS avancé + distribution + manufacture + gouvernance avec import/export Excel</div>
+        <div class="sub">WMS avancé + distribution + manufacture + gouvernance avec import/export Excel + sauvegarde locale</div>
       </div>
       <div class="toolbar">
         <button id="btnRegenerate">Régénérer données</button>
@@ -319,6 +319,8 @@ let approvals=[];
 let notifications=[];
 let departmentKpis=[];
 let userActions=[];
+
+const STORAGE_KEY='supplypilot_volvo_v1_2_local_save';
 
 const charts={};
 let networkMap=null;
@@ -629,6 +631,96 @@ function avgTrs(){
   return productionLines.reduce((a,b)=>a+Number(b.trs||0),0)/productionLines.length;
 }
 
+function getAppState(){
+  return {
+    inventory,
+    suppliers,
+    purchaseOrders,
+    receipts,
+    putawayTasks,
+    productionLines,
+    masterProductionPlan,
+    manufacturingOrders,
+    bom,
+    vehicleBuilds,
+    dealers,
+    carriers,
+    routes,
+    vehicleOrders,
+    orderHistory,
+    users,
+    approvals,
+    notifications,
+    departmentKpis,
+    userActions,
+    savedAt:new Date().toISOString(),
+    version:'V1.2'
+  };
+}
+
+function applyAppState(state){
+  inventory=Array.isArray(state.inventory)?state.inventory.map(normalizeInventoryRow):[];
+  suppliers=normalizeGenericRows(state.suppliers);
+  purchaseOrders=normalizeGenericRows(state.purchaseOrders).map(normalizePoRow);
+  receipts=normalizeGenericRows(state.receipts).map(normalizeReceiptRow);
+  putawayTasks=normalizeGenericRows(state.putawayTasks).map(normalizePutawayRow);
+  productionLines=normalizeGenericRows(state.productionLines).map(x=>({
+    line:x.line??x.Ligne??'',
+    availability:Number(x.availability??x.Disponibilite??x.Disponibilité??0),
+    performance:Number(x.performance??x.Performance??0),
+    quality:Number(x.quality??x.Qualite??x.Qualité??0),
+    trs:Number(x.trs??x.TRS??0)
+  }));
+  masterProductionPlan=normalizeGenericRows(state.masterProductionPlan);
+  manufacturingOrders=normalizeGenericRows(state.manufacturingOrders);
+  bom=normalizeGenericRows(state.bom);
+  vehicleBuilds=normalizeGenericRows(state.vehicleBuilds);
+  dealers=normalizeGenericRows(state.dealers);
+  carriers=normalizeGenericRows(state.carriers);
+  routes=normalizeGenericRows(state.routes);
+  vehicleOrders=normalizeGenericRows(state.vehicleOrders);
+  orderHistory=normalizeGenericRows(state.orderHistory);
+  users=normalizeGenericRows(state.users);
+  approvals=normalizeGenericRows(state.approvals);
+  notifications=normalizeGenericRows(state.notifications);
+  departmentKpis=normalizeGenericRows(state.departmentKpis);
+  userActions=normalizeGenericRows(state.userActions);
+
+  if(!productionLines.length || productionLines.every(x=>!Number(x.trs))){
+    productionLines=productionLines.map(x=>({...x,trs:Number((((x.availability||0)*(x.performance||0)*(x.quality||0))/10000).toFixed(1))}));
+  }
+}
+
+function saveToLocalStorage(showToast=false){
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(getAppState()));
+    if(showToast) toast('Sauvegarde locale','Les données actuelles ont été enregistrées dans ce navigateur.','info');
+  }catch(err){
+    console.error(err);
+    toast('Erreur sauvegarde','Impossible d’enregistrer la sauvegarde locale.','crit');
+  }
+}
+
+function loadFromLocalStorage(){
+  try{
+    const raw=localStorage.getItem(STORAGE_KEY);
+    if(!raw) return false;
+    const state=JSON.parse(raw);
+    if(!state || !Array.isArray(state.inventory) || !state.inventory.length) return false;
+    applyAppState(state);
+    return true;
+  }catch(err){
+    console.error(err);
+    toast('Erreur chargement','La sauvegarde locale est invalide. Retour à une base générée.','warn');
+    return false;
+  }
+}
+
+function resetAndSeedAppData(){
+  generateData();
+  saveToLocalStorage();
+}
+
 function renderDashboard(){
   const value=inventory.reduce((a,b)=>a+Number(b.value||0),0);
   const critical=inventory.filter(x=>x.alert==='Critique').slice(0,12);
@@ -868,7 +960,7 @@ function exportExcel(){
     const ws=XLSX.utils.json_to_sheet(Array.isArray(data)?data:[]);
     XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));
   });
-  XLSX.writeFile(wb,`SupplyPilot_V1.1_${today()}.xlsx`);
+  XLSX.writeFile(wb,`SupplyPilot_V1.2_${today()}.xlsx`);
   toast('Export Excel','La base de données a été exportée avec succès.','info');
 }
 
@@ -922,8 +1014,9 @@ function importExcel(file){
         productionLines=productionLines.map(x=>({...x,trs:Number((((x.availability||0)*(x.performance||0)*(x.quality||0))/10000).toFixed(1))}));
       }
 
+      saveToLocalStorage();
       renderAll();
-      toast('Import Excel','La base de données a été importée et rechargée.','info');
+      toast('Import Excel','La base de données a été importée, sauvegardée localement et rechargée.','info');
     }catch(err){
       console.error(err);
       toast('Erreur import','Le fichier Excel est invalide ou incompatible avec V1.1.','crit');
@@ -934,7 +1027,11 @@ function importExcel(file){
 
 function wireEvents(){
   document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
-  document.getElementById('btnRegenerate').addEventListener('click',()=>{generateData();renderAll();toast('Données régénérées','Un nouvel environnement de démonstration a été généré.','warn')});
+  document.getElementById('btnRegenerate').addEventListener('click',()=>{
+    resetAndSeedAppData();
+    renderAll();
+    toast('Données régénérées','Un nouvel environnement de démonstration a été généré et sauvegardé localement.','warn');
+  });
   document.getElementById('btnTheme').addEventListener('click',()=>document.body.classList.toggle('premium'));
   document.getElementById('btnPresentation').addEventListener('click',()=>{document.body.classList.toggle('presentation');setTimeout(()=>{for(const k in charts){charts[k].resize()} if(networkMap)networkMap.invalidateSize();},120)});
   document.getElementById('btnExportExcel').addEventListener('click',exportExcel);
@@ -942,9 +1039,12 @@ function wireEvents(){
   document.getElementById('excelFileInput').addEventListener('change',e=>{const file=e.target.files?.[0]; if(file) importExcel(file); e.target.value='';});
 }
 
-generateData();
+if(!loadFromLocalStorage()){
+  resetAndSeedAppData();
+}
 wireEvents();
 renderAll();
+window.addEventListener('beforeunload',()=>saveToLocalStorage());
 
 window.addEventListener('resize',()=>setTimeout(()=>{for(const k in charts){charts[k].resize()} if(networkMap)networkMap.invalidateSize();},150));
 window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
