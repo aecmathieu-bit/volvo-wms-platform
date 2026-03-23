@@ -35,6 +35,14 @@ body.presentation .panel-line{justify-content:center}
 body.presentation .panel .panel-line strong{display:block}
 body.presentation .panel{padding:10px}
 
+
+.toast-wrap{position:fixed;right:18px;bottom:18px;display:flex;flex-direction:column;gap:10px;z-index:2500;pointer-events:none}
+.toast{min-width:320px;max-width:420px;background:rgba(13,16,48,.96);border:1px solid var(--line);border-left:5px solid var(--blue);border-radius:14px;padding:12px 14px;box-shadow:0 18px 40px rgba(0,0,0,.35);pointer-events:auto}
+.toast-title{font-weight:800;font-size:14px;margin-bottom:4px}
+.toast-sub{font-size:12px;color:var(--muted);line-height:1.4}
+.toast.warn{border-left-color:var(--orange)}
+.toast.crit{border-left-color:var(--red)}
+
 </style>
 </head>
 <body class="premium">
@@ -217,6 +225,8 @@ body.presentation .panel{padding:10px}
   <div id="slideBody"></div>
 </div>
 
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
 const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
 let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null;
@@ -228,6 +238,27 @@ function num(n){return new Intl.NumberFormat('fr-CA').format(n||0)}
 function pct(n){return (Math.round((n||0)*10)/10).toFixed(1)+'%'}
 function badge(status){if(['OK','Disponible','Complété','Livré','Livrée','Confirmé'].includes(status))return `<span class="badge ok">${status}</span>`;if(['A surveiller','Partiel','En transit','OUVERTE','BROUILLON','Planifiée','Planifié','À quai','Assemblage','Prévue'].includes(status))return `<span class="badge warn">${status}</span>`;if(['Critique','Retard','Bloqué'].includes(status))return `<span class="badge crit">${status}</span>`;if(['En production','Inspection','Expédié'].includes(status))return `<span class="badge info">${status}</span>`;return `<span class="badge purple">${status}</span>`;}
 function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
+function nowStamp(){return new Date().toISOString().slice(0,16).replace('T',' ');}
+function showToast(title,message,level='info'){
+  const wrap=document.getElementById('toastWrap'); if(!wrap) return;
+  const el=document.createElement('div');
+  el.className=`toast ${level==='Critique'?'crit':level==='A surveiller'?'warn':''}`.trim();
+  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(6px)';el.style.transition='all .25s ease';},3600);
+  setTimeout(()=>el.remove(),3950);
+}
+function pushInventoryAlert(item,previousAlert,actionType,qty){
+  const worsened = (previousAlert==='OK' && item.alert!=='OK') || (previousAlert==='A surveiller' && item.alert==='Critique');
+  if(!worsened) return;
+  const sourceAction = actionType==='remove'?'Retrait de stock':actionType==='reserve'?'Réservation':'Quarantaine';
+  const title = item.alert==='Critique' ? `Alerte critique • ${item.sku}` : `Alerte inventaire • ${item.sku}`;
+  const message = `${sourceAction} de ${qty} unités. Disponible ${num(item.available)} • Statut ${item.alert}.`;
+  showToast(title,message,item.alert);
+  govNotificationsData.unshift({id:`NOT-INV-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Inventaire',message:`${item.sku} est passé à ${item.alert.toLowerCase()} après ${sourceAction.toLowerCase()} (${qty} u.)`,priority:item.alert,module:'WMS'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+}
+
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
   inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
@@ -383,6 +414,7 @@ function stockAction(type){
   if(!item) return;
   const qty=Math.max(0,parseInt(document.getElementById('stockActionQty')?.value||'0',10));
   if(!qty){alert('Entre une quantité valide');return;}
+  const previousAlert=item.alert;
   if(type==='remove'){
     if(item.available<qty){alert('Stock disponible insuffisant');return;}
     item.available-=qty;
@@ -399,6 +431,7 @@ function stockAction(type){
     addUserAction(`Quarantaine de ${qty} unités sur ${item.sku}`);
   }
   recalcItem(item);
+  pushInventoryAlert(item,previousAlert,type,qty);
   renderAll();
   renderInventoryDetail(true);
 }
