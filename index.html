@@ -76,7 +76,7 @@ body.presentation .panel{padding:10px}
     </section>
 
     <section class="page hidden" id="page-inventory">
-      <div class="card"><div class="section-title">Inventaire</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Catégorie</th><th>Fournisseur</th><th>Stock</th><th>Prix</th><th>Valeur</th><th>Alerte</th><th>Emplacement</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
+      <div class="card"><div class="section-title">Inventaire</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Catégorie</th><th>Fournisseur</th><th>Total</th><th>Disponible</th><th>Réservé</th><th>Quar.</th><th>Prix</th><th>Valeur</th><th>Alerte</th><th>Emplacement</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
     </section>
 
     <section class="page hidden" id="page-procurement">
@@ -219,7 +219,7 @@ body.presentation .panel{padding:10px}
 
 <script>
 const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
-let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null;
+let inventory=[],purchaseOrders=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null;
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -231,7 +231,8 @@ function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
   inventory=[]; purchaseOrders=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
-  for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,price,value:stock*price,alert:stock<40?'Critique':stock<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
+  for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);const reserved=rand(0,Math.max(1,Math.floor(stock*0.18))),quarantine=rand(0,Math.max(1,Math.floor(stock*0.08))),available=Math.max(0,stock-reserved-quarantine);
+  inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,available,reserved,quarantine,price,value:stock*price,alert:available<40?'Critique':available<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
   purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>({id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty:rand(10,80),value:rand(10,80)*x.price,status:i%3===0?'BROUILLON':'OUVERTE'}));
   productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
   modelPlan=models.map(m=>({model:m,units:rand(12,54)}));
@@ -288,7 +289,7 @@ function renderAll(){
   document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(purchaseOrders.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
   document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(purchaseOrders.length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
-  document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
+  document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr onclick="selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${num(x.available)}</td><td>${num(x.reserved)}</td><td>${num(x.quarantine)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
   document.getElementById('dashboardPoBody').innerHTML=purchaseOrders.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
   document.getElementById('poBody').innerHTML=purchaseOrders.map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.description}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${currency(x.value)}</td><td>${badge(x.status)}</td></tr>`).join('');
   const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
@@ -367,6 +368,70 @@ function renderBomDetail(open=false){
 }
 
 
+
+function recalcItem(item){
+  item.stock=Math.max(0,(item.available||0)+(item.reserved||0)+(item.quarantine||0));
+  item.value=item.stock*item.price;
+  item.alert=item.available<40?'Critique':item.available<90?'A surveiller':'OK';
+}
+function addUserAction(message){
+  userActionsData.unshift({date:new Date().toISOString().slice(0,16).replace('T',' '),user:'Mathieu AEC',action:message,module:'WMS'});
+  if(userActionsData.length>80) userActionsData.pop();
+}
+function stockAction(type){
+  const item=inventory.find(x=>x.sku===selectedInventorySku);
+  if(!item) return;
+  const qty=Math.max(0,parseInt(document.getElementById('stockActionQty')?.value||'0',10));
+  if(!qty){alert('Entre une quantité valide');return;}
+  if(type==='remove'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty;
+    addUserAction(`Retrait de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='reserve'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty; item.reserved+=qty;
+    addUserAction(`Réservation de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='quarantine'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty; item.quarantine+=qty;
+    addUserAction(`Quarantaine de ${qty} unités sur ${item.sku}`);
+  }
+  recalcItem(item);
+  renderAll();
+  renderInventoryDetail(true);
+}
+function renderInventoryDetail(open=false){
+  const item=inventory.find(x=>x.sku===selectedInventorySku)||inventory[0];
+  if(!item) return;
+  const related=userActionsData.filter(a=>a.action.includes(item.sku)).slice(0,6);
+  const history=related.length?related.map(a=>`<div class="timeline-row"><div class="sub">${a.date}</div><div><strong>${a.action}</strong><div class="sub">${a.user} • ${a.module}</div></div></div>`).join(''):`<div class="sub">Aucune action récente pour ce SKU.</div>`;
+  const body=`<div class="detail-grid">
+    <div><div class="kpi-l">SKU</div><div style="font-size:20px;font-weight:800">${item.sku}</div><div class="sub">${item.description}</div></div>
+    <div><div class="kpi-l">Catégorie</div><div>${item.category}</div><div class="sub">${item.supplier}</div></div>
+    <div><div class="kpi-l">Stock total</div><div style="font-size:22px;font-weight:800">${num(item.stock)}</div></div>
+    <div><div class="kpi-l">Disponible</div><div style="font-size:22px;font-weight:800">${num(item.available)}</div></div>
+    <div><div class="kpi-l">Réservé</div><div style="font-size:22px;font-weight:800">${num(item.reserved)}</div></div>
+    <div><div class="kpi-l">Quarantaine</div><div style="font-size:22px;font-weight:800">${num(item.quarantine)}</div></div>
+    <div><div class="kpi-l">Alerte</div><div>${badge(item.alert)}</div><div class="sub">Emplacement ${item.location}</div></div>
+    <div><div class="kpi-l">Lot</div><div>${item.lot}</div><div class="sub">${currency(item.value)}</div></div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+    <div class="section-title">Actions de stock</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <input id="stockActionQty" type="number" min="1" value="5" style="max-width:120px" placeholder="Qté">
+      <button onclick="stockAction('remove')">Retirer stock</button>
+      <button onclick="stockAction('reserve')">Réserver</button>
+      <button onclick="stockAction('quarantine')">Mettre en quarantaine</button>
+    </div>
+    <div class="sub">Version minimale sécuritaire : retrait, réservation et quarantaine. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+    <div class="section-title">Historique récent</div>${history}
+  </div>`;
+  if(open){openSlide(`Article ${item.sku}`, `${item.description}`, body);}
+}
 function renderUserDetail(open=false){
   const u=govUsersData.find(x=>x.id===selectedUserId)||govUsersData[0];
   const body=`<div class="detail-grid"><div><div class="kpi-l">Utilisateur</div><div style="font-size:20px;font-weight:800">${u.name}</div><div class="sub">${u.id}</div></div><div><div class="kpi-l">Rôle</div><div>${u.role}</div><div class="sub">${u.department}</div></div><div><div class="kpi-l">Dernière action</div><div>${u.lastAction}</div><div class="sub">${u.status}</div></div><div><div class="kpi-l">Portée</div><div>${u.department==='Direction'?'Inter-départements':'Opérationnelle'}</div></div></div>`;
@@ -399,8 +464,6 @@ document.getElementById('closeSlide').addEventListener('click',closeSlide);
 document.getElementById('slideoverBackdrop').addEventListener('click',closeSlide);
 document.getElementById('createPoBtn').addEventListener('click',createPO);
 document.getElementById('regenBtn').addEventListener('click',()=>{generateData();renderAll();setPage('dashboard');});
-document.getElementById('presentationBtn').addEventListener('click',()=>{document.body.classList.toggle('presentation');setTimeout(()=>{resizeCharts&&resizeCharts();if(typeof refreshVisibleVisuals==='function')refreshVisibleVisuals();if(typeof networkMap!=='undefined'&&networkMap)networkMap.invalidateSize();},180);});
-document.getElementById('premiumBtn').addEventListener('click',()=>{document.body.classList.toggle('premium');setTimeout(()=>{resizeCharts&&resizeCharts();if(typeof refreshVisibleVisuals==='function')refreshVisibleVisuals();if(typeof networkMap!=='undefined'&&networkMap)networkMap.invalidateSize();},180);});
 generateData();renderAll();window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
 </script>
 </body>
