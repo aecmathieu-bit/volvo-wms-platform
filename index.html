@@ -411,15 +411,23 @@ function renderAll(){
 }
 
 function bindReceivingClicks(){
-  document.querySelectorAll('[data-receipt]').forEach(tr=>tr.onclick=()=>{selectedReceiptId=tr.dataset.receipt;renderReceivingDetail(true);});
+  document.querySelectorAll('[data-receipt]').forEach(tr=>{
+    tr.onclick=()=>{
+      selectedReceiptId=tr.dataset.receipt;
+      renderReceivingDetail(true, selectedReceiptId);
+    };
+  });
 }
 
-function renderReceivingDetail(open=false){
-  const rec=receipts.find(x=>x.id===selectedReceiptId)||receipts[0];
+function renderReceivingDetail(open=false, receiptId=null){
+  const targetId = receiptId || selectedReceiptId;
+  const rec=receipts.find(x=>x.id===targetId)||receipts[0];
   if(!rec){ const el=document.getElementById('receivingDetail'); if(el) el.innerHTML='<div class="sub">Aucune réception disponible.</div>'; return; }
   selectedReceiptId=rec.id;
   const item=inventory.find(x=>x.sku===rec.sku);
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Réception</div><div style="font-size:20px;font-weight:800">${rec.id}</div><div class="sub">PO ${rec.poId}</div></div><div><div class="kpi-l">SKU</div><div>${rec.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Attendu</div><div style="font-size:22px;font-weight:800">${num(rec.expected)}</div></div><div><div class="kpi-l">Reçu</div><div style="font-size:22px;font-weight:800">${num(rec.received)}</div></div><div><div class="kpi-l">Écart</div><div>${badge(rec.variance===0?'OK':rec.variance<0?'Partiel':'A surveiller')}</div></div><div><div class="kpi-l">Statut</div><div>${badge(rec.status)}</div></div><div><div class="kpi-l">Putaway suggéré</div><div>${rec.putaway}</div></div><div><div class="kpi-l">Disponible actuel</div><div>${num(item?item.available:0)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception</div><div><strong>${rec.notes}</strong><div class="sub">Cliquer sur le statut dans le tableau pour avancer jusqu'à Postée</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Postée = ajout direct au disponible</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advanceReceiptStatus('${rec.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${rec.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const currentStatus = rec.status;
+  const currentNotes = rec.notes;
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Réception</div><div style="font-size:20px;font-weight:800">${rec.id}</div><div class="sub">PO ${rec.poId}</div></div><div><div class="kpi-l">SKU</div><div>${rec.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Attendu</div><div style="font-size:22px;font-weight:800">${num(rec.expected)}</div></div><div><div class="kpi-l">Reçu</div><div style="font-size:22px;font-weight:800">${num(rec.received)}</div></div><div><div class="kpi-l">Écart</div><div>${badge(rec.variance===0?'OK':rec.variance<0?'Partiel':'A surveiller')}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(currentStatus)}</div><div class="sub">Synchronisé avec le tableau</div></div><div><div class="kpi-l">Putaway suggéré</div><div>${rec.putaway}</div></div><div><div class="kpi-l">Disponible actuel</div><div>${num(item?item.available:0)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception</div><div><strong>${currentNotes}</strong><div class="sub">Statut courant : ${currentStatus}</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Postée = ajout direct au disponible</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advanceReceiptStatus('${rec.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${rec.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
   const box=document.getElementById('receivingDetail'); if(box) box.innerHTML=body;
   if(open) openSlide(`Réception ${rec.id}`, `${rec.sku} • ${rec.supplier}`, body);
 }
@@ -443,7 +451,7 @@ function advanceReceiptStatus(id){
   if(govNotificationsData.length>80) govNotificationsData.pop();
   addUserAction(`Réception ${rec.id} : ${current} → ${next}`);
   renderAll();
-  if(activePage==='receiving') renderReceivingDetail(true);
+  if(activePage==='receiving') renderReceivingDetail(true, rec.id);
 }
 
 function bindDistributionClicks(){
