@@ -517,9 +517,9 @@ function setPage(page){activePage=page;document.querySelectorAll('.nav-btn').for
 function createPO(){const sku=document.getElementById('poSkuInput').value.trim().toUpperCase();if(!sku)return;const item=inventory.find(x=>x.sku===sku);if(!item){alert('SKU introuvable');return;}purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty:rand(10,60),value:rand(10,60)*item.price,status:'BROUILLON'});document.getElementById('poSkuInput').value='';renderAll();setPage('procurement');}
 function advancePOStatus(id){
   const po=purchaseOrders.find(x=>x.id===id);
-  if(!po) return;
+  if(!po || po.status==='FERMÉE') return;
   const current=po.status;
-  const next=current==='BROUILLON'?'OUVERTE':current==='OUVERTE'?'ENVOYÉE':current==='ENVOYÉE'?'FERMÉE':'BROUILLON';
+  const next=current==='BROUILLON'?'OUVERTE':current==='OUVERTE'?'ENVOYÉE':'FERMÉE';
   po.status=next;
   govNotificationsData.unshift({id:`NOT-POST-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${po.id} : ${current} → ${next}`,priority:next==='FERMÉE'?'Faible':next==='ENVOYÉE'?'Moyenne':'Élevée',module:'Procurement'});
   addUserAction(`Transition PO ${po.id} : ${current} → ${next}`);
