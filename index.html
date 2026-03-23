@@ -325,7 +325,7 @@ function generateData(){
     {department:'Manufacture',kpi:'TRS',value:pct(productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length),trend:'Stable'},
     {department:'Entrepôt',kpi:'Articles critiques',value:num(inventory.filter(x=>x.alert==='Critique').length),trend:'À réduire'},
     {department:'Distribution',kpi:'Routes en retard',value:num(routes.filter(x=>x.status==='Retard').length),trend:'Sous contrôle'},
-    {department:'Approvisionnement',kpi:'PO ouvertes',value:num(activePOs().length),trend:'Suivi quotidien'},
+    {department:'Approvisionnement',kpi:'PO ouvertes',value:num(purchaseOrders.length),trend:'Suivi quotidien'},
     {department:'Qualité',kpi:'Lots bloqués',value:'4',trend:'À surveiller'}
   ];
   userActionsData=[
@@ -341,13 +341,13 @@ function generateData(){
 }
 function renderAll(){
   const totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
-  document.getElementById('kpiSku').textContent=num(inventory.length);document.getElementById('kpiInv').textContent=currency(totalInv);document.getElementById('kpiPO').textContent=num(activePOs().length);document.getElementById('kpiTRS').textContent=pct(avgTRS);document.getElementById('kpiDealers').textContent=num(dealers.length);document.getElementById('kpiRoutes').textContent=num(routes.length);
-  document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(activePOs().length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
-  document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(activePOs().length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
+  document.getElementById('kpiSku').textContent=num(inventory.length);document.getElementById('kpiInv').textContent=currency(totalInv);document.getElementById('kpiPO').textContent=num(purchaseOrders.length);document.getElementById('kpiTRS').textContent=pct(avgTRS);document.getElementById('kpiDealers').textContent=num(dealers.length);document.getElementById('kpiRoutes').textContent=num(routes.length);
+  document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(purchaseOrders.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
+  document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(purchaseOrders.length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
   document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr onclick="selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${num(x.available)}</td><td>${num(x.reserved)}</td><td>${num(x.quarantine)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
-  document.getElementById('dashboardPoBody').innerHTML=activePOs().slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
-  document.getElementById('poBody').innerHTML=activePOs().map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.description}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${currency(x.value)}</td><td><span style="cursor:pointer" title="Cliquer pour passer au statut suivant" onclick="advancePOStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
+  document.getElementById('dashboardPoBody').innerHTML=purchaseOrders.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('poBody').innerHTML=purchaseOrders.map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.description}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${currency(x.value)}</td><td><span style="cursor:pointer" title="Cliquer pour passer au statut suivant" onclick="advancePOStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
   const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
   document.getElementById('prodOfCount').textContent=num(manufacturingOrders.length);document.getElementById('prodVinCount').textContent=num(vehicleBuilds.length);document.getElementById('prodBomAvg').textContent=num(bomAvg);document.getElementById('prodPartsUse').textContent=num(partsUse);document.getElementById('prodInBuild').textContent=num(inBuild);document.getElementById('prodModelCount').textContent=num(masterPlan.length);
   document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.name}</td><td>${pct(x.availability)}</td><td>${pct(x.performance)}</td><td>${pct(x.quality)}</td><td>${badge(pct(x.trs))}</td></tr>`).join('');
@@ -519,8 +519,7 @@ function advancePOStatus(id){
   const po=purchaseOrders.find(x=>x.id===id);
   if(!po) return;
   const current=po.status;
-  if(current==='FERMÉE') return;
-  const next=current==='BROUILLON'?'OUVERTE':current==='OUVERTE'?'ENVOYÉE':'FERMÉE';
+  const next=current==='BROUILLON'?'OUVERTE':current==='OUVERTE'?'ENVOYÉE':current==='ENVOYÉE'?'FERMÉE':'BROUILLON';
   po.status=next;
   govNotificationsData.unshift({id:`NOT-POST-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${po.id} : ${current} → ${next}`,priority:next==='FERMÉE'?'Faible':next==='ENVOYÉE'?'Moyenne':'Élevée',module:'Procurement'});
   addUserAction(`Transition PO ${po.id} : ${current} → ${next}`);
