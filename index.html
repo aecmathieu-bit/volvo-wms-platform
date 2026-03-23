@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V15 - Distribution complète</title>
+<title>SupplyPilot Volvo V30 - Distribution complète</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -48,7 +48,7 @@ body.presentation .panel{padding:10px}
 <body class="premium">
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V15</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V30</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
@@ -392,6 +392,7 @@ function buildPutawayTasks(){
     const existing=putawayTasks.find(x=>x.receiptId===rec.id);
     if(existing) return existing;
     const item=inventory.find(it=>it.sku===rec.sku);
+    const status=i%4===0?'En cours':i%5===0?'Rangé':'À ranger';
     return {
       id:`PUT-${String(i+1).padStart(4,'0')}`,
       receiptId:rec.id,
@@ -399,8 +400,9 @@ function buildPutawayTasks(){
       qty:rec.received,
       destination:item?item.location:rec.putaway.replace('PUT-',''),
       suggested:rec.putaway.replace('PUT-',''),
-      status:i%4===0?'En cours':i%5===0?'Rangé':'À ranger',
-      posted:true
+      status,
+      posted:true,
+      postedToInventory:status==='Rangé'
     };
   });
 }
@@ -470,7 +472,7 @@ function renderReceivingDetail(open=false, receiptId=null){
   const item=inventory.find(x=>x.sku===rec.sku);
   const currentStatus = rec.status;
   const currentNotes = rec.notes;
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Réception</div><div style="font-size:20px;font-weight:800">${rec.id}</div><div class="sub">PO ${rec.poId}</div></div><div><div class="kpi-l">SKU</div><div>${rec.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Attendu</div><div style="font-size:22px;font-weight:800">${num(rec.expected)}</div></div><div><div class="kpi-l">Reçu</div><div style="font-size:22px;font-weight:800">${num(rec.received)}</div></div><div><div class="kpi-l">Écart</div><div>${badge(rec.variance===0?'OK':rec.variance<0?'Partiel':'A surveiller')}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(currentStatus)}</div><div class="sub">Synchronisé avec le tableau</div></div><div><div class="kpi-l">Putaway suggéré</div><div>${rec.putaway}</div></div><div><div class="kpi-l">Disponible actuel</div><div>${num(item?item.available:0)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception</div><div><strong>${currentNotes}</strong><div class="sub">Statut courant : ${currentStatus}</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Postée = ajout direct au disponible</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advanceReceiptStatus('${rec.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${rec.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Réception</div><div style="font-size:20px;font-weight:800">${rec.id}</div><div class="sub">PO ${rec.poId}</div></div><div><div class="kpi-l">SKU</div><div>${rec.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Attendu</div><div style="font-size:22px;font-weight:800">${num(rec.expected)}</div></div><div><div class="kpi-l">Reçu</div><div style="font-size:22px;font-weight:800">${num(rec.received)}</div></div><div><div class="kpi-l">Écart</div><div>${badge(rec.variance===0?'OK':rec.variance<0?'Partiel':'A surveiller')}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(currentStatus)}</div><div class="sub">Synchronisé avec le tableau</div></div><div><div class="kpi-l">Putaway suggéré</div><div>${rec.putaway}</div></div><div><div class="kpi-l">Disponible actuel</div><div>${num(item?item.available:0)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception</div><div><strong>${currentNotes}</strong><div class="sub">Statut courant : ${currentStatus}</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Postée = prêt pour putaway, pas encore ajouté à l'inventaire</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advanceReceiptStatus('${rec.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${rec.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
   const box=document.getElementById('receivingDetail'); if(box) box.innerHTML=body;
   if(open) openSlide(`Réception ${rec.id}`, `${rec.sku} • ${rec.supplier}`, body);
 }
@@ -486,12 +488,10 @@ function advanceReceiptStatus(id){
   rec.variance=rec.received-rec.expected;
   rec.notes=next==='Partielle'?'Réception partielle, écart à confirmer':next==='Inspection'?'Contrôle qualité requis avant mise en stock':next==='Complète'?'Réception complète, prête à poster':next==='Postée'?'Réception postée au stock et putaway suggéré':'Réception attendue';
   if(next==='Postée' && !rec.posted){
-    const item=inventory.find(x=>x.sku===rec.sku);
-    if(item){ item.available+=rec.received; item.stock+=rec.received; item.value=item.stock*item.price; recalcItem(item); }
     rec.posted=true;
     if(!putawayTasks.find(x=>x.receiptId===rec.id)){
       const item=inventory.find(x=>x.sku===rec.sku);
-      putawayTasks.unshift({id:`PUT-${String(putawayTasks.length+1).padStart(4,'0')}`,receiptId:rec.id,sku:rec.sku,qty:rec.received,destination:item?item.location:rec.putaway.replace('PUT-',''),suggested:rec.putaway.replace('PUT-',''),status:'À ranger',posted:true});
+      putawayTasks.unshift({id:`PUT-${String(putawayTasks.length+1).padStart(4,'0')}`,receiptId:rec.id,sku:rec.sku,qty:rec.received,destination:item?item.location:rec.putaway.replace('PUT-',''),suggested:rec.putaway.replace('PUT-',''),status:'À ranger',posted:true,postedToInventory:false});
       selectedPutawayId=putawayTasks[0].id;
     }
   }
@@ -519,7 +519,7 @@ function renderPutawayDetail(open=false, putawayId=null){
   selectedPutawayId=task.id;
   const item=inventory.find(x=>x.sku===task.sku);
   const rec=receipts.find(x=>x.id===task.receiptId);
-  const body=`<div class="detail-grid"><div><div class="kpi-l">Tâche</div><div style="font-size:20px;font-weight:800">${task.id}</div><div class="sub">Réception ${task.receiptId}</div></div><div><div class="kpi-l">SKU</div><div>${task.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Qté à ranger</div><div style="font-size:22px;font-weight:800">${num(task.qty)}</div></div><div><div class="kpi-l">Destination</div><div>${task.destination}</div><div class="sub">Suggestion ${task.suggested}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(task.status)}</div></div><div><div class="kpi-l">Réception liée</div><div>${rec?badge(rec.status):'—'}</div><div class="sub">Le putaway ne confirme pas la PO</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Emplacement</div><div><strong>${item?item.location:'—'}</strong><div class="sub">L'article sera rangé à ${task.destination}</div></div></div><div class="timeline-row"><div class="sub">Action</div><div><strong>${task.status}</strong><div class="sub">Cliquer pour faire avancer la tâche</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advancePutawayStatus('${task.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${task.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Tâche</div><div style="font-size:20px;font-weight:800">${task.id}</div><div class="sub">Réception ${task.receiptId}</div></div><div><div class="kpi-l">SKU</div><div>${task.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Qté à ranger</div><div style="font-size:22px;font-weight:800">${num(task.qty)}</div></div><div><div class="kpi-l">Destination</div><div>${task.destination}</div><div class="sub">Suggestion ${task.suggested}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(task.status)}</div></div><div><div class="kpi-l">Réception liée</div><div>${rec?badge(rec.status):'—'}</div><div class="sub">Le putaway confirme la mise à l'inventaire</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Emplacement</div><div><strong>${item?item.location:'—'}</strong><div class="sub">L'article sera rangé à ${task.destination}</div></div></div><div class="timeline-row"><div class="sub">Action</div><div><strong>${task.status}</strong><div class="sub">Le stock est posté seulement au statut Rangé</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advancePutawayStatus('${task.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${task.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
   const box=document.getElementById('putawayDetail'); if(box) box.innerHTML=body;
   if(open) openSlide(`Putaway ${task.id}`, `${task.sku} • ${task.destination}`, body);
 }
@@ -531,7 +531,14 @@ function advancePutawayStatus(id){
   task.status=next;
   if(next==='Rangé'){
     const item=inventory.find(x=>x.sku===task.sku);
-    if(item) item.location=task.destination;
+    if(item){
+      item.location=task.destination;
+      if(!task.postedToInventory){
+        item.available+=task.qty;
+        recalcItem(item);
+        task.postedToInventory=true;
+      }
+    }
     const rec=receipts.find(x=>x.id===task.receiptId);
     if(rec) rec.putawayConfirmed=true;
   }
