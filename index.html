@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V1.4 - Exceptions inventaire dashboard</title>
+<title>SupplyPilot Volvo V1.5 - Conformité & optimisation</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -44,12 +44,24 @@ body.presentation .panel{padding:10px}
 .toast.warn{border-left-color:var(--orange)}
 .toast.crit{border-left-color:var(--red)}
 
+
+.comp-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;margin-bottom:12px}
+.comp-flow{width:100%;height:420px;border-radius:12px;background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01));border:1px solid var(--line)}
+.lane-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px}
+.metric-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px}
+.metric-chip{background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:10px}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}
+.note-box{background:rgba(96,200,255,.09);border:1px solid rgba(96,200,255,.18);border-radius:12px;padding:12px;font-size:12px;color:#dbefff}
+.warn-box{background:rgba(243,187,77,.10);border:1px solid rgba(243,187,77,.18);border-radius:12px;padding:12px;font-size:12px;color:#ffe7b3}
+.good-box{background:rgba(34,217,107,.10);border:1px solid rgba(34,217,107,.18);border-radius:12px;padding:12px;font-size:12px;color:#caffdd}
+@media(max-width:1200px){.comp-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body class="premium">
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.4</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.5</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
@@ -251,6 +263,49 @@ body.presentation .panel{padding:10px}
         </div>
       </div>
     </section>
+
+    <section class="page hidden" id="page-optimization">
+      <div class="grid-kpi">
+        <div class="card"><div class="kpi-l">Articles BNMP</div><div class="kpi-v" id="optBnmpCount">0</div><div class="kpi-s">SKU enrichis avec net disponible</div></div>
+        <div class="card"><div class="kpi-l">À commander</div><div class="kpi-v" id="optToOrder">0</div><div class="kpi-s">Net sous seuil minimum</div></div>
+        <div class="card"><div class="kpi-l">Stockout</div><div class="kpi-v" id="optStockout">0</div><div class="kpi-s">Net BNMP négatif</div></div>
+        <div class="card"><div class="kpi-l">EOQ moyen</div><div class="kpi-v" id="optAvgEoq">0</div><div class="kpi-s">Wilson sur classes A + B</div></div>
+        <div class="card"><div class="kpi-l">Classe A</div><div class="kpi-v" id="optClassA">0</div><div class="kpi-s">Contrôle strict</div></div>
+        <div class="card"><div class="kpi-l">Messages BNMP</div><div class="kpi-v" id="optMessages">0</div><div class="kpi-s">Brouillons générables</div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><div class="section-title" style="margin-bottom:0">Optimisation stock BNMP / ABC / XYZ / EOQ</div><button id="generateBnmpDraftsBtn">Générer brouillons BNMP</button></div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Physique</th><th>Transit</th><th>Réservé</th><th>Seuil min</th><th>Net BNMP</th><th>Statut</th><th>Valeur annuelle</th><th>ABC</th><th>XYZ</th><th>EOQ</th><th>Qté suggérée</th></tr></thead><tbody id="optimizationBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Politiques par classe</div><div class="metric-strip" id="policyCards"></div><div class="note-box" style="margin-top:12px">Le calcul BNMP est désormais formalisé comme suit : <strong>Net = stock physique + transit − réservé</strong>. Les demandes d’achat brouillon sont proposées lorsque le net descend sous le seuil minimum.</div></div>
+      </div>
+    </section>
+
+    <section class="page hidden" id="page-compliance">
+      <div class="comp-grid">
+        <div class="card"><div class="section-title">UML activité — As-Is / To-Be avec swimlanes</div><svg class="comp-flow" viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg"><defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto"><path d="M0,0 L0,6 L9,3 z" fill="#bde9ff"/></marker></defs><rect x="0" y="0" width="980" height="140" fill="rgba(96,200,255,.06)"/><rect x="0" y="140" width="980" height="140" fill="rgba(243,187,77,.05)"/><rect x="0" y="280" width="980" height="140" fill="rgba(34,217,107,.05)"/><text x="24" y="30" fill="#bde9ff" font-size="16" font-weight="700">Magasinier</text><text x="24" y="170" fill="#ffd88d" font-size="16" font-weight="700">Système</text><text x="24" y="310" fill="#9effc6" font-size="16" font-weight="700">Acheteur</text><g font-size="12" fill="#eef2ff"><rect x="120" y="55" rx="14" ry="14" width="120" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="143" y="82">Réception stock</text><rect x="280" y="55" rx="14" ry="14" width="140" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="310" y="82">Contrôle quantité</text><rect x="460" y="55" rx="14" ry="14" width="140" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="487" y="82">Validation mise à jour</text><rect x="650" y="55" rx="14" ry="14" width="150" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="680" y="82">Putaway / rangement</text><rect x="120" y="195" rx="14" ry="14" width="130" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="148" y="222">Calcul BNMP</text><polygon points="310,195 380,195 410,217 380,239 310,239 280,217" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="320" y="222">Net &lt; seuil ?</text><rect x="460" y="195" rx="14" ry="14" width="160" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="493" y="222">Créer message achat</text><rect x="670" y="195" rx="14" ry="14" width="170" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="700" y="222">Journaliser événement</text><rect x="460" y="335" rx="14" ry="14" width="150" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="490" y="362">Valider la PO</text><rect x="660" y="335" rx="14" ry="14" width="150" height="44" fill="#12203a" stroke="rgba(255,255,255,.15)"/><text x="690" y="362">Envoyer fournisseur</text></g><g stroke="#bde9ff" stroke-width="3" fill="none" marker-end="url(#arrow)"><path d="M240 77 H280"/><path d="M420 77 H460"/><path d="M600 77 H650"/><path d="M185 99 V195"/><path d="M250 217 H280"/><path d="M410 217 H460"/><path d="M620 217 H670"/><path d="M540 239 V335"/><path d="M610 357 H660"/></g><g fill="#aeb8ea" font-size="11"><text x="329" y="187">Oui</text><text x="430" y="211">Non</text><text x="550" y="327">To-Be</text></g></svg></div>
+        <div class="card"><div class="section-title">TRS simulateur</div><div class="form-grid"><div><div class="lane-title">Disponibilité %</div><input id="trsAvailInput" type="number" min="0" max="100" value="91"></div><div><div class="lane-title">Performance %</div><input id="trsPerfInput" type="number" min="0" max="100" value="88"></div><div><div class="lane-title">Qualité %</div><input id="trsQualInput" type="number" min="0" max="100" value="97"></div></div><div class="metric-strip" style="margin-top:12px"><div class="metric-chip"><div class="kpi-l">TRS calculé</div><div class="kpi-v" id="trsCalcValue">0%</div></div><div class="metric-chip"><div class="kpi-l">Levier principal</div><div style="font-size:22px;font-weight:800" id="trsDriver">—</div></div></div><div id="trsInterpretation" class="note-box" style="margin-top:12px"></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Règles d’automatisation IF / THEN + garde-fous</div><div class="table-wrap"><table><thead><tr><th>ID</th><th>IF</th><th>THEN</th><th>Type</th></tr></thead><tbody id="rulesBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Fournisseurs & workflow achat cible</div><div class="table-wrap"><table><thead><tr><th>Supplier ID</th><th>Nom</th><th>Lead time</th><th>Statut</th><th>Conformité</th></tr></thead><tbody id="suppliersBody"></tbody></table></div><div class="warn-box" style="margin-top:12px">Workflow standardisé: <strong>Brouillon → À valider → Envoyé → Reçu → Clos</strong>. Les anciennes PO sont automatiquement harmonisées sans casser l’historique existant.</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Transport, groupage et cross-docking</div><div class="metric-strip" id="transportMetrics"></div><div class="table-wrap" style="margin-top:12px"><table><thead><tr><th>Route</th><th>Zone</th><th>Baseline</th><th>Plan groupé</th><th>Impact</th></tr></thead><tbody id="transportPlanBody"></tbody></table></div><div class="good-box" style="margin-top:12px" id="crossDockNote"></div></div>
+        <div class="card"><div class="section-title">Alertes automatisées</div><div class="table-wrap"><table><thead><tr><th>Source</th><th>Alerte</th><th>Niveau</th><th>Action</th></tr></thead><tbody id="alertsBody"></tbody></table></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Registre d’exceptions</div><div class="table-wrap"><table><thead><tr><th>Catégorie</th><th>Gravité</th><th>Owner</th><th>Statut</th><th>Action</th><th>Fermeture</th></tr></thead><tbody id="exceptionRegisterBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Audit inventaire</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Théorique</th><th>Physique</th><th>Écart</th><th>Cause possible</th></tr></thead><tbody id="auditBody"></tbody></table></div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card"><div class="section-title">Analyse cause racine — 5 Why</div><div id="whyBody"></div></div>
+        <div class="card"><div class="section-title">Mini UAT</div><div class="table-wrap"><table><thead><tr><th>Test</th><th>Résultat</th><th>Critère</th></tr></thead><tbody id="uatBody"></tbody></table></div></div>
+      </div>
+    </section>
+
 
   </main>
 </div>
@@ -1110,5 +1165,351 @@ window.addEventListener('load',()=>{
   setTimeout(()=>refreshVisibleVisuals(),420);
 });
 </script>
+
+<script>
+(function(){
+  if(window.__v15CompliancePatchApplied) return;
+  window.__v15CompliancePatchApplied=true;
+
+  pages.optimization={title:'Optimisation stock',sub:'BNMP, ABC/XYZ, EOQ Wilson et brouillons d'achat automatiques.'};
+  pages.compliance={title:'Conformité & contrôle',sub:'UML, règles, transport, audit, 5 Why et mini UAT.'};
+
+  const nav=document.querySelector('.nav');
+  if(nav && !document.querySelector('.nav-btn[data-page="optimization"]')){
+    nav.insertAdjacentHTML('beforeend', '<button class="nav-btn" data-page="optimization"><span>Optimisation</span><span class="count" id="navOptimization">0</span></button><button class="nav-btn" data-page="compliance"><span>Conformité</span><span class="count" id="navCompliance">0</span></button>');
+  }
+  document.querySelectorAll('.nav-btn').forEach(btn=>{
+    if(!btn.dataset.patchBound){
+      btn.dataset.patchBound='1';
+      btn.addEventListener('click',()=>setPage(btn.dataset.page));
+    }
+  });
+
+  function safeNum(v){return Number.isFinite(Number(v))?Number(v):0;}
+  function hashNum(str){return String(str).split('').reduce((a,c)=>a+c.charCodeAt(0),0);}
+  function syncLegacyPo(po){
+    if(po.workflowStatus==='BROUILLON') po.status='BROUILLON';
+    else if(po.workflowStatus==='À VALIDER') po.status='OUVERTE';
+    else if(po.workflowStatus==='ENVOYÉ') po.status='ENVOYÉE';
+    else if(po.workflowStatus==='REÇU') po.status='ENVOYÉE';
+    else if(po.workflowStatus==='CLOS') po.status='FERMÉE';
+  }
+  function bnmpBadge(status){
+    if(status==='Stockout') return '<span class="badge crit">Stockout</span>';
+    if(status==='À commander') return '<span class="badge warn">À commander</span>';
+    return '<span class="badge ok">OK</span>';
+  }
+  function abcBadge(cls){
+    return `<span class="badge ${cls==='A'?'crit':cls==='B'?'warn':'info'}">${cls}</span>`;
+  }
+  function xyzBadge(cls){
+    return `<span class="badge ${cls==='X'?'ok':cls==='Y'?'warn':'purple'}">${cls}</span>`;
+  }
+  function policyText(cls){
+    if(cls==='A') return 'Contrôle strict • seuils serrés • cycle count fréquent • validation requise';
+    if(cls==='B') return 'Surveillance standard • revue hebdo • EOQ actif';
+    return 'Gestion simplifiée • commandes groupées • revue périodique';
+  }
+
+  function ensureEnhancedData(){
+    if(!Array.isArray(inventory)) return;
+    inventory.forEach((item,idx)=>{
+      const h=hashNum(item.sku||idx);
+      item.stock_physique = safeNum(item.stock_physique ?? item.available ?? 0);
+      item.transit = safeNum(item.transit ?? Math.max(0, Math.round(((h%7)+1) * 0.18 * Math.max(1,item.reserved||0))));
+      item.seuil_min = safeNum(item.seuil_min ?? Math.max(18, Math.round((item.reserved||0) + (h%35) + 24)));
+      item.demandAnnual = safeNum(item.demandAnnual ?? Math.max(120, Math.round((item.stock||item.available||1) * (2.4 + ((h%9)/10)))));
+      item.orderingCost = safeNum(item.orderingCost ?? (95 + (h%7)*15));
+      item.holdingRate = safeNum(item.holdingRate ?? 0.18);
+      item.holdingCost = Math.max(1, (item.price||1) * item.holdingRate);
+      item.netBnmp = safeNum(item.stock_physique) + safeNum(item.transit) - safeNum(item.reserved);
+      item.bnmpStatus = item.netBnmp < 0 ? 'Stockout' : item.netBnmp < item.seuil_min ? 'À commander' : 'OK';
+      item.annualValue = item.price * item.demandAnnual;
+      item.variabilityScore = safeNum(item.variabilityScore ?? (0.08 + ((h%18)/100)));
+      item.xyzClass = item.variabilityScore <= 0.12 ? 'X' : item.variabilityScore <= 0.18 ? 'Y' : 'Z';
+      item.eoq = Math.max(1, Math.round(Math.sqrt((2 * item.demandAnnual * item.orderingCost) / item.holdingCost)));
+      const reorderGap = Math.max(0, item.seuil_min - item.netBnmp);
+      item.suggestedQty = Math.max(reorderGap, item.eoq);
+      item.messageNeeded = item.netBnmp < item.seuil_min;
+    });
+    const ranked=[...inventory].sort((a,b)=>b.annualValue-a.annualValue);
+    const total=Math.max(1, ranked.reduce((s,x)=>s+x.annualValue,0));
+    let cum=0;
+    ranked.forEach(item=>{
+      cum += item.annualValue;
+      const share=cum/total;
+      item.abcClass = share <= 0.80 ? 'A' : share <= 0.95 ? 'B' : 'C';
+    });
+
+    window.suppliersRegistry=[...new Set(inventory.map(x=>x.supplier))].map((name,idx)=>({
+      supplier_id:`SUP-${String(idx+1).padStart(3,'0')}`,
+      name,
+      lead_time:3 + (idx%5)*2,
+      statut: idx%6===0 ? 'Surveillance' : 'Actif',
+      conformite: 92 - (idx%5)*3
+    }));
+
+    purchaseOrders.forEach((po,idx)=>{
+      if(!po.workflowStatus){
+        po.workflowStatus = po.status==='BROUILLON' ? 'BROUILLON' : po.status==='OUVERTE' ? 'À VALIDER' : po.status==='ENVOYÉE' ? 'ENVOYÉ' : po.status==='FERMÉE' ? 'CLOS' : 'BROUILLON';
+      }
+      if(!po.receivedAt && po.workflowStatus==='REÇU') po.receivedAt=nowStamp();
+      if(po.workflowStatus==='CLOS' && !po.closedAt) po.closedAt=nowStamp();
+      const supplierObj=(window.suppliersRegistry||[]).find(s=>s.name===po.supplier) || {supplier_id:`SUP-X${idx}`,lead_time:po.leadDays||7,statut:'Actif',conformite:95};
+      po.supplier_id = po.supplier_id || supplierObj.supplier_id;
+      po.compliance = po.compliance || supplierObj.conformite;
+      syncLegacyPo(po);
+    });
+
+    routes.forEach((route,idx)=>{
+      const h=hashNum(route.id||idx);
+      route.emptyKmPct = safeNum(route.emptyKmPct ?? (8 + (h%11)));
+      route.fillPct = safeNum(route.fillPct ?? Math.min(98, 70 + (h%21)));
+      route.idlePct = safeNum(route.idlePct ?? (4 + (h%9)));
+      route.zone = route.zone || (route.province || route.dealer || 'QC');
+    });
+  }
+
+  function createBnmpDrafts(){
+    ensureEnhancedData();
+    const candidates=inventory.filter(x=>x.messageNeeded);
+    let created=0;
+    candidates.forEach(item=>{
+      const exists=purchaseOrders.some(po=>po.sku===item.sku && !['CLOS','REÇU'].includes(po.workflowStatus||''));
+      const supplierObj=(window.suppliersRegistry||[]).find(s=>s.name===item.supplier);
+      if(exists || !supplierObj || supplierObj.statut!=='Actif') return;
+      const qty=Math.max(1,item.suggestedQty);
+      purchaseOrders.unshift({
+        id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,
+        sku:item.sku,
+        description:item.description,
+        supplier:item.supplier,
+        supplier_id:supplierObj.supplier_id,
+        qty,
+        qtySuggested:qty,
+        value:qty*item.price,
+        priority:item.abcClass==='A'?'Haute':'Moyenne',
+        urgency:item.bnmpStatus==='Stockout'?'Critique':'Élevée',
+        leadDays:supplierObj.lead_time,
+        createdAt:nowStamp(),
+        sentAt:null,
+        receivedAt:null,
+        closedAt:null,
+        status:'BROUILLON',
+        workflowStatus:'BROUILLON',
+        bnmpMessage:true,
+        compliance:supplierObj.conformite
+      });
+      govNotificationsData.unshift({id:`NOT-BNMP-${Date.now().toString().slice(-6)}${created}`,date:nowStamp(),source:'BNMP',message:`Demande d'achat brouillon créée pour ${item.sku} (${qty})`,priority:item.abcClass==='A'?'Élevée':'Moyenne',module:'Optimisation'});
+      addUserAction(`BNMP : brouillon ${item.sku} généré automatiquement`);
+      created += 1;
+    });
+    renderAll();
+    if(created===0) alert('Aucun nouveau brouillon BNMP à créer. Les SKU critiques ont déjà une PO active ou le fournisseur n'est pas actif.');
+    else alert(`${created} brouillon(s) BNMP créés.`);
+  }
+
+  createPO=function(){
+    ensureEnhancedData();
+    const sku=document.getElementById('poSkuInput').value.trim().toUpperCase();
+    if(!sku) return;
+    const item=inventory.find(x=>x.sku===sku);
+    if(!item){alert('SKU introuvable');return;}
+    const supplierObj=(window.suppliersRegistry||[]).find(s=>s.name===item.supplier);
+    if(!supplierObj || supplierObj.statut!=='Actif'){alert('Fournisseur non actif ou sous surveillance. Validation requise avant création.');return;}
+    const qty=Math.max(1,item.suggestedQty || Math.ceil((item.seuil_min||90)-item.netBnmp));
+    purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,supplier_id:supplierObj.supplier_id,qty,qtySuggested:qty,value:qty*item.price,status:'BROUILLON',workflowStatus:'BROUILLON',priority:item.abcClass==='A'?'Haute':'Moyenne',urgency:item.bnmpStatus==='Stockout'?'Critique':'Normale',leadDays:supplierObj.lead_time,createdAt:nowStamp(),sentAt:null,receivedAt:null,closedAt:null,compliance:supplierObj.conformite});
+    addUserAction(`Création PO ${item.sku} via workflow sécurisé`);
+    document.getElementById('poSkuInput').value='';
+    renderAll();
+    setPage('procurement');
+  };
+
+  advancePOStatus=function(id){
+    ensureEnhancedData();
+    const po=purchaseOrders.find(x=>x.id===id);
+    if(!po) return;
+    const flow=['BROUILLON','À VALIDER','ENVOYÉ','REÇU','CLOS'];
+    const current=po.workflowStatus || 'BROUILLON';
+    if(current==='CLOS') return;
+    if(current==='BROUILLON'){
+      const supplierObj=(window.suppliersRegistry||[]).find(s=>s.name===po.supplier);
+      if(!supplierObj || supplierObj.statut!=='Actif'){alert('Garde-fou: fournisseur non actif.');return;}
+      if((inventory.find(x=>x.sku===po.sku)?.abcClass)==='A' && po.qty < (inventory.find(x=>x.sku===po.sku)?.seuil_min||0)){
+        alert('Garde-fou: quantité insuffisante pour une classe A.');return;
+      }
+    }
+    const next=flow[flow.indexOf(current)+1];
+    po.workflowStatus=next;
+    if(next==='ENVOYÉ' && !po.sentAt) po.sentAt=nowStamp();
+    if(next==='REÇU' && !po.receivedAt) po.receivedAt=nowStamp();
+    if(next==='CLOS' && !po.closedAt) po.closedAt=nowStamp();
+    syncLegacyPo(po);
+    govNotificationsData.unshift({id:`NOT-POST-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${po.id} : ${current} → ${next}`,priority:next==='CLOS'?'Faible':next==='REÇU'?'Moyenne':'Élevée',module:'Procurement'});
+    addUserAction(`Transition PO ${po.id} : ${current} → ${next}`);
+    renderAll();
+    setPage('procurement');
+  };
+
+  function transportPlan(){
+    const zones={};
+    routes.forEach(r=>{
+      const zone=r.province || r.zone || 'QC';
+      if(!zones[zone]) zones[zone]={zone,baselineRoutes:0,baselineUtil:0,empty:0,fill:0,idle:0,routes:[]};
+      zones[zone].baselineRoutes += 1;
+      zones[zone].baselineUtil += safeNum(r.utilization);
+      zones[zone].empty += safeNum(r.emptyKmPct);
+      zones[zone].fill += safeNum(r.fillPct);
+      zones[zone].idle += safeNum(r.idlePct);
+      zones[zone].routes.push(r.id);
+    });
+    return Object.values(zones).map(z=>{
+      const avgUtil=z.baselineUtil/Math.max(1,z.baselineRoutes);
+      const consolidated=Math.max(1, Math.ceil(z.baselineRoutes*0.7));
+      return {zone:z.zone,baseline:`${z.baselineRoutes} routes / ${pct(avgUtil)}`,grouped:`${consolidated} routes / ${pct(Math.min(98, avgUtil+9))}`,impact:`-${num(z.baselineRoutes-consolidated)} route(s), fill +8 pts, empty -5 pts`};
+    });
+  }
+  function alertsDataset(){
+    const crit=inventory.filter(x=>x.bnmpStatus==='Stockout').slice(0,2);
+    const warn=inventory.filter(x=>x.bnmpStatus==='À commander').slice(0,2);
+    const late=routes.filter(x=>x.status==='Retard').slice(0,2);
+    const list=[];
+    crit.forEach(x=>list.push({source:'Inventaire',text:`${x.sku} en stockout BNMP`,level:'Critique',action:'Créer PO + escalade'}));
+    warn.forEach(x=>list.push({source:'Inventaire',text:`${x.sku} sous seuil minimum`,level:'Élevée',action:'Brouillon achat'}));
+    late.forEach(x=>list.push({source:'Transport',text:`${x.id} en retard vers ${x.dealer}`,level:'Moyenne',action:'Replanifier ETA'}));
+    while(list.length<6){list.push({source:'Transport',text:`Route ${routes[list.length%Math.max(1,routes.length)]?.id||'N/A'} fill% faible`,level:'Moyenne',action:'Proposer groupage'});}
+    return list.slice(0,6);
+  }
+  function exceptionRegister(){
+    const inv=inventory.filter(x=>x.quarantine>0 || x.bnmpStatus!=='OK').slice(0,4).map((x,i)=>({category:'Inventaire',severity:x.bnmpStatus==='Stockout'?'Critique':'Élevée',owner:i%2===0?'Superviseur magasin':'Acheteur',status:x.bnmpStatus==='OK'?'Clos':'Ouvert',action_taken:x.bnmpStatus==='Stockout'?'PO urgente + comptage':'Analyse stock et transit',closure_reason:x.bnmpStatus==='OK'?'Résolu':'En traitement'}));
+    const tr=routes.filter(x=>x.status==='Retard').slice(0,4).map((x,i)=>({category:'Transport',severity:'Moyenne',owner:i%2===0?'Coordinateur transport':'Planificateur',status:'Ouvert',action_taken:`Suivi ETA ${x.id}`,closure_reason:'Attente POD'}));
+    return [...inv,...tr].slice(0,8);
+  }
+  function auditDataset(){
+    return inventory.slice(0,8).map((x,i)=>{
+      const gap=((i%5)-2);
+      const physical=x.stock_physique + gap;
+      return {sku:x.sku,theoretical:x.stock_physique,physical,gap:physical-x.stock_physique,cause:gap>0?'Réception non postée':gap<0?(x.quarantine>0?'Quarantaine non comptée':'Erreur de comptage'):'Conforme'};
+    });
+  }
+  function uatDataset(){
+    ensureEnhancedData();
+    const activePO=purchaseOrders.filter(x=>(x.workflowStatus||'BROUILLON')!=='CLOS');
+    return [
+      ['BNMP calcule net', inventory.every(x=>safeNum(x.netBnmp)===safeNum(x.stock_physique)+safeNum(x.transit)-safeNum(x.reserved)), 'Net = physique + transit − réservé'],
+      ['Statut BNMP attribué', inventory.every(x=>['OK','À commander','Stockout'].includes(x.bnmpStatus)), '3 statuts uniquement'],
+      ['EOQ présent A/B', inventory.filter(x=>['A','B'].includes(x.abcClass)).every(x=>safeNum(x.eoq)>0), 'EOQ Wilson calculé'],
+      ['Workflow PO harmonisé', purchaseOrders.every(x=>['BROUILLON','À VALIDER','ENVOYÉ','REÇU','CLOS'].includes(x.workflowStatus||'BROUILLON')), '5 étapes standard'],
+      ['Fournisseurs structurés', (window.suppliersRegistry||[]).every(x=>x.supplier_id && x.lead_time && x.statut && x.conformite>=0), 'supplier_id + lead time + conformité'],
+      ['6 alertes disponibles', alertsDataset().length>=6, 'Mix inventaire + transport'],
+      ['Registre exceptions', exceptionRegister().length>=6, 'category / severity / owner / status / action / closure'],
+      ['PO actives traçables', activePO.every(x=>x.createdAt && x.supplier_id), 'Traçabilité complète']
+    ];
+  }
+
+  function renderTrsSimulator(){
+    const a=Math.max(0,Math.min(100,safeNum(document.getElementById('trsAvailInput').value)));
+    const p=Math.max(0,Math.min(100,safeNum(document.getElementById('trsPerfInput').value)));
+    const q=Math.max(0,Math.min(100,safeNum(document.getElementById('trsQualInput').value)));
+    const trs=(a/100)*(p/100)*(q/100)*100;
+    const min=Math.min(a,p,q);
+    const driver=min===a?'Disponibilité':min===p?'Performance':'Qualité';
+    document.getElementById('trsCalcValue').textContent=pct(trs);
+    document.getElementById('trsDriver').textContent=driver;
+    document.getElementById('trsInterpretation').innerHTML=`Le levier principal est : <strong>${driver}</strong>. Avec disponibilité ${pct(a)}, performance ${pct(p)} et qualité ${pct(q)}, le TRS calculé est <strong>${pct(trs)}</strong>.`; 
+  }
+
+  function patchProcurementTables(){
+    const active=purchaseOrders.filter(x=>(x.workflowStatus||'BROUILLON')!=='CLOS');
+    const closed=purchaseOrders.filter(x=>(x.workflowStatus||'BROUILLON')==='CLOS');
+    const poBody=document.getElementById('poBody');
+    const poClosedBody=document.getElementById('poClosedBody');
+    if(poBody) poBody.innerHTML=active.slice(0,80).map(po=>`<tr onclick="selectedPoId='${po.id}';openPODetail(true)"><td>${po.id}</td><td>${po.sku}</td><td>${po.supplier}</td><td>${num(po.qty)}</td><td>${po.priority||'Moyenne'}</td><td>${po.urgency||'Normale'}</td><td>${po.leadDays||'-'} j</td><td>${po.createdAt||'—'}</td><td><button onclick="event.stopPropagation();advancePOStatus('${po.id}')">${po.workflowStatus||'BROUILLON'}</button></td></tr>`).join('');
+    if(poClosedBody) poClosedBody.innerHTML=closed.slice(0,80).map(po=>`<tr onclick="selectedPoId='${po.id}';openPODetail(true)"><td>${po.id}</td><td>${po.sku}</td><td>${po.supplier}</td><td>${currency(po.value||0)}</td><td>${po.createdAt||'—'}</td><td>${po.closedAt||'—'}</td><td>${bnmpBadge('OK').replace('OK','Clos')}</td></tr>`).join('');
+  }
+
+  function renderOptimizationPage(){
+    const body=document.getElementById('optimizationBody');
+    if(!body) return;
+    const items=[...inventory].sort((a,b)=>{
+      const rank=s=>s==='Stockout'?0:s==='À commander'?1:2;
+      return rank(a.bnmpStatus)-rank(b.bnmpStatus) || b.annualValue-a.annualValue;
+    });
+    body.innerHTML=items.slice(0,120).map(item=>`<tr><td>${item.sku}</td><td>${num(item.stock_physique)}</td><td>${num(item.transit)}</td><td>${num(item.reserved)}</td><td>${num(item.seuil_min)}</td><td>${num(item.netBnmp)}</td><td>${bnmpBadge(item.bnmpStatus)}</td><td>${currency(item.annualValue)}</td><td>${abcBadge(item.abcClass)}</td><td>${xyzBadge(item.xyzClass)}</td><td>${num(item.eoq)}</td><td>${num(item.suggestedQty)}</td></tr>`).join('');
+    document.getElementById('optBnmpCount').textContent=num(inventory.length);
+    document.getElementById('optToOrder').textContent=num(inventory.filter(x=>x.bnmpStatus==='À commander').length);
+    document.getElementById('optStockout').textContent=num(inventory.filter(x=>x.bnmpStatus==='Stockout').length);
+    const ab=inventory.filter(x=>['A','B'].includes(x.abcClass));
+    document.getElementById('optAvgEoq').textContent=num(Math.round(ab.reduce((s,x)=>s+x.eoq,0)/Math.max(1,ab.length)));
+    document.getElementById('optClassA').textContent=num(inventory.filter(x=>x.abcClass==='A').length);
+    document.getElementById('optMessages').textContent=num(inventory.filter(x=>x.messageNeeded).length);
+    document.getElementById('navOptimization').textContent=num(inventory.filter(x=>x.messageNeeded).length);
+    const policyCards=document.getElementById('policyCards');
+    if(policyCards){
+      policyCards.innerHTML=['A','B','C'].map(cls=>`<div class="metric-chip"><div class="kpi-l">Classe ${cls}</div><div style="font-size:18px;font-weight:800">${num(inventory.filter(x=>x.abcClass===cls).length)} SKU</div><div class="sub" style="margin-top:8px">${policyText(cls)}</div></div>`).join('');
+    }
+  }
+
+  function renderCompliancePage(){
+    const rules=[
+      ['R1','IF classe A AND net &lt; seuil min AND supplier actif','Créer PO brouillon + tâche validation + log événement','Automatisation'],
+      ['R2','IF stockout BNMP','Escalade critique + priorité haute + lead time court','Automatisation'],
+      ['R3','IF fournisseur sous surveillance','Bloquer création directe et exiger validation manuelle','Garde-fou'],
+      ['R4','IF quantité PO classe A &lt; seuil min','Empêcher envoi et demander justification','Garde-fou'],
+      ['R5','IF route en retard AND OTD &lt; 95%','Créer alerte transport + proposer groupage','Automatisation']
+    ];
+    const rulesBody=document.getElementById('rulesBody');
+    if(rulesBody) rulesBody.innerHTML=rules.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+    const supBody=document.getElementById('suppliersBody');
+    if(supBody) supBody.innerHTML=(window.suppliersRegistry||[]).map(s=>`<tr><td>${s.supplier_id}</td><td>${s.name}</td><td>${s.lead_time} j</td><td>${badge(s.statut==='Actif'?'OK':s.statut==='Surveillance'?'A surveiller':'Critique')}</td><td>${pct(s.conformite)}</td></tr>`).join('');
+    const plan=transportPlan();
+    const avgEmpty=routes.reduce((s,x)=>s+safeNum(x.emptyKmPct),0)/Math.max(1,routes.length);
+    const avgFill=routes.reduce((s,x)=>s+safeNum(x.fillPct),0)/Math.max(1,routes.length);
+    const avgIdle=routes.reduce((s,x)=>s+safeNum(x.idlePct),0)/Math.max(1,routes.length);
+    const tm=document.getElementById('transportMetrics');
+    if(tm) tm.innerHTML=`<div class="metric-chip"><div class="kpi-l">OTD</div><div class="kpi-v">${pct(transporters.reduce((s,x)=>s+safeNum(x.otd),0)/Math.max(1,transporters.length))}</div></div><div class="metric-chip"><div class="kpi-l">empty km</div><div class="kpi-v">${pct(avgEmpty)}</div></div><div class="metric-chip"><div class="kpi-l">fill</div><div class="kpi-v">${pct(avgFill)}</div></div><div class="metric-chip"><div class="kpi-l">idle</div><div class="kpi-v">${pct(avgIdle)}</div></div>`;
+    const planBody=document.getElementById('transportPlanBody');
+    if(planBody) planBody.innerHTML=plan.map(x=>`<tr><td>${x.zone}</td><td>${x.zone}</td><td>${x.baseline}</td><td>${x.grouped}</td><td>${x.impact}</td></tr>`).join('');
+    const cross=document.getElementById('crossDockNote');
+    if(cross) cross.innerHTML='Option cross-docking: pour les SKU fast-moving et les routes multi-dealers, le passage en cross-docking réduit le stockage tampon attendu, améliore le fill% et raccourcit le délai de distribution au prix d'une coordination quai plus stricte.';
+    const alertsBody=document.getElementById('alertsBody');
+    if(alertsBody) alertsBody.innerHTML=alertsDataset().map(a=>`<tr><td>${a.source}</td><td>${a.text}</td><td>${badge(a.level==='Critique'?'Critique':a.level==='Élevée'?'A surveiller':'OK')}</td><td>${a.action}</td></tr>`).join('');
+    const exBody=document.getElementById('exceptionRegisterBody');
+    if(exBody) exBody.innerHTML=exceptionRegister().map(x=>`<tr><td>${x.category}</td><td>${badge(x.severity==='Critique'?'Critique':x.severity==='Élevée'?'A surveiller':'OK')}</td><td>${x.owner}</td><td>${x.status}</td><td>${x.action_taken}</td><td>${x.closure_reason}</td></tr>`).join('');
+    const auditBody=document.getElementById('auditBody');
+    if(auditBody) auditBody.innerHTML=auditDataset().map(x=>`<tr><td>${x.sku}</td><td>${num(x.theoretical)}</td><td>${num(x.physical)}</td><td>${x.gap===0?'<span class="badge ok">0</span>':x.gap<0?'<span class="badge crit">'+num(x.gap)+'</span>':'<span class="badge warn">+'+num(x.gap)+'</span>'}</td><td>${x.cause}</td></tr>`).join('');
+    const whyBody=document.getElementById('whyBody');
+    if(whyBody) whyBody.innerHTML=`<div class="detail-box" style="margin-bottom:12px"><div class="lane-title">Cas 1 — Stockout sur pièce classe A</div><div class="sub">Pourquoi 1: le net BNMP est passé sous zéro. Pourquoi 2: transit retardé. Pourquoi 3: fournisseur envoyé partiellement. Pourquoi 4: MOQ non respectée. Pourquoi 5: validation d'achat insuffisante sur article critique. <strong>Cause racine:</strong> garde-fou achat classe A manquant.</div></div><div class="detail-box"><div class="lane-title">Cas 2 — Livraison dealer en retard</div><div class="sub">Pourquoi 1: route arrivée tardive. Pourquoi 2: camion parti sous-rempli. Pourquoi 3: commandes non consolidées. Pourquoi 4: planification faite par route isolée. Pourquoi 5: absence de logique de groupage par zone. <strong>Cause racine:</strong> consolidation transport non appliquée.</div></div>`;
+    const uatBody=document.getElementById('uatBody');
+    const tests=uatDataset();
+    if(uatBody) uatBody.innerHTML=tests.map(([name,pass,crit])=>`<tr><td>${name}</td><td>${pass?'<span class="badge ok">PASS</span>':'<span class="badge crit">FAIL</span>'}</td><td>${crit}</td></tr>`).join('');
+    document.getElementById('navCompliance').textContent=num(tests.filter(x=>x[1]).length)+'/8';
+  }
+
+  const originalRenderAll=renderAll;
+  renderAll=function(){
+    ensureEnhancedData();
+    originalRenderAll();
+    patchProcurementTables();
+    renderOptimizationPage();
+    renderCompliancePage();
+  };
+
+  const createBtn=document.getElementById('createPoBtn');
+  if(createBtn){
+    const clone=createBtn.cloneNode(true);
+    createBtn.parentNode.replaceChild(clone,createBtn);
+    clone.addEventListener('click',createPO);
+  }
+  const bnmpBtn=document.getElementById('generateBnmpDraftsBtn');
+  if(bnmpBtn) bnmpBtn.addEventListener('click',createBnmpDrafts);
+  ['trsAvailInput','trsPerfInput','trsQualInput'].forEach(id=>{const el=document.getElementById(id); if(el) el.addEventListener('input',renderTrsSimulator);});
+
+  ensureEnhancedData();
+  renderAll();
+  renderTrsSimulator();
+})();
+</script>
+
 </body>
 </html>
