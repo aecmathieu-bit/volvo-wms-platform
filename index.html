@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V1.2 - Sauvegarde locale</title>
+<title>SupplyPilot Volvo V1.3 - Sauvegarde locale + bouton Sauvegarder</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -49,7 +49,7 @@ body.presentation .panel{padding:10px}
 <body class="premium">
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.2</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.3</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
@@ -62,104 +62,68 @@ body.presentation .panel{padding:10px}
       <button class="nav-btn" data-page="map"><span>Carte réseau</span><span class="count" id="navMap">0</span></button>
       <button class="nav-btn" data-page="governance"><span>Gestion / Gouvernance</span><span class="count" id="navGov">0</span></button>
     </div>
-    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePo">0</strong></div><div class="panel-line"><span>Réceptions</span><strong id="sideReceipts">0</strong></div><div class="panel-line"><span>Putaway</span><strong id="sidePutaway">0</strong></div><div class="panel-line"><span>TRS moyen</span><strong id="sideTrs">0%</strong></div><div class="panel-line"><span>Routes actives</span><strong id="sideRoutes">0</strong></div></div>
+    <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
   </aside>
-
   <main class="main">
-    <div class="header">
-      <div>
-        <div class="title">SupplyPilot Volvo V1.1</div>
-        <div class="sub">WMS avancé + distribution + manufacture + gouvernance avec import/export Excel + sauvegarde locale</div>
-      </div>
-      <div class="toolbar">
-        <button id="btnRegenerate">Régénérer données</button>
-        <button id="btnImportExcel">Importer Excel</button>
-        <button id="btnExportExcel">Exporter Excel</button>
-        <input type="file" id="excelFileInput" accept=".xlsx,.xls" style="display:none" />
-        <button id="btnPresentation">Mode présentation</button>
-        <button id="btnTheme">Look premium</button>
-      </div>
-    </div>
+    <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable avec distribution complète + sauvegarde locale.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button><button id="saveBtn">Sauvegarder</button><button id="importExcelBtn">Importer Excel</button><button id="exportExcelBtn">Exporter Excel</button><button id="presentationBtn">Mode présentation</button><button id="premiumBtn">Look premium</button><input type="file" id="excelImportInput" accept=".xlsx,.xls" style="display:none"></div></div>
 
     <section class="page" id="page-dashboard">
       <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">Pièces actives</div><div class="kpi-v" id="kpiSku">0</div><div class="kpi-s">Articles inventaire</div></div>
-        <div class="card"><div class="kpi-l">Valeur inventaire</div><div class="kpi-v" id="kpiValue">0 $</div><div class="kpi-s">Stock x prix</div></div>
-        <div class="card"><div class="kpi-l">PO ouvertes</div><div class="kpi-v" id="kpiPo">0</div><div class="kpi-s">Actives / à suivre</div></div>
-        <div class="card"><div class="kpi-l">Réceptions en attente</div><div class="kpi-v" id="kpiReceipts">0</div><div class="kpi-s">Dock / contrôle</div></div>
-        <div class="card"><div class="kpi-l">Putaway ouvert</div><div class="kpi-v" id="kpiPutaway">0</div><div class="kpi-s">Missions restantes</div></div>
-        <div class="card"><div class="kpi-l">TRS moyen</div><div class="kpi-v" id="kpiTrs">0%</div><div class="kpi-s">Production</div></div>
+        <div class="card"><div class="kpi-l">SKU actifs</div><div class="kpi-v" id="kpiSku">0</div><div class="kpi-s">Inventaire manufacture</div></div>
+        <div class="card"><div class="kpi-l">Valeur inventaire</div><div class="kpi-v" id="kpiInv">0 $</div><div class="kpi-s">Stock x prix</div></div>
+        <div class="card"><div class="kpi-l">PO ouvertes</div><div class="kpi-v" id="kpiPO">0</div><div class="kpi-s">Brouillons + ouvertes</div></div>
+        <div class="card"><div class="kpi-l">TRS moyen</div><div class="kpi-v" id="kpiTRS">0%</div><div class="kpi-s">Moyenne usine</div></div>
+        <div class="card"><div class="kpi-l">Concessionnaires</div><div class="kpi-v" id="kpiDealers">0</div><div class="kpi-s">Réseau actif</div></div>
+        <div class="card"><div class="kpi-l">Routes actives</div><div class="kpi-v" id="kpiRoutes">0</div><div class="kpi-s">Distribution outbound</div></div>
       </div>
-
       <div class="grid-2">
-        <div class="card chart-card"><div class="section-title">Top 10 valeurs annuelles</div><canvas id="annualValueChart"></canvas></div>
-        <div class="card chart-card"><div class="section-title">Distribution ABC</div><canvas id="abcChart"></canvas></div>
+        <div class="card chart-card"><div class="section-title">Top valeur inventaire</div><canvas id="inventoryChart"></canvas></div>
+        <div class="card"><div class="section-title">Routes en cours</div><div class="table-wrap"><table><thead><tr><th>Route</th><th>Transporteur</th><th>Dealer</th><th>ETA</th><th>Statut</th></tr></thead><tbody id="dashboardRouteBody"></tbody></table></div></div>
       </div>
-
       <div class="grid-2">
-        <div class="card"><div class="section-title">Articles critiques</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Stock</th><th>ROP</th><th>Alerte</th></tr></thead><tbody id="criticalBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">PO ouvertes</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>Fournisseur</th><th>Lignes</th><th>Valeur</th><th>Statut</th></tr></thead><tbody id="openPoBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">PO prioritaires</div><div class="table-wrap"><table><thead><tr><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Qté</th><th>Statut</th></tr></thead><tbody id="dashboardPoBody"></tbody></table></div></div>
+        <div class="card small-card"><div class="section-title">Répartition statuts véhicules</div><canvas id="vehicleStatusChart"></canvas></div>
       </div>
     </section>
 
     <section class="page hidden" id="page-inventory">
-      <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">SKU</div><div class="kpi-v" id="invSku">0</div><div class="kpi-s">Actives</div></div>
-        <div class="card"><div class="kpi-l">Couverture moyenne</div><div class="kpi-v" id="invCoverage">0</div><div class="kpi-s">Jours</div></div>
-        <div class="card"><div class="kpi-l">Articles critiques</div><div class="kpi-v" id="invCritical">0</div><div class="kpi-s">Sous ROP</div></div>
-        <div class="card"><div class="kpi-l">Valeur stock</div><div class="kpi-v" id="invValue">0 $</div><div class="kpi-s">Stock x coût</div></div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card chart-card"><div class="section-title">Valeur annuelle</div><canvas id="inventoryAnnualChart"></canvas></div>
-        <div class="card chart-card"><div class="section-title">Couverture par famille</div><canvas id="coverageFamilyChart"></canvas></div>
-      </div>
-
-      <div class="card">
-        <div class="section-title">Inventaire</div>
-        <div class="table-wrap"><table class="clickable"><thead><tr><th>SKU</th><th>Description</th><th>Famille</th><th>Fournisseur</th><th>Stock</th><th>ROP</th><th>EOQ</th><th>ABC</th><th>Prix</th><th>Valeur</th><th>Empl.</th><th>Alerte</th></tr></thead><tbody id="inventoryBody"></tbody></table></div>
-      </div>
+      <div class="card"><div class="section-title">Inventaire</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Catégorie</th><th>Fournisseur</th><th>Total</th><th>Disponible</th><th>Réservé</th><th>Quar.</th><th>Prix</th><th>Valeur</th><th>Alerte</th><th>Emplacement</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
     </section>
 
     <section class="page hidden" id="page-procurement">
-      <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">PO</div><div class="kpi-v" id="poCount">0</div><div class="kpi-s">Ouvertes</div></div>
-        <div class="card"><div class="kpi-l">Valeur PO</div><div class="kpi-v" id="poValue">0 $</div><div class="kpi-s">Engagements</div></div>
-        <div class="card"><div class="kpi-l">Fournisseurs</div><div class="kpi-v" id="poSuppliers">0</div><div class="kpi-s">Actifs</div></div>
-        <div class="card"><div class="kpi-l">Retards</div><div class="kpi-v" id="poLate">0</div><div class="kpi-s">En retard</div></div>
-      </div>
-
+      <div class="card" style="margin-bottom:12px"><div class="section-title">Créer une PO</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="poSkuInput" placeholder="SKU ex: VOL-0001"><button id="createPoBtn">Créer PO</button></div></div>
       <div class="grid-2">
-        <div class="card"><div class="section-title">Purchase Orders</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>Fournisseur</th><th>Date</th><th>ETA</th><th>Valeur</th><th>Statut</th></tr></thead><tbody id="poBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Fiche fournisseur</div><div class="detail-box" id="supplierDetail"></div></div>
+        <div class="card"><div class="section-title">Purchase Orders actives</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Qté</th><th>Priorité</th><th>Urgence</th><th>Délai</th><th>Créée</th><th>Statut</th></tr></thead><tbody id="poBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Historique PO fermées</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Valeur</th><th>Créée</th><th>Fermée</th><th>Statut</th></tr></thead><tbody id="poClosedBody"></tbody></table></div></div>
       </div>
     </section>
 
     <section class="page hidden" id="page-receiving">
       <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">Réceptions</div><div class="kpi-v" id="receivingCount">0</div><div class="kpi-s">Ouvertes</div></div>
-        <div class="card"><div class="kpi-l">Lignes</div><div class="kpi-v" id="receivingLines">0</div><div class="kpi-s">À traiter</div></div>
-        <div class="card"><div class="kpi-l">Dock</div><div class="kpi-v" id="receivingDock">0</div><div class="kpi-s">Camions</div></div>
-        <div class="card"><div class="kpi-l">Exceptions</div><div class="kpi-v" id="receivingExceptions">0</div><div class="kpi-s">Écarts</div></div>
+        <div class="card"><div class="kpi-l">Réceptions</div><div class="kpi-v" id="recCount">0</div><div class="kpi-s">PO liées</div></div>
+        <div class="card"><div class="kpi-l">Attendues</div><div class="kpi-v" id="recExpected">0</div><div class="kpi-s">Pas encore reçues</div></div>
+        <div class="card"><div class="kpi-l">Partielles</div><div class="kpi-v" id="recPartial">0</div><div class="kpi-s">Écarts ou manque</div></div>
+        <div class="card"><div class="kpi-l">Inspection</div><div class="kpi-v" id="recInspect">0</div><div class="kpi-s">Qualité à confirmer</div></div>
+        <div class="card"><div class="kpi-l">Complètes</div><div class="kpi-v" id="recComplete">0</div><div class="kpi-s">Réception validée</div></div>
+        <div class="card"><div class="kpi-l">Postées au stock</div><div class="kpi-v" id="recPosted">0</div><div class="kpi-s">Disponibles à l'inventaire</div></div>
       </div>
-
       <div class="grid-2">
-        <div class="card"><div class="section-title">Réceptions</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Réception</th><th>PO</th><th>Fournisseur</th><th>Dock</th><th>Statut</th><th>ETA</th></tr></thead><tbody id="receivingBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Détail réception</div><div class="detail-box" id="receivingDetail"></div></div>
+        <div class="card"><div class="section-title">Réceptions intelligentes</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Réception</th><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Attendu</th><th>Reçu</th><th>Écart</th><th>Putaway suggéré</th><th>Statut</th></tr></thead><tbody id="receiptsBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Synthèse réception</div><div id="receivingDetail"></div></div>
       </div>
     </section>
 
+
     <section class="page hidden" id="page-putaway">
       <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">Missions</div><div class="kpi-v" id="putawayCount">0</div><div class="kpi-s">Ouvertes</div></div>
-        <div class="card"><div class="kpi-l">Quantité</div><div class="kpi-v" id="putawayQty">0</div><div class="kpi-s">À ranger</div></div>
-        <div class="card"><div class="kpi-l">Zones</div><div class="kpi-v" id="putawayZones">0</div><div class="kpi-s">Actives</div></div>
-        <div class="card"><div class="kpi-l">Urgentes</div><div class="kpi-v" id="putawayUrgent">0</div><div class="kpi-s">Missions prioritaires</div></div>
+        <div class="card"><div class="kpi-l">Tâches putaway</div><div class="kpi-v" id="putCount">0</div><div class="kpi-s">Issues des réceptions postées</div></div>
+        <div class="card"><div class="kpi-l">À ranger</div><div class="kpi-v" id="putOpen">0</div><div class="kpi-s">À démarrer</div></div>
+        <div class="card"><div class="kpi-l">En cours</div><div class="kpi-v" id="putProgress">0</div><div class="kpi-s">En traitement</div></div>
+        <div class="card"><div class="kpi-l">Rangées</div><div class="kpi-v" id="putDone">0</div><div class="kpi-s">Confirmées en emplacement</div></div>
       </div>
-
       <div class="grid-2">
-        <div class="card"><div class="section-title">Missions de putaway</div><div class="table-wrap"><table class="clickable"><thead><tr><th>ID</th><th>SKU</th><th>Qté</th><th>De</th><th>Vers</th><th>Priorité</th><th>Statut</th></tr></thead><tbody id="putawayBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">Détail putaway</div><div class="detail-box" id="putawayDetail"></div></div>
+        <div class="card"><div class="section-title">Tâches putaway intelligentes</div><div class="table-wrap"><table class="clickable"><thead><tr><th>Tâche</th><th>Réception</th><th>SKU</th><th>Qté</th><th>Destination</th><th>Statut</th></tr></thead><tbody id="putawayBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">Synthèse putaway</div><div id="putawayDetail"></div></div>
       </div>
     </section>
 
@@ -299,755 +263,780 @@ body.presentation .panel{padding:10px}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-let inventory=[];
-let suppliers=[];
-let purchaseOrders=[];
-let receipts=[];
-let putawayTasks=[];
-let productionLines=[];
-let masterProductionPlan=[];
-let manufacturingOrders=[];
-let bom=[];
-let vehicleBuilds=[];
-let dealers=[];
-let carriers=[];
-let routes=[];
-let vehicleOrders=[];
-let orderHistory=[];
-let users=[];
-let approvals=[];
-let notifications=[];
-let departmentKpis=[];
-let userActions=[];
-
-const STORAGE_KEY='supplypilot_volvo_v1_2_local_save';
-
-const charts={};
-let networkMap=null;
-let networkLayers=[];
-
-const formatNumber=n=>Number(n||0).toLocaleString('fr-CA');
-const formatMoney=n=>Number(n||0).toLocaleString('fr-CA',{maximumFractionDigits:0})+' $';
-const formatPct=n=>Number(n||0).toFixed(1)+'%';
-const rand=(min,max)=>Math.floor(Math.random()*(max-min+1))+min;
-const pick=a=>a[Math.floor(Math.random()*a.length)];
-const today=()=>new Date().toISOString().slice(0,10);
-const addDays=(d)=>{const x=new Date();x.setDate(x.getDate()+d);return x.toISOString().slice(0,10)};
-
-function toast(title,sub,type='info'){
-  const wrap=document.getElementById('toastWrap');
+const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète + sauvegarde locale."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées. Cliquer sur le statut pour le faire avancer."},receiving:{title:"Réception plus intelligente",sub:"Réception partielle, inspection, écarts et mise en stock intelligente."},putaway:{title:"Putaway intelligent",sub:"Rangement suggéré après réception postée et confirmation de mise en emplacement."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
+let inventory=[],purchaseOrders=[],receipts=[],putawayTasks=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null,selectedPoId=null,selectedReceiptId=null,selectedPutawayId=null;
+const LOCAL_SAVE_KEY='supplypilot_volvo_v1_3_local_save';
+const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
+function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+function pick(arr){return arr[rand(0,arr.length-1)];}
+function currency(n){return new Intl.NumberFormat('fr-CA',{style:'currency',currency:'CAD',maximumFractionDigits:0}).format(n||0)}
+function num(n){return new Intl.NumberFormat('fr-CA').format(n||0)}
+function pct(n){return (Math.round((n||0)*10)/10).toFixed(1)+'%'}
+function badge(status){if(['OK','Disponible','Complété','Livré','Livrée','Confirmé'].includes(status))return `<span class="badge ok">${status}</span>`;if(['A surveiller','Partiel','En transit','OUVERTE','BROUILLON','Planifiée','Planifié','À quai','Assemblage','Prévue'].includes(status))return `<span class="badge warn">${status}</span>`;if(['Critique','Retard','Bloqué'].includes(status))return `<span class="badge crit">${status}</span>`;if(['En production','Inspection','Expédié'].includes(status))return `<span class="badge info">${status}</span>`;return `<span class="badge purple">${status}</span>`;}
+function makeVin(i){return `YV1SP${String(2026000+i).padStart(7,'0')}`;}
+function nowStamp(){return new Date().toISOString().slice(0,16).replace('T',' ');}
+function showToast(title,message,level='info',onClick=null){
+  const wrap=document.getElementById('toastWrap'); if(!wrap) return;
   const el=document.createElement('div');
-  el.className=`toast ${type}`;
-  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${sub}</div>`;
-  el.onclick=()=>el.remove();
+  el.className=`toast ${level==='Critique'?'crit':level==='A surveiller'?'warn':''}`.trim();
+  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div><div class="toast-sub" style="margin-top:8px;font-weight:700;color:var(--txt)">Cliquer pour créer une PO</div>`;
+  if(typeof onClick==='function'){
+    el.addEventListener('click',()=>{ onClick(); el.remove(); });
+  }
   wrap.appendChild(el);
-  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(8px)';el.style.transition='all .25s ease';setTimeout(()=>el.remove(),260)},4200);
+  setTimeout(()=>{el.style.opacity='0';el.style.transform='translateY(6px)';el.style.transition='all .25s ease';},5200);
+  setTimeout(()=>el.remove(),5600);
+}
+function openInventoryAlertAction(sku){
+  const item=inventory.find(x=>x.sku===sku);
+  if(!item) return;
+  selectedAlertSku=sku;
+  const suggestedQty=Math.max(10, Math.ceil((90-item.available)+Math.max(10,item.reserved)));
+  const urgency=item.alert==='Critique'?'Élevée':'Moyenne';
+  const body=`<div class="detail-grid"><div><div class="kpi-l">SKU</div><div style="font-size:20px;font-weight:800">${item.sku}</div><div class="sub">${item.description}</div></div><div><div class="kpi-l">Fournisseur</div><div>${item.supplier}</div><div class="sub">Emplacement ${item.location}</div></div><div><div class="kpi-l">Disponible</div><div style="font-size:22px;font-weight:800">${num(item.available)}</div></div><div><div class="kpi-l">Réservé</div><div style="font-size:22px;font-weight:800">${num(item.reserved)}</div></div><div><div class="kpi-l">Quarantaine</div><div style="font-size:22px;font-weight:800">${num(item.quarantine)}</div></div><div><div class="kpi-l">Statut</div><div>${badge(item.alert)}</div></div><div><div class="kpi-l">Urgence</div><div>${badge(urgency)}</div></div><div><div class="kpi-l">Commande suggérée</div><input id="alertPoQty" type="number" value="${suggestedQty}" style="width:100%"></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px"><button class="btn orange" onclick="createPOFromAlert(false)">Créer PO brouillon</button><button class="btn blue" onclick="createPOFromAlert(true)">Créer et envoyer PO</button><button class="btn" onclick="setPage('procurement');closeSlide();">Voir approvisionnement</button></div>`;
+  openSlide(`Alerte inventaire ${item.sku}`, `${item.description} • action approvisionnement`, body);
+}
+function createPOFromAlert(sendNow=false){
+  const item=inventory.find(x=>x.sku===selectedAlertSku);
+  if(!item) return;
+  const qty=Math.max(1, parseInt(document.getElementById('alertPoQty')?.value||'0',10));
+  const status=sendNow?'ENVOYÉE':'BROUILLON';
+  purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty,qtySuggested:qty,value:qty*item.price,status,priority:item.alert==='Critique'?'Haute':'Moyenne',urgency:item.alert==='Critique'?'Critique':'Élevée',leadDays:item.alert==='Critique'?2:5,createdAt:nowStamp(),sentAt:sendNow?nowStamp():null,closedAt:null});
+  govNotificationsData.unshift({id:`NOT-PO-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${status==='ENVOYÉE'?'PO envoyée':'PO créée'} pour ${item.sku} (${num(qty)} u.)`,priority:item.alert,module:'Procurement'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  addUserAction(`${status==='ENVOYÉE'?'Création et envoi':'Création'} de PO pour ${item.sku} (${num(qty)} u.)`);
+  renderAll();
+  setPage('procurement');
+  closeSlide();
+}
+function pushInventoryAlert(item,previousAlert,actionType,qty){
+  const worsened = (previousAlert==='OK' && item.alert!=='OK') || (previousAlert==='A surveiller' && item.alert==='Critique');
+  if(!worsened) return;
+  const sourceAction = actionType==='remove'?'Retrait de stock':actionType==='reserve'?'Réservation':'Quarantaine';
+  const title = item.alert==='Critique' ? `Alerte critique • ${item.sku}` : `Alerte inventaire • ${item.sku}`;
+  const message = `${sourceAction} de ${qty} unités. Disponible ${num(item.available)} • Statut ${item.alert}.`;
+  showToast(title,message,item.alert,()=>openInventoryAlertAction(item.sku));
+  govNotificationsData.unshift({id:`NOT-INV-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Inventaire',message:`${item.sku} est passé à ${item.alert.toLowerCase()} après ${sourceAction.toLowerCase()} (${qty} u.)`,priority:item.alert,module:'WMS'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
 }
 
-function badgeForAlert(alert){
-  if(alert==='Critique')return '<span class="badge crit">Critique</span>';
-  if(alert==='À surveiller')return '<span class="badge warn">À surveiller</span>';
-  return '<span class="badge ok">OK</span>';
+
+function sheetToJson(workbook,name){
+  const sheet=workbook.Sheets[name];
+  return sheet?XLSX.utils.sheet_to_json(sheet,{defval:''}):[];
 }
-function badgeForStatus(status){
-  if(['En retard','Bloqué','Exception','Critique','Urgent'].includes(status))return `<span class="badge crit">${status}</span>`;
-  if(['À valider','À ranger','Planifié','En transit','Partiel','Dock'].includes(status))return `<span class="badge warn">${status}</span>`;
-  if(['Reçu','Terminé','Complété','Livré','Actif','Disponible','Clos'].includes(status))return `<span class="badge ok">${status}</span>`;
-  return `<span class="badge info">${status}</span>`;
+function toNumber(value,fallback=0){
+  if(value===null||value===undefined||value==='') return fallback;
+  const n=Number(String(value).replace(/\s/g,'').replace(',','.'));
+  return Number.isFinite(n)?n:fallback;
 }
-
-function normalizeInventoryRow(r){
-  const stock=Number(r.stock??r.Stock??0);
-  const rop=Number(r.rop??r.ROP??0);
-  const price=Number(r.price??r.Prix??r.prix??0);
-  const annualDemand=Number(r.annualDemand??r.DemandeAnnuelle??r.demandeAnnuelle??0);
-  const avgDaily=Math.max(1, annualDemand/365);
-  const coverage=Number(r.coverage??r.Couverture??(stock/avgDaily).toFixed(1));
-  const eoq=Number(r.eoq??r.EOQ??Math.max(1,Math.round(Math.sqrt(Math.max(annualDemand,1))*2)));
-  const value=Number(r.value??r.Valeur??stock*price);
-  const alert=(r.alert??r.Alerte) || (stock<rop ? 'Critique' : stock<rop*1.2 ? 'À surveiller' : 'OK');
-  return {
-    sku:r.sku??r.SKU??'',
-    description:r.description??r.Description??'',
-    family:r.family??r.Famille??'',
-    supplier:r.supplier??r.Fournisseur??'',
-    stock,rop,eoq,
-    abc:r.abc??r.ABC??'C',
-    price,
-    value,
-    annualDemand,
-    coverage,
-    location:r.location??r.Emplacement??'',
-    alert
-  };
-}
-
-function normalizePoRow(r){
-  return {
-    po:r.po??r.PO??'',
-    supplier:r.supplier??r.Fournisseur??'',
-    date:r.date??r.Date??today(),
-    eta:r.eta??r.ETA??addDays(7),
-    value:Number(r.value??r.Valeur??0),
-    status:r.status??r.Statut??'Ouvert',
-    lines:Number(r.lines??r.Lignes??1)
-  };
-}
-
-function normalizeReceiptRow(r){
-  return {
-    id:r.id??r.ID??'',
-    po:r.po??r.PO??'',
-    supplier:r.supplier??r.Fournisseur??'',
-    dock:r.dock??r.Dock??'D1',
-    status:r.status??r.Statut??'Dock',
-    eta:r.eta??r.ETA??today(),
-    lines:Number(r.lines??r.Lignes??1),
-    exceptions:Number(r.exceptions??r.Exceptions??0)
-  };
-}
-
-function normalizePutawayRow(r){
-  return {
-    id:r.id??r.ID??'',
-    sku:r.sku??r.SKU??'',
-    qty:Number(r.qty??r.Qte??r.Qté??0),
-    from:r.from??r.Depuis??'Dock',
-    to:r.to??r.Vers??'',
-    priority:r.priority??r.Priorite??r.Priorité??'Normale',
-    status:r.status??r.Statut??'À ranger'
-  };
-}
-
-function normalizeGenericRows(rows){return Array.isArray(rows)?rows:[]}
-
-function generateData(){
-  const families=['Moteur','Freinage','Suspension','Électrique','Carrosserie','Transmission','Habitacle','HVAC'];
-  const supplierNames=['Bosch','Magna','Valeo','SKF','ABB','Siemens','Faurecia','ZF'];
-  const cities=[['Montreal','QC'],['Toronto','ON'],['Quebec','QC'],['Halifax','NS'],['Calgary','AB'],['Vancouver','BC']];
-  suppliers=supplierNames.map((name,i)=>({
-    id:`SUP-${String(i+1).padStart(3,'0')}`,
-    name,
-    city:pick(cities)[0],
-    province:pick(cities)[1],
-    otd:rand(86,99),
-    score:rand(70,98),
-    contact:`contact@${name.toLowerCase()}.com`,
-    phone:`514-555-${String(rand(1000,9999))}`,
-    address:`${rand(10,999)} Rue Industrielle`
-  }));
-
-  inventory=Array.from({length:400},(_,i)=>{
-    const family=pick(families);
-    const supplier=pick(suppliers).name;
-    const annualDemand=rand(500,24000);
-    const stock=rand(10,1200);
-    const rop=rand(20,260);
-    const price=rand(8,2400);
-    const alert=stock<rop?'Critique':stock<rop*1.2?'À surveiller':'OK';
-    return normalizeInventoryRow({
-      sku:`VOL-${String(i+1).padStart(4,'0')}`,
-      description:`Pièce Volvo ${family} ${i+1}`,
-      family,
-      supplier,
-      stock,
-      rop,
-      eoq:rand(20,300),
-      abc:pick(['A','A','B','B','C']),
-      price,
-      value:stock*price,
-      annualDemand,
-      coverage:(stock/Math.max(1,annualDemand/365)).toFixed(1),
-      location:`${pick(['A','B','C','D'])}-${rand(1,12)}-${rand(1,6)}`,
-      alert
-    });
+function ensureArray(value){return Array.isArray(value)?value:[];}
+function normalizeDataAfterImport(){
+  inventory=ensureArray(inventory).map((x,i)=>{
+    const item={...x};
+    item.sku=(item.sku||`VOL-${String(i+1).padStart(4,'0')}`).toString().trim().toUpperCase();
+    item.description=(item.description||`Pièce ${i+1}`).toString();
+    item.category=(item.category||'Non classée').toString();
+    item.supplier=(item.supplier||'Inconnu').toString();
+    item.available=toNumber(item.available,0);
+    item.reserved=toNumber(item.reserved,0);
+    item.quarantine=toNumber(item.quarantine,0);
+    item.price=toNumber(item.price,0);
+    item.location=(item.location||'BIN-01-01').toString();
+    item.lot=(item.lot||'').toString();
+    recalcItem(item);
+    return item;
   });
 
-  purchaseOrders=Array.from({length:24},(_,i)=>{
-    const supplier=pick(suppliers).name;
-    return normalizePoRow({
-      po:`PO-${String(1000+i)}`,
-      supplier,
-      date:addDays(-rand(1,20)),
-      eta:addDays(rand(-3,15)),
-      value:rand(12000,280000),
-      status:pick(['Ouvert','À valider','En transit','Partiel','Clos']),
-      lines:rand(2,18)
-    });
-  });
-
-  receipts=Array.from({length:16},(_,i)=>{
-    const po=pick(purchaseOrders);
-    return normalizeReceiptRow({
-      id:`REC-${String(200+i)}`,
-      po:po.po,
-      supplier:po.supplier,
-      dock:`D${rand(1,6)}`,
-      status:pick(['Dock','Contrôle','Partiel','Reçu']),
-      eta:addDays(rand(-2,3)),
-      lines:rand(1,12),
-      exceptions:rand(0,2)
-    });
-  });
-
-  putawayTasks=Array.from({length:28},(_,i)=>{
-    const item=pick(inventory);
-    return normalizePutawayRow({
-      id:`PUT-${String(300+i)}`,
-      sku:item.sku,
-      qty:rand(1,80),
-      from:`DOCK-${rand(1,4)}`,
-      to:item.location,
-      priority:pick(['Basse','Normale','Haute','Urgent']),
-      status:pick(['À ranger','En cours','Complété'])
-    });
-  });
-
-  productionLines=[
-    {line:'Ligne 1',availability:92,performance:90,quality:97},
-    {line:'Ligne 2',availability:88,performance:91,quality:95},
-    {line:'Ligne 3',availability:95,performance:93,quality:98}
-  ].map(x=>({...x,trs:((x.availability*x.performance*x.quality)/10000)}));
-
-  masterProductionPlan=[
-    {model:'XC60',units:120,line:'Ligne 1',priority:'Haute',start:addDays(0),end:addDays(4)},
-    {model:'XC90',units:72,line:'Ligne 2',priority:'Haute',start:addDays(1),end:addDays(5)},
-    {model:'EX30',units:150,line:'Ligne 3',priority:'Normale',start:addDays(0),end:addDays(6)},
-    {model:'V60',units:85,line:'Ligne 1',priority:'Normale',start:addDays(3),end:addDays(7)}
-  ];
-
-  const colors=['Noir','Blanc','Bleu','Rouge','Gris'];
-  manufacturingOrders=Array.from({length:24},(_,i)=>{
-    const model=pick(masterProductionPlan).model;
+  purchaseOrders=ensureArray(purchaseOrders).map((x,i)=>{
+    const itemRef=inventory.find(it=>it.sku===String(x.sku||'').trim().toUpperCase());
+    const qty=toNumber(x.qty,0);
+    const price=itemRef?itemRef.price:toNumber(x.unitPrice,0);
     return {
-      of:`OF-${10000+i}`,
-      model,
-      vin:`YV1${rand(1000000,9999999)}`,
-      status:pick(['Planifié','Assemblage','Inspection','Terminé']),
-      parts:rand(35,95),
-      line:pick(productionLines).line,
-      color:pick(colors),
-      eta:addDays(rand(0,5))
+      ...x,
+      id:(x.id||`PO-${String(i+1).padStart(4,'0')}`).toString(),
+      sku:(x.sku||itemRef?.sku||'').toString().trim().toUpperCase(),
+      description:(x.description||itemRef?.description||'').toString(),
+      supplier:(x.supplier||itemRef?.supplier||'Inconnu').toString(),
+      qty,
+      qtySuggested:toNumber(x.qtySuggested,qty),
+      value:toNumber(x.value,qty*price),
+      status:(x.status||'BROUILLON').toString(),
+      priority:(x.priority||'Moyenne').toString(),
+      urgency:(x.urgency||'Normale').toString(),
+      leadDays:toNumber(x.leadDays,0),
+      createdAt:(x.createdAt||'').toString(),
+      sentAt:(x.sentAt||'').toString()||null,
+      closedAt:(x.closedAt||'').toString()||null
     };
   });
 
-  bom=['XC60','XC90','EX30','V60'].map(model=>({
-    model,
-    families:rand(6,8),
-    partsCount:rand(45,92),
-    consumptionDay:rand(180,680),
-    criticalStock:rand(2,14)
+  receipts=ensureArray(receipts).map((x,i)=>({
+    ...x,
+    id:(x.id||`REC-${String(i+1).padStart(4,'0')}`).toString(),
+    poId:(x.poId||'').toString(),
+    sku:(x.sku||'').toString().trim().toUpperCase(),
+    supplier:(x.supplier||'').toString(),
+    expected:toNumber(x.expected,0),
+    received:toNumber(x.received,0),
+    variance:toNumber(x.variance,toNumber(x.received,0)-toNumber(x.expected,0)),
+    putaway:(x.putaway||'PUT-01').toString(),
+    status:(x.status||'Attendue').toString(),
+    notes:(x.notes||'').toString(),
+    posted:Boolean(x.posted===true||x.posted==='true'||x.posted===1),
+    putawayConfirmed:Boolean(x.putawayConfirmed===true||x.putawayConfirmed==='true'||x.putawayConfirmed===1)
   }));
 
-  vehicleBuilds=manufacturingOrders.filter(x=>x.status!=='Terminé').map(x=>({
-    vin:x.vin,model:x.model,color:x.color,of:x.of,step:x.status,eta:x.eta
+  putawayTasks=ensureArray(putawayTasks).map((x,i)=>({
+    ...x,
+    id:(x.id||`PUT-${String(i+1).padStart(4,'0')}`).toString(),
+    receiptId:(x.receiptId||'').toString(),
+    sku:(x.sku||'').toString().trim().toUpperCase(),
+    qty:toNumber(x.qty,0),
+    destination:(x.destination||x.suggested||'BIN-01-01').toString(),
+    suggested:(x.suggested||x.destination||'BIN-01-01').toString(),
+    status:(x.status||'À ranger').toString(),
+    posted:Boolean(x.posted===true||x.posted==='true'||x.posted===1),
+    postedToInventory:Boolean(x.postedToInventory===true||x.postedToInventory==='true'||x.postedToInventory===1)
   }));
 
-  dealers=[
-    {code:'DLR-MTL',name:'Volvo Laval',city:'Laval',province:'QC',lat:45.569,lon:-73.692,pending:12,delivered30:38},
-    {code:'DLR-QC',name:'Volvo Quebec',city:'Quebec',province:'QC',lat:46.813,lon:-71.208,pending:10,delivered30:31},
-    {code:'DLR-TO',name:'Volvo Toronto',city:'Toronto',province:'ON',lat:43.653,lon:-79.383,pending:16,delivered30:44},
-    {code:'DLR-HFX',name:'Volvo Halifax',city:'Halifax',province:'NS',lat:44.648,lon:-63.575,pending:7,delivered30:22},
-    {code:'DLR-CGY',name:'Volvo Calgary',city:'Calgary',province:'AB',lat:51.044,lon:-114.071,pending:11,delivered30:28}
-  ];
-
-  carriers=[
-    {name:'CN Logistics',type:'Rail / Truck',capacity:120,otd:96,late:2},
-    {name:'TransAuto',type:'Truck',capacity:80,otd:91,late:5},
-    {name:'Nordik Freight',type:'Truck',capacity:65,otd:89,late:6}
-  ];
-
-  routes=dealers.map((d,i)=>({
-    route:`RT-${i+1}`,
-    carrier:pick(carriers).name,
-    truck:`TRK-${rand(100,999)}`,
-    capacity:rand(8,14),
-    utilization:rand(58,100),
-    eta:addDays(rand(1,6)),
-    status:pick(['Actif','Actif','En retard']),
-    dealer:d.code,
-    lat:d.lat,
-    lon:d.lon
-  }));
-
-  vehicleOrders=Array.from({length:22},(_,i)=>{
-    const mo=pick(manufacturingOrders);
-    const dealer=pick(dealers);
-    const route=routes.find(r=>r.dealer===dealer.code) || pick(routes);
-    const statuses=['Planifiée','En transit','Livrée'];
-    const status=pick(statuses);
-    return {
-      order:`ORD-${6000+i}`,
-      vin:mo.vin,
-      model:mo.model,
-      dealer:dealer.code,
-      route:route.route,
-      eta:addDays(rand(1,8)),
-      status,
-      pod:status==='Livrée' ? 'Oui':'Non'
-    };
+  productionLines=ensureArray(productionLines).map((x,i)=>{
+    const availability=toNumber(x.availability,0),performance=toNumber(x.performance,0),quality=toNumber(x.quality,0);
+    return {...x,name:(x.name||`Ligne ${i+1}`).toString(),availability,performance,quality,trs:toNumber(x.trs,Math.round((availability*performance*quality/10000)*10)/10)};
   });
+  modelPlan=ensureArray(modelPlan).map(x=>({...x,model:(x.model||'').toString(),units:toNumber(x.units,0)}));
+  manufacturingOrders=ensureArray(manufacturingOrders).map((x,i)=>({...x,id:(x.id||`OF-${String(i+1).padStart(4,'0')}`).toString(),model:(x.model||'').toString(),vin:(x.vin||'').toString(),status:(x.status||'Planifiée').toString(),bom:toNumber(x.bom,0),line:(x.line||'').toString(),start:(x.start||'').toString(),end:(x.end||'').toString()}));
+  bomModels=ensureArray(bomModels).map(x=>({...x,model:(x.model||'').toString(),families:toNumber(x.families,0),bomParts:toNumber(x.bomParts,0),consumptionDay:toNumber(x.consumptionDay,0),critical:toNumber(x.critical,0),topParts:Array.isArray(x.topParts)?x.topParts:String(x.topParts||'').split('|').map(v=>v.trim()).filter(Boolean)}));
+  vehicleBuilds=ensureArray(vehicleBuilds).map(x=>({...x,vin:(x.vin||'').toString(),model:(x.model||'').toString(),color:(x.color||'').toString(),ofId:(x.ofId||'').toString(),stage:(x.stage||'').toString(),etaLine:(x.etaLine||'').toString(),line:(x.line||'').toString()}));
+  masterPlan=ensureArray(masterPlan).map(x=>({...x,model:(x.model||'').toString(),units:toNumber(x.units,0),line:(x.line||'').toString(),priority:(x.priority||'').toString(),start:(x.start||'').toString(),end:(x.end||'').toString()}));
+  dealers=ensureArray(dealers).map(x=>({...x,code:(x.code||'').toString(),name:(x.name||'').toString(),city:(x.city||'').toString(),province:(x.province||'').toString(),lat:toNumber(x.lat,0),lng:toNumber(x.lng,0),pending:toNumber(x.pending,0),delivered30:toNumber(x.delivered30,0),otd:toNumber(x.otd,0),contact:(x.contact||'').toString(),email:(x.email||'').toString(),phone:(x.phone||'').toString()}));
+  transporters=ensureArray(transporters).map(x=>({...x,name:(x.name||'').toString(),type:(x.type||'').toString(),capacity:toNumber(x.capacity,0),otd:toNumber(x.otd,0),late:toNumber(x.late,0)}));
+  routes=ensureArray(routes).map((x,i)=>({...x,id:(x.id||`RTE-${String(i+1).padStart(3,'0')}`).toString(),dealer:(x.dealer||'').toString(),dealerCode:(x.dealerCode||'').toString(),transporteur:(x.transporteur||'').toString(),carrierType:(x.carrierType||'').toString(),capacity:toNumber(x.capacity,0),utilization:toNumber(x.utilization,0),truck:(x.truck||'').toString(),eta:(x.eta||'').toString(),status:(x.status||'Planifiée').toString(),lat:toNumber(x.lat,0),lng:toNumber(x.lng,0),stopCount:toNumber(x.stopCount,0),alert:(x.alert||'Aucune').toString()}));
+  vehicleOrders=ensureArray(vehicleOrders).map((x,i)=>({...x,id:(x.id||`SO-${String(3001+i).padStart(5,'0')}`).toString(),vin:(x.vin||'').toString(),model:(x.model||'').toString(),color:(x.color||'').toString(),dealerCode:(x.dealerCode||'').toString(),dealer:(x.dealer||'').toString(),routeId:(x.routeId||'').toString(),eta:(x.eta||'').toString(),status:(x.status||'Prévue').toString(),pod:(x.pod||'En attente').toString(),carrier:(x.carrier||'').toString(),price:toNumber(x.price,0)}));
+  deliveryHistory=ensureArray(deliveryHistory).map(x=>({...x,date:(x.date||'').toString(),dealer:(x.dealer||'').toString(),vin:(x.vin||'').toString(),routeId:(x.routeId||'').toString(),status:(x.status||'').toString()}));
+  govUsersData=ensureArray(govUsersData).map(x=>({...x,id:(x.id||'').toString(),name:(x.name||'').toString(),role:(x.role||'').toString(),department:(x.department||'').toString(),lastAction:(x.lastAction||'').toString(),status:(x.status||'Actif').toString()}));
+  govApprovalsData=ensureArray(govApprovalsData).map(x=>({...x,id:(x.id||'').toString(),type:(x.type||'').toString(),department:(x.department||'').toString(),owner:(x.owner||x.responsable||'').toString(),responsable:(x.responsable||x.owner||'').toString(),status:(x.status||'Ouvert').toString()}));
+  govNotificationsData=ensureArray(govNotificationsData).map(x=>({...x,id:(x.id||'').toString(),date:(x.date||'').toString(),source:(x.source||'').toString(),message:(x.message||'').toString(),priority:(x.priority||'').toString(),module:(x.module||'').toString()}));
+  deptKpiData=ensureArray(deptKpiData).map(x=>({...x,department:(x.department||'').toString(),kpi:(x.kpi||x.metric||'').toString(),metric:(x.metric||x.kpi||'').toString(),value:(x.value||'').toString(),trend:(x.trend||'').toString()}));
+  userActionsData=ensureArray(userActionsData).map(x=>({...x,date:(x.date||'').toString(),user:(x.user||'').toString(),action:(x.action||'').toString(),module:(x.module||'').toString(),detail:(x.detail||'').toString()}));
 
-  orderHistory=vehicleOrders.map(o=>({
-    date:addDays(-rand(0,30)),dealer:o.dealer,vin:o.vin,route:o.route,status:o.status
-  }));
-
-  users=[
-    {name:'Mathieu',role:'Admin',department:'Supply Chain',lastAction:'Validation PO',status:'Actif'},
-    {name:'Sophie',role:'Acheteur',department:'Approvisionnement',lastAction:'Création PO',status:'Actif'},
-    {name:'Marc',role:'Chef entrepôt',department:'WMS',lastAction:'Réception quai 2',status:'Actif'},
-    {name:'Julie',role:'Planificatrice',department:'Production',lastAction:'Mise à jour MPS',status:'Actif'}
-  ];
-
-  approvals=[
-    {id:'APR-101',type:'PO > seuil',department:'Approvisionnement',owner:'Mathieu',status:'Ouvert'},
-    {id:'APR-102',type:'Ajustement stock',department:'WMS',owner:'Marc',status:'Ouvert'},
-    {id:'APR-103',type:'Changement plan',department:'Production',owner:'Julie',status:'Approuvé'}
-  ];
-
-  notifications=[
-    {date:today(),source:'Route RT-2',message:'Livraison critique avec retard estimé de 8h',priority:'Haute'},
-    {date:today(),source:'WMS',message:'SKU VOL-0008 sous ROP',priority:'Haute'},
-    {date:today(),source:'PO',message:'PO-1007 en attente d’approbation',priority:'Moyenne'}
-  ];
-
-  departmentKpis=[
-    {department:'Approvisionnement',kpi:'OTD fournisseurs',value:'93.5%',trend:'↗'},
-    {department:'WMS',kpi:'Exactitude inventaire',value:'98.8%',trend:'→'},
-    {department:'Production',kpi:'TRS moyen',value:formatPct(avgTrs()),trend:'↗'},
-    {department:'Distribution',kpi:'OTD dealer',value:'95.2%',trend:'↘'}
-  ];
-
-  userActions=[
-    {date:today(),user:'Sophie',action:'Création',module:'PO',detail:'PO-1015 créée'},
-    {date:today(),user:'Marc',action:'Réception',module:'Réception+',detail:'REC-203 dock 2'},
-    {date:today(),user:'Julie',action:'Planification',module:'Production',detail:'XC60 +20 unités'},
-    {date:today(),user:'Mathieu',action:'Approbation',module:'Gouvernance',detail:'APR-101 validée'}
-  ];
+  selectedInventorySku=inventory[0]?.sku||null;
+  selectedPoId=purchaseOrders[0]?.id||null;
+  selectedReceiptId=receipts[0]?.id||null;
+  selectedPutawayId=putawayTasks[0]?.id||null;
+  selectedDealerCode=dealers[0]?.code||null;
+  selectedRouteId=routes[0]?.id||null;
+  selectedOrderId=vehicleOrders[0]?.id||null;
+  selectedUserId=govUsersData[0]?.id||null;
+  selectedApprovalId=govApprovalsData[0]?.id||null;
+  selectedNotificationId=govNotificationsData[0]?.id||null;
 }
-
-function avgTrs(){
-  if(!productionLines.length)return 0;
-  return productionLines.reduce((a,b)=>a+Number(b.trs||0),0)/productionLines.length;
-}
-
 function getAppState(){
   return {
-    inventory,
-    suppliers,
-    purchaseOrders,
-    receipts,
-    putawayTasks,
-    productionLines,
-    masterProductionPlan,
-    manufacturingOrders,
-    bom,
-    vehicleBuilds,
-    dealers,
-    carriers,
-    routes,
-    vehicleOrders,
-    orderHistory,
-    users,
-    approvals,
-    notifications,
-    departmentKpis,
-    userActions,
-    savedAt:new Date().toISOString(),
-    version:'V1.2'
+    inventory,purchaseOrders,receipts,putawayTasks,productionLines,modelPlan,manufacturingOrders,
+    bomModels,vehicleBuilds,masterPlan,dealers,transporters,routes,vehicleOrders,deliveryHistory,
+    govUsersData,govApprovalsData,govNotificationsData,deptKpiData,userActionsData,
+    selectedInventorySku,selectedPoId,selectedReceiptId,selectedPutawayId,selectedDealerCode,selectedRouteId,
+    selectedOrderId,selectedUserId,selectedApprovalId,selectedNotificationId,activePage,
+    savedAt:new Date().toISOString(),version:'V1.3'
   };
 }
-
-function applyAppState(state){
-  inventory=Array.isArray(state.inventory)?state.inventory.map(normalizeInventoryRow):[];
-  suppliers=normalizeGenericRows(state.suppliers);
-  purchaseOrders=normalizeGenericRows(state.purchaseOrders).map(normalizePoRow);
-  receipts=normalizeGenericRows(state.receipts).map(normalizeReceiptRow);
-  putawayTasks=normalizeGenericRows(state.putawayTasks).map(normalizePutawayRow);
-  productionLines=normalizeGenericRows(state.productionLines).map(x=>({
-    line:x.line??x.Ligne??'',
-    availability:Number(x.availability??x.Disponibilite??x.Disponibilité??0),
-    performance:Number(x.performance??x.Performance??0),
-    quality:Number(x.quality??x.Qualite??x.Qualité??0),
-    trs:Number(x.trs??x.TRS??0)
-  }));
-  masterProductionPlan=normalizeGenericRows(state.masterProductionPlan);
-  manufacturingOrders=normalizeGenericRows(state.manufacturingOrders);
-  bom=normalizeGenericRows(state.bom);
-  vehicleBuilds=normalizeGenericRows(state.vehicleBuilds);
-  dealers=normalizeGenericRows(state.dealers);
-  carriers=normalizeGenericRows(state.carriers);
-  routes=normalizeGenericRows(state.routes);
-  vehicleOrders=normalizeGenericRows(state.vehicleOrders);
-  orderHistory=normalizeGenericRows(state.orderHistory);
-  users=normalizeGenericRows(state.users);
-  approvals=normalizeGenericRows(state.approvals);
-  notifications=normalizeGenericRows(state.notifications);
-  departmentKpis=normalizeGenericRows(state.departmentKpis);
-  userActions=normalizeGenericRows(state.userActions);
-
-  if(!productionLines.length || productionLines.every(x=>!Number(x.trs))){
-    productionLines=productionLines.map(x=>({...x,trs:Number((((x.availability||0)*(x.performance||0)*(x.quality||0))/10000).toFixed(1))}));
-  }
-}
-
-function saveToLocalStorage(showToast=false){
+function saveToLocalStorage(showMessage=false){
   try{
-    localStorage.setItem(STORAGE_KEY,JSON.stringify(getAppState()));
-    if(showToast) toast('Sauvegarde locale','Les données actuelles ont été enregistrées dans ce navigateur.','info');
-  }catch(err){
-    console.error(err);
-    toast('Erreur sauvegarde','Impossible d’enregistrer la sauvegarde locale.','crit');
-  }
-}
-
-function loadFromLocalStorage(){
-  try{
-    const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw) return false;
-    const state=JSON.parse(raw);
-    if(!state || !Array.isArray(state.inventory) || !state.inventory.length) return false;
-    applyAppState(state);
+    localStorage.setItem(LOCAL_SAVE_KEY, JSON.stringify(getAppState()));
+    if(showMessage) alert('Sauvegarde locale effectuée avec succès.');
     return true;
   }catch(err){
     console.error(err);
-    toast('Erreur chargement','La sauvegarde locale est invalide. Retour à une base générée.','warn');
+    alert('Impossible de sauvegarder localement cette base.');
     return false;
   }
 }
-
-function resetAndSeedAppData(){
-  generateData();
-  saveToLocalStorage();
-}
-
-function renderDashboard(){
-  const value=inventory.reduce((a,b)=>a+Number(b.value||0),0);
-  const critical=inventory.filter(x=>x.alert==='Critique').slice(0,12);
-  const openPos=purchaseOrders.filter(x=>x.status!=='Clos').slice(0,12);
-
-  document.getElementById('kpiSku').textContent=formatNumber(inventory.length);
-  document.getElementById('kpiValue').textContent=formatMoney(value);
-  document.getElementById('kpiPo').textContent=formatNumber(purchaseOrders.filter(x=>x.status!=='Clos').length);
-  document.getElementById('kpiReceipts').textContent=formatNumber(receipts.filter(x=>x.status!=='Reçu').length);
-  document.getElementById('kpiPutaway').textContent=formatNumber(putawayTasks.filter(x=>x.status!=='Complété').length);
-  document.getElementById('kpiTrs').textContent=formatPct(avgTrs());
-
-  document.getElementById('criticalBody').innerHTML=critical.map(x=>`<tr><td>${x.sku}</td><td>${x.description}</td><td>${formatNumber(x.stock)}</td><td>${formatNumber(x.rop)}</td><td>${badgeForAlert(x.alert)}</td></tr>`).join('');
-  document.getElementById('openPoBody').innerHTML=openPos.map(x=>`<tr data-po="${x.po}"><td>${x.po}</td><td>${x.supplier}</td><td>${formatNumber(x.lines)}</td><td>${formatMoney(x.value)}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-
-  const top=[...inventory].sort((a,b)=>b.annualDemand*b.price-a.annualDemand*a.price).slice(0,10);
-  makeChart('annualValueChart','bar',top.map(x=>x.sku),[{label:'Valeur annuelle',data:top.map(x=>Math.round(x.annualDemand*x.price))}]);
-
-  const abc=['A','B','C'].map(a=>inventory.filter(x=>x.abc===a).length);
-  makeChart('abcChart','doughnut',['A','B','C'],[{label:'ABC',data:abc}]);
-}
-
-function renderInventory(){
-  const value=inventory.reduce((a,b)=>a+Number(b.value||0),0);
-  document.getElementById('invSku').textContent=formatNumber(inventory.length);
-  document.getElementById('invCoverage').textContent=(inventory.reduce((a,b)=>a+Number(b.coverage||0),0)/Math.max(1,inventory.length)).toFixed(1);
-  document.getElementById('invCritical').textContent=formatNumber(inventory.filter(x=>x.alert==='Critique').length);
-  document.getElementById('invValue').textContent=formatMoney(value);
-
-  document.getElementById('inventoryBody').innerHTML=inventory.map(x=>`<tr><td>${x.sku}</td><td>${x.description}</td><td>${x.family}</td><td>${x.supplier}</td><td>${formatNumber(x.stock)}</td><td>${formatNumber(x.rop)}</td><td>${formatNumber(x.eoq)}</td><td>${x.abc}</td><td>${formatMoney(x.price)}</td><td>${formatMoney(x.value)}</td><td>${x.location}</td><td>${badgeForAlert(x.alert)}</td></tr>`).join('');
-
-  const top=[...inventory].sort((a,b)=>b.value-a.value).slice(0,12);
-  makeChart('inventoryAnnualChart','bar',top.map(x=>x.sku),[{label:'Valeur stock',data:top.map(x=>x.value)}]);
-
-  const famMap={};
-  inventory.forEach(x=>{famMap[x.family]=(famMap[x.family]||[]).concat([Number(x.coverage||0)])});
-  const famLabels=Object.keys(famMap);
-  const famValues=famLabels.map(k=>Number((famMap[k].reduce((a,b)=>a+b,0)/famMap[k].length).toFixed(1)));
-  makeChart('coverageFamilyChart','bar',famLabels,[{label:'Couverture moyenne',data:famValues}]);
-}
-
-function renderProcurement(){
-  document.getElementById('poCount').textContent=formatNumber(purchaseOrders.filter(x=>x.status!=='Clos').length);
-  document.getElementById('poValue').textContent=formatMoney(purchaseOrders.reduce((a,b)=>a+Number(b.value||0),0));
-  document.getElementById('poSuppliers').textContent=formatNumber(new Set(purchaseOrders.map(x=>x.supplier)).size);
-  document.getElementById('poLate').textContent=formatNumber(purchaseOrders.filter(x=>new Date(x.eta)<new Date() && x.status!=='Clos').length);
-
-  document.getElementById('poBody').innerHTML=purchaseOrders.map(x=>`<tr data-po="${x.po}"><td>${x.po}</td><td>${x.supplier}</td><td>${x.date}</td><td>${x.eta}</td><td>${formatMoney(x.value)}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-  const s=suppliers[0];
-  document.getElementById('supplierDetail').innerHTML=s?`<div><strong>${s.name}</strong></div><div>${s.contact}</div><div>${s.phone}</div><div>${s.address}</div><div>OTD: ${s.otd}%</div><div>Score: ${s.score}</div>`:'—';
-}
-
-function renderReceiving(){
-  document.getElementById('receivingCount').textContent=formatNumber(receipts.filter(x=>x.status!=='Reçu').length);
-  document.getElementById('receivingLines').textContent=formatNumber(receipts.reduce((a,b)=>a+Number(b.lines||0),0));
-  document.getElementById('receivingDock').textContent=formatNumber(new Set(receipts.map(x=>x.dock)).size);
-  document.getElementById('receivingExceptions').textContent=formatNumber(receipts.reduce((a,b)=>a+Number(b.exceptions||0),0));
-
-  document.getElementById('receivingBody').innerHTML=receipts.map(x=>`<tr><td>${x.id}</td><td>${x.po}</td><td>${x.supplier}</td><td>${x.dock}</td><td>${badgeForStatus(x.status)}</td><td>${x.eta}</td></tr>`).join('');
-  const r=receipts[0];
-  document.getElementById('receivingDetail').innerHTML=r?`<div><strong>${r.id}</strong></div><div>PO: ${r.po}</div><div>Fournisseur: ${r.supplier}</div><div>Dock: ${r.dock}</div><div>Lignes: ${r.lines}</div><div>Exceptions: ${r.exceptions}</div>`:'—';
-}
-
-function renderPutaway(){
-  document.getElementById('putawayCount').textContent=formatNumber(putawayTasks.filter(x=>x.status!=='Complété').length);
-  document.getElementById('putawayQty').textContent=formatNumber(putawayTasks.reduce((a,b)=>a+Number(b.qty||0),0));
-  document.getElementById('putawayZones').textContent=formatNumber(new Set(putawayTasks.map(x=>String(x.to).split('-')[0])).size);
-  document.getElementById('putawayUrgent').textContent=formatNumber(putawayTasks.filter(x=>x.priority==='Urgent').length);
-
-  document.getElementById('putawayBody').innerHTML=putawayTasks.map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${formatNumber(x.qty)}</td><td>${x.from}</td><td>${x.to}</td><td>${x.priority}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-  const p=putawayTasks[0];
-  document.getElementById('putawayDetail').innerHTML=p?`<div><strong>${p.id}</strong></div><div>SKU: ${p.sku}</div><div>Qté: ${p.qty}</div><div>De: ${p.from}</div><div>Vers: ${p.to}</div><div>Priorité: ${p.priority}</div>`:'—';
-}
-
-function renderProduction(){
-  document.getElementById('prodOfCount').textContent=formatNumber(manufacturingOrders.length);
-  document.getElementById('prodVinCount').textContent=formatNumber(manufacturingOrders.length);
-  document.getElementById('prodBomAvg').textContent=(bom.reduce((a,b)=>a+Number(b.partsCount||0),0)/Math.max(1,bom.length)).toFixed(0);
-  document.getElementById('prodPartsUse').textContent=formatNumber(bom.reduce((a,b)=>a+Number(b.consumptionDay||0),0));
-  document.getElementById('prodInBuild').textContent=formatNumber(vehicleBuilds.length);
-  document.getElementById('prodModelCount').textContent=formatNumber(new Set(masterProductionPlan.map(x=>x.model)).size);
-
-  document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.line}</td><td>${formatPct(x.availability)}</td><td>${formatPct(x.performance)}</td><td>${formatPct(x.quality)}</td><td>${formatPct(x.trs)}</td></tr>`).join('');
-  document.getElementById('manufacturingBody').innerHTML=manufacturingOrders.map(x=>`<tr><td>${x.of}</td><td>${x.model}</td><td>${x.vin}</td><td>${badgeForStatus(x.status)}</td><td>${x.parts}</td><td>${x.line}</td></tr>`).join('');
-  document.getElementById('bomBody').innerHTML=bom.map(x=>`<tr><td>${x.model}</td><td>${x.families}</td><td>${x.partsCount}</td><td>${x.consumptionDay}</td><td>${x.criticalStock}</td></tr>`).join('');
-  document.getElementById('vehicleBuildBody').innerHTML=vehicleBuilds.map(x=>`<tr><td>${x.vin}</td><td>${x.model}</td><td>${x.color}</td><td>${x.of}</td><td>${x.step}</td><td>${x.eta}</td></tr>`).join('');
-  document.getElementById('masterPlanBody').innerHTML=masterProductionPlan.map(x=>`<tr><td>${x.model}</td><td>${x.units}</td><td>${x.line}</td><td>${x.priority}</td><td>${x.start}</td><td>${x.end}</td></tr>`).join('');
-  const m=masterProductionPlan[0];
-  document.getElementById('partsConsumptionDetail').innerHTML=m?`<div><strong>${m.model}</strong></div><div>Unités: ${m.units}</div><div>Ligne: ${m.line}</div><div>Priorité: ${m.priority}</div>`:'—';
-
-  makeChart('trsChart','bar',productionLines.map(x=>x.line),[{label:'TRS',data:productionLines.map(x=>Number(x.trs.toFixed(1)))}]);
-  makeChart('modelsChart','bar',masterProductionPlan.map(x=>x.model),[{label:'Unités',data:masterProductionPlan.map(x=>x.units)}]);
-}
-
-function renderDistribution(){
-  document.getElementById('distOrders').textContent=formatNumber(vehicleOrders.length);
-  document.getElementById('distShipped').textContent=formatNumber(vehicleOrders.filter(x=>x.status==='Livrée').length);
-  document.getElementById('distCarriers').textContent=formatNumber(carriers.length);
-  document.getElementById('distLate').textContent=formatNumber(routes.filter(x=>x.status==='En retard').length);
-  document.getElementById('distPod').textContent=formatNumber(vehicleOrders.filter(x=>x.pod==='Oui').length);
-  document.getElementById('distUtil').textContent=formatPct(routes.reduce((a,b)=>a+Number(b.utilization||0),0)/Math.max(1,routes.length));
-
-  document.getElementById('dealersBody').innerHTML=dealers.map(x=>`<tr><td>${x.code}</td><td>${x.name}</td><td>${x.city}</td><td>${x.province}</td><td>${x.pending}</td><td>${x.delivered30}</td></tr>`).join('');
-  document.getElementById('carriersBody').innerHTML=carriers.map(x=>`<tr><td>${x.name}</td><td>${x.type}</td><td>${x.capacity}</td><td>${x.otd}%</td><td>${x.late}</td></tr>`).join('');
-  document.getElementById('vehicleOrdersBody').innerHTML=vehicleOrders.map(x=>`<tr><td>${x.order}</td><td>${x.vin}</td><td>${x.model}</td><td>${x.dealer}</td><td>${x.route}</td><td>${x.eta}</td><td>${badgeForStatus(x.status)}</td><td>${x.pod}</td></tr>`).join('');
-  document.getElementById('routesBody').innerHTML=routes.map(x=>`<tr><td>${x.route}</td><td>${x.carrier}</td><td>${x.truck}</td><td>${x.capacity}</td><td>${x.utilization}%</td><td>${x.eta}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-  const d=dealers[0];
-  document.getElementById('dealerDetail').innerHTML=d?`<div><strong>${d.name}</strong></div><div>${d.city}, ${d.province}</div><div>En attente: ${d.pending}</div><div>Livré 30j: ${d.delivered30}</div>`:'—';
-  const r=routes[0];
-  document.getElementById('routeDetail').innerHTML=r?`<div><strong>${r.route}</strong></div><div>Transporteur: ${r.carrier}</div><div>Camion: ${r.truck}</div><div>Capacité: ${r.capacity}</div><div>Utilisation: ${r.utilization}%</div>`:'—';
-  const o=vehicleOrders[0];
-  document.getElementById('orderTimeline').innerHTML=o?[
-    ['Commande',o.order],['Production',o.vin],['Route',o.route],['ETA',o.eta],['Statut',o.status]
-  ].map(x=>`<div class="timeline-row"><strong>${x[0]}</strong><span>${x[1]}</span></div>`).join(''):'';
-  document.getElementById('historyBody').innerHTML=orderHistory.map(x=>`<tr><td>${x.date}</td><td>${x.dealer}</td><td>${x.vin}</td><td>${x.route}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-}
-
-function renderGovernance(){
-  document.getElementById('govUsers').textContent=formatNumber(users.length);
-  document.getElementById('govApprovals').textContent=formatNumber(approvals.filter(x=>x.status!=='Approuvé').length);
-  document.getElementById('govNotifications').textContent=formatNumber(notifications.length);
-  document.getElementById('govActions').textContent=formatNumber(userActions.length);
-
-  document.getElementById('usersBody').innerHTML=users.map(x=>`<tr><td>${x.name}</td><td>${x.role}</td><td>${x.department}</td><td>${x.lastAction}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-  document.getElementById('approvalsBody').innerHTML=approvals.map(x=>`<tr><td>${x.id}</td><td>${x.type}</td><td>${x.department}</td><td>${x.owner}</td><td>${badgeForStatus(x.status)}</td></tr>`).join('');
-  document.getElementById('govNotificationsBody').innerHTML=notifications.map(x=>`<tr><td>${x.date}</td><td>${x.source}</td><td>${x.message}</td><td>${x.priority}</td></tr>`).join('');
-  document.getElementById('deptKpiBody').innerHTML=departmentKpis.map(x=>`<tr><td>${x.department}</td><td>${x.kpi}</td><td>${x.value}</td><td>${x.trend}</td></tr>`).join('');
-  document.getElementById('userActionsBody').innerHTML=userActions.map(x=>`<tr><td>${x.date}</td><td>${x.user}</td><td>${x.action}</td><td>${x.module}</td><td>${x.detail}</td></tr>`).join('');
-}
-
-function renderSidebar(){
-  document.getElementById('navInventory').textContent=formatNumber(inventory.length);
-  document.getElementById('navPO').textContent=formatNumber(purchaseOrders.filter(x=>x.status!=='Clos').length);
-  document.getElementById('navReceiving').textContent=formatNumber(receipts.filter(x=>x.status!=='Reçu').length);
-  document.getElementById('navPutaway').textContent=formatNumber(putawayTasks.filter(x=>x.status!=='Complété').length);
-  document.getElementById('navProd').textContent=formatPct(avgTrs());
-  document.getElementById('navDist').textContent=formatNumber(vehicleOrders.length);
-  document.getElementById('navMap').textContent=formatNumber(routes.length);
-  document.getElementById('navGov').textContent=formatNumber(notifications.length);
-  document.getElementById('sideSku').textContent=formatNumber(inventory.length);
-  document.getElementById('sidePo').textContent=formatNumber(purchaseOrders.length);
-  document.getElementById('sideReceipts').textContent=formatNumber(receipts.length);
-  document.getElementById('sidePutaway').textContent=formatNumber(putawayTasks.length);
-  document.getElementById('sideTrs').textContent=formatPct(avgTrs());
-  document.getElementById('sideRoutes').textContent=formatNumber(routes.length);
-}
-
-function renderMap(){
-  if(!networkMap){
-    networkMap=L.map('networkMap').setView([47.0,-71.5],4);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'© OpenStreetMap'}).addTo(networkMap);
+function loadFromLocalStorage(){
+  try{
+    const raw=localStorage.getItem(LOCAL_SAVE_KEY);
+    if(!raw) return false;
+    const state=JSON.parse(raw);
+    if(!state || !Array.isArray(state.inventory) || !state.inventory.length) return false;
+    inventory=state.inventory||[];
+    purchaseOrders=state.purchaseOrders||[];
+    receipts=state.receipts||[];
+    putawayTasks=state.putawayTasks||[];
+    productionLines=state.productionLines||[];
+    modelPlan=state.modelPlan||[];
+    manufacturingOrders=state.manufacturingOrders||[];
+    bomModels=state.bomModels||[];
+    vehicleBuilds=state.vehicleBuilds||[];
+    masterPlan=state.masterPlan||[];
+    dealers=state.dealers||[];
+    transporters=state.transporters||[];
+    routes=state.routes||[];
+    vehicleOrders=state.vehicleOrders||[];
+    deliveryHistory=state.deliveryHistory||[];
+    govUsersData=state.govUsersData||[];
+    govApprovalsData=state.govApprovalsData||[];
+    govNotificationsData=state.govNotificationsData||[];
+    deptKpiData=state.deptKpiData||[];
+    userActionsData=state.userActionsData||[];
+    selectedInventorySku=state.selectedInventorySku||null;
+    selectedPoId=state.selectedPoId||null;
+    selectedReceiptId=state.selectedReceiptId||null;
+    selectedPutawayId=state.selectedPutawayId||null;
+    selectedDealerCode=state.selectedDealerCode||null;
+    selectedRouteId=state.selectedRouteId||null;
+    selectedOrderId=state.selectedOrderId||null;
+    selectedUserId=state.selectedUserId||null;
+    selectedApprovalId=state.selectedApprovalId||null;
+    selectedNotificationId=state.selectedNotificationId||null;
+    activePage=state.activePage||'dashboard';
+    normalizeDataAfterImport();
+    return true;
+  }catch(err){
+    console.error(err);
+    return false;
   }
-  networkLayers.forEach(l=>networkMap.removeLayer(l));
-  networkLayers=[];
-
-  const plant={name:'Usine Volvo',lat:45.630,lon:-73.700};
-  const plantMarker=L.circleMarker([plant.lat,plant.lon],{radius:9,color:'#60c8ff'}).addTo(networkMap).bindPopup(plant.name);
-  networkLayers.push(plantMarker);
-
-  dealers.forEach(d=>{
-    const late=routes.find(r=>r.dealer===d.code && r.status==='En retard');
-    const marker=L.circleMarker([d.lat,d.lon],{radius:8,color:late?'#ff5b73':'#22d96b'}).addTo(networkMap).bindPopup(`${d.name}`);
-    networkLayers.push(marker);
-    const poly=L.polyline([[plant.lat,plant.lon],[d.lat,d.lon]],{color:late?'#ff5b73':'#9e8dff',weight:3,opacity:.8}).addTo(networkMap);
-    networkLayers.push(poly);
-  });
-
-  document.getElementById('notificationsBody').innerHTML=routes.map(r=>`<tr><td>${r.route}</td><td>${r.status==='En retard'?'Retard de livraison':'Route nominale'}</td><td>${r.eta}</td><td>${r.status==='En retard'?'Escalader':'Suivi'}</td></tr>`).join('');
-  setTimeout(()=>networkMap.invalidateSize(),120);
 }
-
-function makeChart(id,type,labels,datasets){
-  const el=document.getElementById(id);
-  if(!el)return;
-  if(charts[id])charts[id].destroy();
-  charts[id]=new Chart(el,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type!=='bar'}}}});
-}
-
-function refreshVisibleVisuals(){
-  const activePage=document.querySelector('.page:not(.hidden)')?.id;
-  if(activePage==='page-dashboard')renderDashboard();
-  if(activePage==='page-inventory')renderInventory();
-  if(activePage==='page-procurement')renderProcurement();
-  if(activePage==='page-receiving')renderReceiving();
-  if(activePage==='page-putaway')renderPutaway();
-  if(activePage==='page-production')renderProduction();
-  if(activePage==='page-distribution')renderDistribution();
-  if(activePage==='page-map')renderMap();
-  if(activePage==='page-governance')renderGovernance();
-}
-
-function renderAll(){
-  renderSidebar();
-  renderDashboard();
-  renderInventory();
-  renderProcurement();
-  renderReceiving();
-  renderPutaway();
-  renderProduction();
-  renderDistribution();
-  renderGovernance();
-  if(document.getElementById('page-map') && !document.getElementById('page-map').classList.contains('hidden'))renderMap();
-}
-
-function showPage(page){
-  document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
-  document.getElementById(`page-${page}`).classList.remove('hidden');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
-  refreshVisibleVisuals();
-}
-
-function exportExcel(){
-  const wb=XLSX.utils.book_new();
+function exportDatabaseToExcel(){
+  if(typeof XLSX==='undefined'){ alert('Librairie Excel non chargée.'); return; }
+  const workbook=XLSX.utils.book_new();
   const sheets=[
-    ['Inventaire',inventory],
-    ['Fournisseurs',suppliers],
-    ['PO',purchaseOrders],
-    ['Receptions',receipts],
-    ['Putaway',putawayTasks],
-    ['LignesProduction',productionLines],
-    ['PlanModeles',masterProductionPlan],
-    ['OrdresFabrication',manufacturingOrders],
-    ['BOM',bom],
-    ['VehiculesEnCours',vehicleBuilds],
-    ['Dealers',dealers],
-    ['Transporteurs',carriers],
-    ['Routes',routes],
-    ['CommandesVehicules',vehicleOrders],
-    ['HistoriqueLivraisons',orderHistory],
-    ['Utilisateurs',users],
-    ['Approbations',approvals],
-    ['Notifications',notifications],
-    ['KpiDepartements',departmentKpis],
-    ['JournalActions',userActions]
+    ['Inventaire', inventory],
+    ['PO', purchaseOrders],
+    ['Receptions', receipts],
+    ['Putaway', putawayTasks],
+    ['LignesProduction', productionLines],
+    ['PlanModeles', modelPlan],
+    ['OrdresFabrication', manufacturingOrders],
+    ['BOM', bomModels.map(x=>({...x,topParts:Array.isArray(x.topParts)?x.topParts.join(' | '):x.topParts}))],
+    ['VehiculesBuild', vehicleBuilds],
+    ['PlanMaitre', masterPlan],
+    ['Dealers', dealers],
+    ['Transporteurs', transporters],
+    ['Routes', routes],
+    ['CommandesVehicules', vehicleOrders],
+    ['HistoriqueLivraison', deliveryHistory],
+    ['Utilisateurs', govUsersData],
+    ['Approbations', govApprovalsData],
+    ['Notifications', govNotificationsData],
+    ['KPI_Departements', deptKpiData],
+    ['JournalActions', userActionsData]
   ];
   sheets.forEach(([name,data])=>{
-    const ws=XLSX.utils.json_to_sheet(Array.isArray(data)?data:[]);
-    XLSX.utils.book_append_sheet(wb,ws,name.slice(0,31));
+    const sheet=XLSX.utils.json_to_sheet(Array.isArray(data)?data:[]);
+    XLSX.utils.book_append_sheet(workbook,sheet,name);
   });
-  XLSX.writeFile(wb,`SupplyPilot_V1.2_${today()}.xlsx`);
-  toast('Export Excel','La base de données a été exportée avec succès.','info');
+  XLSX.writeFile(workbook,`SupplyPilot_V1.3_Base_${new Date().toISOString().slice(0,10)}.xlsx`);
+  addUserAction('Export Excel de la base de données');
+  renderAll();
 }
-
-function sheetToJson(wb,name){
-  const ws=wb.Sheets[name];
-  if(!ws)return null;
-  return XLSX.utils.sheet_to_json(ws,{defval:''});
-}
-
-function importExcel(file){
+function importDatabaseFromExcel(event){
+  const file=event.target.files?.[0];
+  if(!file) return;
+  if(typeof XLSX==='undefined'){ alert('Librairie Excel non chargée.'); event.target.value=''; return; }
   const reader=new FileReader();
   reader.onload=e=>{
     try{
-      const data=new Uint8Array(e.target.result);
-      const wb=XLSX.read(data,{type:'array'});
-
-      const inv=sheetToJson(wb,'Inventaire');
-      if(!inv || !inv.length){
-        toast('Import refusé','La feuille Inventaire est obligatoire et ne peut pas être vide.','crit');
+      const workbook=XLSX.read(e.target.result,{type:'array'});
+      const importedInventory=sheetToJson(workbook,'Inventaire');
+      if(!importedInventory.length){
+        alert('Le fichier Excel doit contenir au minimum une feuille "Inventaire" avec des données.');
+        event.target.value='';
         return;
       }
-
-      inventory=inv.map(normalizeInventoryRow);
-      suppliers=normalizeGenericRows(sheetToJson(wb,'Fournisseurs'));
-      purchaseOrders=normalizeGenericRows(sheetToJson(wb,'PO')).map(normalizePoRow);
-      receipts=normalizeGenericRows(sheetToJson(wb,'Receptions')).map(normalizeReceiptRow);
-      putawayTasks=normalizeGenericRows(sheetToJson(wb,'Putaway')).map(normalizePutawayRow);
-      productionLines=normalizeGenericRows(sheetToJson(wb,'LignesProduction')).map(x=>({
-        line:x.line??x.Ligne??'',
-        availability:Number(x.availability??x.Disponibilite??x.Disponibilité??0),
-        performance:Number(x.performance??x.Performance??0),
-        quality:Number(x.quality??x.Qualite??x.Qualité??0),
-        trs:Number(x.trs??x.TRS??0)
-      }));
-      masterProductionPlan=normalizeGenericRows(sheetToJson(wb,'PlanModeles'));
-      manufacturingOrders=normalizeGenericRows(sheetToJson(wb,'OrdresFabrication'));
-      bom=normalizeGenericRows(sheetToJson(wb,'BOM'));
-      vehicleBuilds=normalizeGenericRows(sheetToJson(wb,'VehiculesEnCours'));
-      dealers=normalizeGenericRows(sheetToJson(wb,'Dealers'));
-      carriers=normalizeGenericRows(sheetToJson(wb,'Transporteurs'));
-      routes=normalizeGenericRows(sheetToJson(wb,'Routes'));
-      vehicleOrders=normalizeGenericRows(sheetToJson(wb,'CommandesVehicules'));
-      orderHistory=normalizeGenericRows(sheetToJson(wb,'HistoriqueLivraisons'));
-      users=normalizeGenericRows(sheetToJson(wb,'Utilisateurs'));
-      approvals=normalizeGenericRows(sheetToJson(wb,'Approbations'));
-      notifications=normalizeGenericRows(sheetToJson(wb,'Notifications'));
-      departmentKpis=normalizeGenericRows(sheetToJson(wb,'KpiDepartements'));
-      userActions=normalizeGenericRows(sheetToJson(wb,'JournalActions'));
-
-      if(!productionLines.length || productionLines.every(x=>!Number(x.trs))){
-        productionLines=productionLines.map(x=>({...x,trs:Number((((x.availability||0)*(x.performance||0)*(x.quality||0))/10000).toFixed(1))}));
-      }
-
+      inventory=importedInventory;
+      purchaseOrders=sheetToJson(workbook,'PO');
+      receipts=sheetToJson(workbook,'Receptions');
+      putawayTasks=sheetToJson(workbook,'Putaway');
+      productionLines=sheetToJson(workbook,'LignesProduction');
+      modelPlan=sheetToJson(workbook,'PlanModeles');
+      manufacturingOrders=sheetToJson(workbook,'OrdresFabrication');
+      bomModels=sheetToJson(workbook,'BOM');
+      vehicleBuilds=sheetToJson(workbook,'VehiculesBuild');
+      masterPlan=sheetToJson(workbook,'PlanMaitre');
+      dealers=sheetToJson(workbook,'Dealers');
+      transporters=sheetToJson(workbook,'Transporteurs');
+      routes=sheetToJson(workbook,'Routes');
+      vehicleOrders=sheetToJson(workbook,'CommandesVehicules');
+      deliveryHistory=sheetToJson(workbook,'HistoriqueLivraison');
+      govUsersData=sheetToJson(workbook,'Utilisateurs');
+      govApprovalsData=sheetToJson(workbook,'Approbations');
+      govNotificationsData=sheetToJson(workbook,'Notifications');
+      deptKpiData=sheetToJson(workbook,'KPI_Departements');
+      userActionsData=sheetToJson(workbook,'JournalActions');
+      normalizeDataAfterImport();
+      addUserAction(`Import Excel de la base de données (${file.name})`);
       saveToLocalStorage();
+      closeSlide();
       renderAll();
-      toast('Import Excel','La base de données a été importée, sauvegardée localement et rechargée.','info');
+      setPage(activePage||'dashboard');
+      alert(`Import Excel réussi : ${file.name}`);
     }catch(err){
       console.error(err);
-      toast('Erreur import','Le fichier Excel est invalide ou incompatible avec V1.1.','crit');
+      alert(`Import Excel impossible : ${err.message}`);
+    }finally{
+      event.target.value='';
     }
   };
   reader.readAsArrayBuffer(file);
 }
 
-function wireEvents(){
-  document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>showPage(btn.dataset.page)));
-  document.getElementById('btnRegenerate').addEventListener('click',()=>{
-    resetAndSeedAppData();
-    renderAll();
-    toast('Données régénérées','Un nouvel environnement de démonstration a été généré et sauvegardé localement.','warn');
+function generateData(){
+  const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
+  inventory=[]; purchaseOrders=[]; receipts=[]; putawayTasks=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
+  for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);const reserved=rand(0,Math.max(1,Math.floor(stock*0.18))),quarantine=rand(0,Math.max(1,Math.floor(stock*0.08))),available=Math.max(0,stock-reserved-quarantine);
+  inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,available,reserved,quarantine,price,value:stock*price,alert:available<40?'Critique':available<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`});}
+  purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>{const qty=rand(10,80),status=i%7===0?'FERMÉE':i%5===0?'ENVOYÉE':i%3===0?'BROUILLON':'OUVERTE',priority=x.alert==='Critique'?'Haute':i%2===0?'Moyenne':'Basse',urgency=x.alert==='Critique'?'Critique':status==='BROUILLON'?'Normale':'Élevée',createdAt=`2026-03-${String(rand(10,22)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`,sentAt=['ENVOYÉE','FERMÉE'].includes(status)?`2026-03-${String(rand(12,23)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,closedAt=status==='FERMÉE'?`2026-03-${String(rand(18,24)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,leadDays=rand(3,14);return{id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty,qtySuggested:qty,priority,urgency,leadDays,createdAt,sentAt,closedAt,value:qty*x.price,status};});
+  productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
+  modelPlan=models.map(m=>({model:m,units:rand(12,54)}));
+  manufacturingOrders=Array.from({length:18},(_,i)=>{const model=pick(models),vin=makeVin(i+1),status=['Planifiée','Assemblage','Inspection','Complété'][i%4],bom=rand(85,140),line=productionLines[i%productionLines.length].name;return{id:`OF-${String(i+1).padStart(4,'0')}`,model,vin,status,bom,line,start:`2026-03-${String((i%20)+1).padStart(2,'0')}`,end:`2026-03-${String((i%20)+3).padStart(2,'0')}`};});
+  bomModels=models.map((m,i)=>({model:m,families:rand(9,16),bomParts:rand(88,142),consumptionDay:rand(120,280),critical:rand(2,9),topParts:[`MOT-${i+1}`,`CAB-${i+1}`,`TRN-${i+1}`,`ELS-${i+1}`]}));
+  vehicleBuilds=manufacturingOrders.map((o,i)=>({vin:o.vin,model:o.model,color:pick(colors),ofId:o.id,stage:['Kitting','Assemblage','Peinture','Inspection finale'][i%4],etaLine:`${rand(2,18)} h`,line:o.line}));
+  masterPlan=models.map((m,i)=>({model:m,units:rand(18,56),line:productionLines[i%productionLines.length].name,priority:['Haute','Moyenne','Basse'][i%3],start:`2026-03-${String(10+i).padStart(2,'0')}`,end:`2026-03-${String(11+i).padStart(2,'0')}`}));
+  dealers=dealerSeeds.map((d,i)=>({code:d[0],name:d[1],city:d[2],province:d[3],lat:d[4],lng:d[5],pending:rand(3,16),delivered30:rand(8,28),otd:rand(90,99),contact:`${d[1]} Service`,email:`${d[0].toLowerCase()}@dealer.volvo.local`,phone:`+1 514-555-0${String(i+10).padStart(3,'0')}`}));
+  transporters=[{name:'TransNord',type:'Porte-autos 8',capacity:8,otd:96,late:1},{name:'Volvo Fleet',type:'Porte-autos 6',capacity:6,otd:98,late:0},{name:'CargoPlus',type:'Porte-autos 10',capacity:10,otd:92,late:2},{name:'GT Express',type:'Porte-autos 8',capacity:8,otd:94,late:1}];
+  routes=dealers.map((d,i)=>{const carrier=transporters[i%transporters.length],util=rand(62,100),status=i%5===0?'Retard':i%3===0?'Planifiée':'En transit',eta=`${rand(4,48)} h`,truck=`TRK-${String(200+i).padStart(3,'0')}`;return{id:`RTE-${String(i+1).padStart(3,'0')}`,dealer:d.name,dealerCode:d.code,transporteur:carrier.name,carrierType:carrier.type,capacity:carrier.capacity,utilization:util,truck,eta,status,lat:d.lat,lng:d.lng,stopCount:1,alert:status==='Retard'?'Retard météo / trafic':'Aucune'};});
+  vehicleOrders=Array.from({length:24},(_,i)=>{const dealer=dealers[i%dealers.length],route=routes[i%routes.length],model=pick(models),vin=makeVin(100+i),status=['Prévue','En production','À quai','Expédié','Livré'][i%5],eta=route.eta,pod=status==='Livré'?(i%2===0?'Reçue':'Signée'): 'En attente';return{id:`SO-${String(3001+i).padStart(5,'0')}`,vin,model,color:pick(colors),dealerCode:dealer.code,dealer:dealer.name,routeId:route.id,eta,status,pod,carrier:route.transporteur,price:rand(168000,245000)};});
+  deliveryHistory=vehicleOrders.slice(0,18).map((o,i)=>({date:`2026-03-${String((i%18)+1).padStart(2,'0')}`,dealer:o.dealer,vin:o.vin,routeId:o.routeId,status:i%4===0?'Retard':i%3===0?'Livré':'En transit'}));
+  govUsersData=[
+    {id:'USR-001',name:'Mathieu AEC',role:'Estimateur / Admin',department:'Direction',lastAction:'Validation transport',status:'Actif'},
+    {id:'USR-002',name:'Julie Tremblay',role:'Planificatrice',department:'Manufacture',lastAction:'Ordre OF-0004',status:'Actif'},
+    {id:'USR-003',name:'Marc Gagnon',role:'Superviseur WMS',department:'Entrepôt',lastAction:'Réallocation lot 2026-041',status:'Actif'},
+    {id:'USR-004',name:'Sophie Roy',role:'Coordonnatrice transport',department:'Distribution',lastAction:'ETA route RTE-003',status:'Actif'},
+    {id:'USR-005',name:'Éric Boucher',role:'Qualité',department:'Qualité',lastAction:'Blocage qualité',status:'Actif'},
+    {id:'USR-006',name:'Nadia Côté',role:'Acheteuse',department:'Approvisionnement',lastAction:'PO-0008',status:'Actif'}
+  ];
+  govApprovalsData=[
+    {id:'APP-001',type:'PO > 250k$',department:'Approvisionnement',owner:'Mathieu AEC',status:'Ouvert'},
+    {id:'APP-002',type:'Déblocage qualité',department:'Qualité',owner:'Éric Boucher',status:'En revue'},
+    {id:'APP-003',type:'Route urgente',department:'Distribution',owner:'Sophie Roy',status:'Ouvert'},
+    {id:'APP-004',type:'Ajustement inventaire',department:'Entrepôt',owner:'Marc Gagnon',status:'Approuvé'}
+  ];
+  govNotificationsData=[
+    {id:'NTF-001',date:'2026-03-21 08:10',source:'Distribution',message:'RTE-003 sous surveillance météo',priority:'Moyenne'},
+    {id:'NTF-002',date:'2026-03-21 08:22',source:'Qualité',message:'LOT-2026-0041 en quarantaine',priority:'Élevée'},
+    {id:'NTF-003',date:'2026-03-21 08:34',source:'Approvisionnement',message:'PO-0008 dépasse le seuil d’approbation',priority:'Élevée'},
+    {id:'NTF-004',date:'2026-03-21 09:05',source:'Manufacture',message:'OF-0004 replanifié sur ligne Cabine',priority:'Faible'}
+  ];
+  deptKpiData=[
+    {department:'Manufacture',kpi:'TRS',value:pct(productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length),trend:'Stable'},
+    {department:'Entrepôt',kpi:'Articles critiques',value:num(inventory.filter(x=>x.alert==='Critique').length),trend:'À réduire'},
+    {department:'Distribution',kpi:'Routes en retard',value:num(routes.filter(x=>x.status==='Retard').length),trend:'Sous contrôle'},
+    {department:'Approvisionnement',kpi:'PO ouvertes',value:num(purchaseOrders.length),trend:'Suivi quotidien'},
+    {department:'Qualité',kpi:'Lots bloqués',value:'4',trend:'À surveiller'}
+  ];
+  userActionsData=[
+    {date:'2026-03-21 08:00',user:'Mathieu AEC',action:'Validation approvisionnement',module:'Approvisionnement',detail:'APP-001'},
+    {date:'2026-03-21 08:18',user:'Julie Tremblay',action:'Replanification OF',module:'Manufacture',detail:'OF-0004'},
+    {date:'2026-03-21 08:27',user:'Marc Gagnon',action:'Ajustement lot',module:'WMS',detail:'LOT-2026-0041'},
+    {date:'2026-03-21 08:41',user:'Sophie Roy',action:'Mise à jour ETA',module:'Distribution',detail:'RTE-003'},
+    {date:'2026-03-21 09:03',user:'Éric Boucher',action:'Blocage qualité',module:'Qualité',detail:'HOLD-009'},
+    {date:'2026-03-21 09:16',user:'Nadia Côté',action:'Création PO',module:'Approvisionnement',detail:'PO-0008'}
+  ];
+  receipts=activePurchaseOrdersForReceipts();
+  putawayTasks=buildPutawayTasks();
+  selectedReceiptId=receipts[0]?.id||null;
+  selectedPutawayId=putawayTasks[0]?.id||null;
+  selectedUserId=govUsersData[0].id; selectedApprovalId=govApprovalsData[0].id; selectedNotificationId=govNotificationsData[0].id;
+  selectedDealerCode=dealers[0].code; selectedRouteId=routes[0].id; selectedOrderId=vehicleOrders[0].id; selectedOfId=manufacturingOrders[0].id; selectedVin=vehicleBuilds[0].vin; selectedBomModel=bomModels[0].model;
+}
+
+function activePurchaseOrdersForReceipts(){
+  return purchaseOrders.filter(x=>x.status!=='BROUILLON').slice(0,18).map((po,i)=>{
+    const received=po.status==='FERMÉE'?po.qty:(i%5===0?Math.max(1,Math.floor(po.qty*0.55)):i%4===0?Math.max(1,Math.floor(po.qty*0.8)):0);
+    const status=po.status==='FERMÉE'?'Postée':received===0?'Attendue':received<po.qty*0.75?'Partielle':received<po.qty?'Inspection':'Complète';
+    return {id:`REC-${String(i+1).padStart(4,'0')}`,poId:po.id,sku:po.sku,supplier:po.supplier,expected:po.qty,received,variance:received-po.qty,status,putaway:`PUT-${(inventory.find(it=>it.sku===po.sku)?.location)||'BIN-01-01'}`,notes:status==='Partielle'?'Écart de réception à traiter':status==='Inspection'?'Contrôle qualité requis':status==='Complète'?'Prêt à poster au stock':status==='Postée'?'Stock déjà posté':'Réception attendue',posted:status==='Postée'};
   });
-  document.getElementById('btnTheme').addEventListener('click',()=>document.body.classList.toggle('premium'));
-  document.getElementById('btnPresentation').addEventListener('click',()=>{document.body.classList.toggle('presentation');setTimeout(()=>{for(const k in charts){charts[k].resize()} if(networkMap)networkMap.invalidateSize();},120)});
-  document.getElementById('btnExportExcel').addEventListener('click',exportExcel);
-  document.getElementById('btnImportExcel').addEventListener('click',()=>document.getElementById('excelFileInput').click());
-  document.getElementById('excelFileInput').addEventListener('change',e=>{const file=e.target.files?.[0]; if(file) importExcel(file); e.target.value='';});
 }
 
-if(!loadFromLocalStorage()){
-  resetAndSeedAppData();
+
+function buildPutawayTasks(){
+  return receipts.filter(r=>r.status==='Postée').map((rec,i)=>{
+    const existing=putawayTasks.find(x=>x.receiptId===rec.id);
+    if(existing) return existing;
+    const item=inventory.find(it=>it.sku===rec.sku);
+    const status=i%4===0?'En cours':i%5===0?'Rangé':'À ranger';
+    return {
+      id:`PUT-${String(i+1).padStart(4,'0')}`,
+      receiptId:rec.id,
+      sku:rec.sku,
+      qty:rec.received,
+      destination:item?item.location:rec.putaway.replace('PUT-',''),
+      suggested:rec.putaway.replace('PUT-',''),
+      status,
+      posted:true,
+      postedToInventory:status==='Rangé'
+    };
+  });
 }
-wireEvents();
+
+function putawayStatusNext(current){
+  const map={'À ranger':'En cours','En cours':'Rangé','Rangé':'Rangé'};
+  return map[current]||current;
+}
+
+function receiptStatusNext(current){
+  const map={'Attendue':'Partielle','Partielle':'Inspection','Inspection':'Complète','Complète':'Postée','Postée':'Postée'};
+  return map[current]||current;
+}
+
+function renderAll(){
+  const activePO=purchaseOrders.filter(x=>x.status!=='FERMÉE'),closedPO=purchaseOrders.filter(x=>x.status==='FERMÉE'),totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
+  document.getElementById('kpiSku').textContent=num(inventory.length);document.getElementById('kpiInv').textContent=currency(totalInv);document.getElementById('kpiPO').textContent=num(activePO.length);document.getElementById('kpiTRS').textContent=pct(avgTRS);document.getElementById('kpiDealers').textContent=num(dealers.length);document.getElementById('kpiRoutes').textContent=num(routes.length);
+  document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(activePO.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
+  document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(activePO.length);document.getElementById('navReceiving').textContent=num(receipts.filter(x=>x.status!=='Postée').length);document.getElementById('navPutaway').textContent=num(putawayTasks.filter(x=>x.status!=='Rangé').length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
+  document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
+  document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr onclick="selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${num(x.available)}</td><td>${num(x.reserved)}</td><td>${num(x.quarantine)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
+  document.getElementById('dashboardPoBody').innerHTML=activePO.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('poBody').innerHTML=activePO.map(x=>`<tr data-po="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.priority)}</td><td>${badge(x.urgency)}</td><td>${num(x.leadDays)} j</td><td>${(x.createdAt||'—').slice(0,16)}</td><td><span style="cursor:pointer" title="Cliquer pour passer au statut suivant" onclick="event.stopPropagation();advancePOStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
+  document.getElementById('poClosedBody').innerHTML=closedPO.slice().reverse().map(x=>`<tr data-po="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${currency(x.value)}</td><td>${(x.createdAt||'—').slice(0,16)}</td><td>${x.closedAt||'—'}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('recCount').textContent=num(receipts.length);document.getElementById('recExpected').textContent=num(receipts.filter(x=>x.status==='Attendue').length);document.getElementById('recPartial').textContent=num(receipts.filter(x=>x.status==='Partielle').length);document.getElementById('recInspect').textContent=num(receipts.filter(x=>x.status==='Inspection').length);document.getElementById('recComplete').textContent=num(receipts.filter(x=>x.status==='Complète').length);document.getElementById('recPosted').textContent=num(receipts.filter(x=>x.status==='Postée').length);
+  document.getElementById('receiptsBody').innerHTML=receipts.map(x=>`<tr data-receipt="${x.id}"><td>${x.id}</td><td>${x.poId}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.expected)}</td><td>${num(x.received)}</td><td>${num(x.variance)}</td><td>${x.putaway}</td><td><span style="cursor:pointer" title="Cliquer pour passer à l'étape suivante" onclick="event.stopPropagation();advanceReceiptStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
+  document.getElementById('putCount').textContent=num(putawayTasks.length);document.getElementById('putOpen').textContent=num(putawayTasks.filter(x=>x.status==='À ranger').length);document.getElementById('putProgress').textContent=num(putawayTasks.filter(x=>x.status==='En cours').length);document.getElementById('putDone').textContent=num(putawayTasks.filter(x=>x.status==='Rangé').length);
+  document.getElementById('putawayBody').innerHTML=putawayTasks.map(x=>`<tr data-putaway="${x.id}"><td>${x.id}</td><td>${x.receiptId}</td><td>${x.sku}</td><td>${num(x.qty)}</td><td>${x.destination}</td><td><span style="cursor:pointer" title="Cliquer pour passer à l'étape suivante" onclick="event.stopPropagation();advancePutawayStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
+  const bomAvg=bomModels.length?bomModels.reduce((s,x)=>s+x.bomParts,0)/bomModels.length:0,partsUse=bomModels.reduce((s,x)=>s+x.consumptionDay,0),inBuild=manufacturingOrders.filter(x=>['Assemblage','Inspection'].includes(x.status)).length;
+  document.getElementById('prodOfCount').textContent=num(manufacturingOrders.length);document.getElementById('prodVinCount').textContent=num(vehicleBuilds.length);document.getElementById('prodBomAvg').textContent=num(bomAvg);document.getElementById('prodPartsUse').textContent=num(partsUse);document.getElementById('prodInBuild').textContent=num(inBuild);document.getElementById('prodModelCount').textContent=num(masterPlan.length);
+  document.getElementById('productionBody').innerHTML=productionLines.map(x=>`<tr><td>${x.name}</td><td>${pct(x.availability)}</td><td>${pct(x.performance)}</td><td>${pct(x.quality)}</td><td>${badge(pct(x.trs))}</td></tr>`).join('');
+  document.getElementById('manufacturingBody').innerHTML=manufacturingOrders.map(x=>`<tr data-of="${x.id}"><td>${x.id}</td><td>${x.model}</td><td>${x.vin}</td><td>${badge(x.status)}</td><td>${num(x.bom)}</td><td>${x.line}</td></tr>`).join('');
+  document.getElementById('bomBody').innerHTML=bomModels.map(x=>`<tr data-bom="${x.model}"><td>${x.model}</td><td>${num(x.families)}</td><td>${num(x.bomParts)}</td><td>${num(x.consumptionDay)}</td><td>${badge(x.critical)}</td></tr>`).join('');
+  document.getElementById('vehicleBuildBody').innerHTML=vehicleBuilds.map(x=>`<tr data-vin="${x.vin}"><td>${x.vin}</td><td>${x.model}</td><td>${x.color}</td><td>${x.ofId}</td><td>${badge(x.stage)}</td><td>${x.etaLine}</td></tr>`).join('');
+  document.getElementById('masterPlanBody').innerHTML=masterPlan.map(x=>`<tr><td>${x.model}</td><td>${num(x.units)}</td><td>${x.line}</td><td>${badge(x.priority)}</td><td>${x.start}</td><td>${x.end}</td></tr>`).join('');
+  document.getElementById('dashboardRouteBody').innerHTML=routes.map(x=>`<tr><td>${x.id}</td><td>${x.transporteur}</td><td>${x.dealer}</td><td>${x.eta}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('dealersBody').innerHTML=dealers.map(x=>`<tr data-dealer="${x.code}"><td>${x.code}</td><td>${x.name}</td><td>${x.city}</td><td>${x.province}</td><td>${num(x.pending)}</td><td>${num(x.delivered30)}</td></tr>`).join('');
+  document.getElementById('carriersBody').innerHTML=transporters.map(x=>`<tr><td>${x.name}</td><td>${x.type}</td><td>${num(x.capacity)}</td><td>${pct(x.otd)}</td><td>${num(x.late)}</td></tr>`).join('');
+  document.getElementById('vehicleOrdersBody').innerHTML=vehicleOrders.map(x=>`<tr data-order="${x.id}"><td>${x.id}</td><td>${x.vin}</td><td>${x.model}</td><td>${x.dealer}</td><td>${x.routeId}</td><td>${x.eta}</td><td>${badge(x.status)}</td><td>${badge(x.pod)}</td></tr>`).join('');
+  document.getElementById('routesBody').innerHTML=routes.map(x=>`<tr data-route="${x.id}"><td>${x.id}</td><td>${x.transporteur}</td><td>${x.truck}</td><td>${num(x.capacity)}</td><td>${pct(x.utilization)}</td><td>${x.eta}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('historyBody').innerHTML=deliveryHistory.map(x=>`<tr><td>${x.date}</td><td>${x.dealer}</td><td>${x.vin}</td><td>${x.routeId}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('notificationsBody').innerHTML=routes.map(x=>`<tr><td>${x.id}</td><td>${x.alert}</td><td>${x.eta}</td><td>${x.status==='Retard'?'Replanifier':'Surveiller'}</td></tr>`).join('');
+  document.getElementById('navGov').textContent=num(govApprovalsData.filter(x=>x.status!=='Approuvé').length);
+  document.getElementById('govUsers').textContent=num(govUsersData.length); document.getElementById('govApprovals').textContent=num(govApprovalsData.filter(x=>x.status!=='Approuvé').length); document.getElementById('govNotifications').textContent=num(govNotificationsData.length); document.getElementById('govActions').textContent=num(userActionsData.length);
+  document.getElementById('usersBody').innerHTML=govUsersData.map(x=>`<tr data-user="${x.id}"><td>${x.name}</td><td>${x.role}</td><td>${x.department}</td><td>${x.lastAction}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('approvalsBody').innerHTML=govApprovalsData.map(x=>`<tr data-approval="${x.id}"><td>${x.id}</td><td>${x.type}</td><td>${x.department}</td><td>${x.owner}</td><td>${badge(x.status)}</td></tr>`).join('');
+  document.getElementById('govNotificationsBody').innerHTML=govNotificationsData.map(x=>`<tr data-notification="${x.id}"><td>${x.date}</td><td>${x.source}</td><td>${x.message}</td><td>${badge(x.priority)}</td></tr>`).join('');
+  document.getElementById('deptKpiBody').innerHTML=deptKpiData.map(x=>`<tr><td>${x.department}</td><td>${x.kpi}</td><td>${x.value}</td><td>${x.trend}</td></tr>`).join('');
+  document.getElementById('userActionsBody').innerHTML=userActionsData.map(x=>`<tr><td>${x.date}</td><td>${x.user}</td><td>${x.action}</td><td>${x.module}</td><td>${x.detail}</td></tr>`).join('');
+  bindDistributionClicks(); bindReceivingClicks(); bindPutawayClicks(); bindGovernanceClicks(); renderDealerDetail(); renderRouteDetail(); renderOrderTimeline(); renderReceivingDetail(); renderPutawayDetail(); renderUserDetail(); renderApprovalDetail(); renderNotificationDetail(); refreshVisibleVisuals();
+  saveToLocalStorage();
+}
+
+function bindReceivingClicks(){
+  document.querySelectorAll('[data-receipt]').forEach(tr=>{
+    tr.onclick=()=>{
+      selectedReceiptId=tr.dataset.receipt;
+      renderReceivingDetail(true, selectedReceiptId);
+    };
+  });
+}
+
+function renderReceivingDetail(open=false, receiptId=null){
+  const targetId = receiptId || selectedReceiptId;
+  const rec=receipts.find(x=>x.id===targetId)||receipts[0];
+  if(!rec){ const el=document.getElementById('receivingDetail'); if(el) el.innerHTML='<div class="sub">Aucune réception disponible.</div>'; return; }
+  selectedReceiptId=rec.id;
+  const item=inventory.find(x=>x.sku===rec.sku);
+  const currentStatus = rec.status;
+  const currentNotes = rec.notes;
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Réception</div><div style="font-size:20px;font-weight:800">${rec.id}</div><div class="sub">PO ${rec.poId}</div></div><div><div class="kpi-l">SKU</div><div>${rec.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Attendu</div><div style="font-size:22px;font-weight:800">${num(rec.expected)}</div></div><div><div class="kpi-l">Reçu</div><div style="font-size:22px;font-weight:800">${num(rec.received)}</div></div><div><div class="kpi-l">Écart</div><div>${badge(rec.variance===0?'OK':rec.variance<0?'Partiel':'A surveiller')}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(currentStatus)}</div><div class="sub">Synchronisé avec le tableau</div></div><div><div class="kpi-l">Putaway suggéré</div><div>${rec.putaway}</div></div><div><div class="kpi-l">Disponible actuel</div><div>${num(item?item.available:0)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Réception</div><div><strong>${currentNotes}</strong><div class="sub">Statut courant : ${currentStatus}</div></div></div><div class="timeline-row"><div class="sub">Stock</div><div><strong>${item?item.location:'—'}</strong><div class="sub">Postée = prêt pour putaway, pas encore ajouté à l'inventaire</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advanceReceiptStatus('${rec.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${rec.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const box=document.getElementById('receivingDetail'); if(box) box.innerHTML=body;
+  if(open) openSlide(`Réception ${rec.id}`, `${rec.sku} • ${rec.supplier}`, body);
+}
+
+function advanceReceiptStatus(id){
+  const rec=receipts.find(x=>x.id===id); if(!rec) return;
+  const current=rec.status, next=receiptStatusNext(current);
+  if(current===next) return;
+  rec.status=next;
+  if(next==='Partielle' && rec.received===0) rec.received=Math.max(1,Math.floor(rec.expected*0.6));
+  if(next==='Inspection' && rec.received<Math.floor(rec.expected*0.85)) rec.received=Math.max(rec.received,Math.floor(rec.expected*0.85));
+  if(next==='Complète') rec.received=rec.expected;
+  rec.variance=rec.received-rec.expected;
+  rec.notes=next==='Partielle'?'Réception partielle, écart à confirmer':next==='Inspection'?'Contrôle qualité requis avant mise en stock':next==='Complète'?'Réception complète, prête à poster':next==='Postée'?'Réception postée au stock et putaway suggéré':'Réception attendue';
+  if(next==='Postée' && !rec.posted){
+    rec.posted=true;
+    if(!putawayTasks.find(x=>x.receiptId===rec.id)){
+      const item=inventory.find(x=>x.sku===rec.sku);
+      putawayTasks.unshift({id:`PUT-${String(putawayTasks.length+1).padStart(4,'0')}`,receiptId:rec.id,sku:rec.sku,qty:rec.received,destination:item?item.location:rec.putaway.replace('PUT-',''),suggested:rec.putaway.replace('PUT-',''),status:'À ranger',posted:true,postedToInventory:false});
+      selectedPutawayId=putawayTasks[0].id;
+    }
+  }
+  govNotificationsData.unshift({id:`NOT-REC-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Réception',message:`${rec.id} : ${current} → ${next} (${rec.sku})`,priority:next==='Inspection'?'Élevée':next==='Postée'?'Faible':'Moyenne',module:'Receiving'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  addUserAction(`Réception ${rec.id} : ${current} → ${next}`);
+  renderAll();
+  if(activePage==='receiving') renderReceivingDetail(true, rec.id);
+}
+
+
+function bindPutawayClicks(){
+  document.querySelectorAll('[data-putaway]').forEach(tr=>{
+    tr.onclick=()=>{
+      selectedPutawayId=tr.dataset.putaway;
+      renderPutawayDetail(true, selectedPutawayId);
+    };
+  });
+}
+
+function renderPutawayDetail(open=false, putawayId=null){
+  const targetId=putawayId || selectedPutawayId;
+  const task=putawayTasks.find(x=>x.id===targetId)||putawayTasks[0];
+  if(!task){ const el=document.getElementById('putawayDetail'); if(el) el.innerHTML='<div class="sub">Aucune tâche putaway disponible.</div>'; return; }
+  selectedPutawayId=task.id;
+  const item=inventory.find(x=>x.sku===task.sku);
+  const rec=receipts.find(x=>x.id===task.receiptId);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Tâche</div><div style="font-size:20px;font-weight:800">${task.id}</div><div class="sub">Réception ${task.receiptId}</div></div><div><div class="kpi-l">SKU</div><div>${task.sku}</div><div class="sub">${item?item.description:''}</div></div><div><div class="kpi-l">Qté à ranger</div><div style="font-size:22px;font-weight:800">${num(task.qty)}</div></div><div><div class="kpi-l">Destination</div><div>${task.destination}</div><div class="sub">Suggestion ${task.suggested}</div></div><div><div class="kpi-l">Statut actuel</div><div>${badge(task.status)}</div></div><div><div class="kpi-l">Réception liée</div><div>${rec?badge(rec.status):'—'}</div><div class="sub">Le putaway confirme la mise à l'inventaire</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Emplacement</div><div><strong>${item?item.location:'—'}</strong><div class="sub">L'article sera rangé à ${task.destination}</div></div></div><div class="timeline-row"><div class="sub">Action</div><div><strong>${task.status}</strong><div class="sub">Le stock est posté seulement au statut Rangé</div></div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn orange" onclick="advancePutawayStatus('${task.id}')">Passer au statut suivant</button><button class="btn blue" onclick="setPage('inventory');selectedInventorySku='${task.sku}';renderInventoryDetail(true)">Voir SKU</button></div>`;
+  const box=document.getElementById('putawayDetail'); if(box) box.innerHTML=body;
+  if(open) openSlide(`Putaway ${task.id}`, `${task.sku} • ${task.destination}`, body);
+}
+
+function advancePutawayStatus(id){
+  const task=putawayTasks.find(x=>x.id===id); if(!task) return;
+  const current=task.status, next=putawayStatusNext(current);
+  if(current===next) return;
+  task.status=next;
+  if(next==='Rangé'){
+    const item=inventory.find(x=>x.sku===task.sku);
+    if(item){
+      item.location=task.destination;
+      if(!task.postedToInventory){
+        item.available+=task.qty;
+        recalcItem(item);
+        task.postedToInventory=true;
+      }
+    }
+    const rec=receipts.find(x=>x.id===task.receiptId);
+    if(rec) rec.putawayConfirmed=true;
+  }
+  govNotificationsData.unshift({id:`NOT-PUT-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Putaway',message:`${task.id} : ${current} → ${next} (${task.sku})`,priority:next==='Rangé'?'Faible':'Moyenne',module:'Putaway'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  addUserAction(`Putaway ${task.id} : ${current} → ${next}`);
+  renderAll();
+  if(activePage==='putaway') renderPutawayDetail(true, task.id);
+}
+
+function bindDistributionClicks(){
+  document.querySelectorAll('[data-po]').forEach(tr=>tr.onclick=()=>{selectedPoId=tr.dataset.po;renderPoDetail(true);});
+  document.querySelectorAll('[data-dealer]').forEach(tr=>tr.onclick=()=>{selectedDealerCode=tr.dataset.dealer;renderDealerDetail(true);});
+  document.querySelectorAll('[data-route]').forEach(tr=>tr.onclick=()=>{selectedRouteId=tr.dataset.route;renderRouteDetail(true);});
+  document.querySelectorAll('[data-order]').forEach(tr=>tr.onclick=()=>{selectedOrderId=tr.dataset.order;renderOrderTimeline(true);});
+  document.querySelectorAll('[data-of]').forEach(tr=>tr.onclick=()=>{selectedOfId=tr.dataset.of;renderManufacturingOrderDetail(true);});
+  document.querySelectorAll('[data-vin]').forEach(tr=>tr.onclick=()=>{selectedVin=tr.dataset.vin;renderVehicleBuildDetail(true);});
+  document.querySelectorAll('[data-bom]').forEach(tr=>tr.onclick=()=>{selectedBomModel=tr.dataset.bom;renderBomDetail(true);});
+  renderManufacturingOrderDetail(false); renderVehicleBuildDetail(false); renderBomDetail(false);
+}
+function bindGovernanceClicks(){
+  document.querySelectorAll('[data-user]').forEach(tr=>tr.onclick=()=>{selectedUserId=tr.dataset.user;renderUserDetail(true);});
+  document.querySelectorAll('[data-approval]').forEach(tr=>tr.onclick=()=>{selectedApprovalId=tr.dataset.approval;renderApprovalDetail(true);});
+  document.querySelectorAll('[data-notification]').forEach(tr=>tr.onclick=()=>{selectedNotificationId=tr.dataset.notification;renderNotificationDetail(true);});
+}
+
+
+function renderPoDetail(open=false){
+  const po=purchaseOrders.find(x=>x.id===selectedPoId)||purchaseOrders[0];
+  if(!po) return;
+  const item=inventory.find(x=>x.sku===po.sku);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">PO</div><div style="font-size:20px;font-weight:800">${po.id}</div><div class="sub">${po.description}</div></div><div><div class="kpi-l">Fournisseur par défaut</div><div>${po.supplier}</div><div class="sub">SKU ${po.sku}</div></div><div><div class="kpi-l">Qté suggérée</div><div style="font-size:22px;font-weight:800">${num(po.qtySuggested||po.qty)}</div></div><div><div class="kpi-l">Qté commandée</div><div style="font-size:22px;font-weight:800">${num(po.qty)}</div></div><div><div class="kpi-l">Priorité</div><div>${badge(po.priority||'Moyenne')}</div></div><div><div class="kpi-l">Urgence</div><div>${badge(po.urgency||'Normale')}</div></div><div><div class="kpi-l">Délai prévu</div><div>${num(po.leadDays||0)} jours</div></div><div><div class="kpi-l">Valeur</div><div>${currency(po.value)}</div></div><div><div class="kpi-l">Création</div><div>${po.createdAt||'—'}</div></div><div><div class="kpi-l">Envoi</div><div>${po.sentAt||'—'}</div></div><div><div class="kpi-l">Fermeture</div><div>${po.closedAt||'—'}</div></div><div><div class="kpi-l">Statut</div><div>${badge(po.status)}</div></div></div><div class="timeline" style="margin-top:12px"><div class="timeline-row"><div class="sub">Approvisionnement</div><div><strong>Commande intelligente</strong><div class="sub">${po.priority||'Moyenne'} • ${po.urgency||'Normale'} • ${num(po.leadDays||0)} jours</div></div></div>${item?`<div class="timeline-row"><div class="sub">Inventaire</div><div><strong>Disponible ${num(item.available)}</strong><div class="sub">Réservé ${num(item.reserved)} • Quarantaine ${num(item.quarantine)}</div></div></div>`:''}</div><div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px"><button class="btn" onclick="setPage('inventory');selectedInventorySku='${po.sku}';renderInventoryDetail(true)">Voir SKU</button><button class="btn blue" onclick="event.stopPropagation();advancePOStatus('${po.id}')">Passer au statut suivant</button></div>`;
+  if(open) openSlide(`PO ${po.id}`, `${po.sku} • ${po.supplier}`, body); else document.getElementById('poDetail').innerHTML=body;
+}
+
+function renderDealerDetail(open=false){
+  const d=dealers.find(x=>x.code===selectedDealerCode)||dealers[0],orders=vehicleOrders.filter(x=>x.dealerCode===d.code),delivered=deliveryHistory.filter(x=>x.dealer===d.name&&x.status==='Livré').length;
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Concessionnaire</div><div style="font-size:20px;font-weight:800">${d.name}</div><div class="sub">${d.city}, ${d.province}</div></div><div><div class="kpi-l">Contact</div><div>${d.contact}</div><div class="sub">${d.email}<br>${d.phone}</div></div><div><div class="kpi-l">Commandes ouvertes</div><div style="font-size:22px;font-weight:800">${num(orders.length)}</div></div><div><div class="kpi-l">Livré 30 jours</div><div style="font-size:22px;font-weight:800">${num(d.delivered30)}</div></div><div><div class="kpi-l">OTD</div><div style="font-size:22px;font-weight:800">${pct(d.otd)}</div></div><div><div class="kpi-l">Historique livré</div><div style="font-size:22px;font-weight:800">${num(delivered)}</div></div></div>`;
+  document.getElementById('dealerDetail').innerHTML=body;
+  if(open){openSlide(`Concessionnaire ${d.code}`, d.name, body);}
+}
+function renderRouteDetail(open=false){
+  const r=routes.find(x=>x.id===selectedRouteId)||routes[0],orders=vehicleOrders.filter(x=>x.routeId===r.id);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Route</div><div style="font-size:20px;font-weight:800">${r.id}</div><div class="sub">${r.dealer}</div></div><div><div class="kpi-l">Transporteur</div><div>${r.transporteur}</div><div class="sub">${r.carrierType} • ${r.truck}</div></div><div><div class="kpi-l">ETA</div><div style="font-size:22px;font-weight:800">${r.eta}</div></div><div><div class="kpi-l">Capacité</div><div style="font-size:22px;font-weight:800">${num(r.capacity)}</div></div><div><div class="kpi-l">Utilisation</div><div style="font-size:22px;font-weight:800">${pct(r.utilization)}</div></div><div><div class="kpi-l">Véhicules à bord</div><div style="font-size:22px;font-weight:800">${num(orders.length)}</div></div><div><div class="kpi-l">Alerte</div>${badge(r.status)}</div><div><div class="kpi-l">Action</div><div>${r.status==='Retard'?'Replanifier arrivée':'Suivi normal'}</div></div></div>`;
+  document.getElementById('routeDetail').innerHTML=body;
+  if(open){openSlide(`Route ${r.id}`, `${r.transporteur} → ${r.dealer}`, body);}
+}
+function renderOrderTimeline(open=false){
+  const o=vehicleOrders.find(x=>x.id===selectedOrderId)||vehicleOrders[0],steps=[['Commande dealer','Reçue et validée'],['Planification','Affectée au modèle '+o.model],['Production','VIN '+o.vin+' affecté'],['Mise à quai','Prêt pour '+o.routeId],['Transport','Transporteur '+o.carrier],['Livraison','POD : '+o.pod]];
+  const body=steps.map((s,i)=>`<div class="timeline-row"><div class="sub">Étape ${i+1}</div><div><strong>${s[0]}</strong><div class="sub">${s[1]}</div></div></div>`).join('')+`<div class="timeline-row"><div class="sub">Statut actuel</div><div>${badge(o.status)} <span class="sub" style="margin-left:10px">ETA ${o.eta}</span></div></div>`;
+  document.getElementById('orderTimeline').innerHTML=body;
+  if(open){openSlide(`Commande ${o.id}`, `${o.model} • VIN ${o.vin}`, body);}
+}
+
+function renderManufacturingOrderDetail(open=false){
+  const o=manufacturingOrders.find(x=>x.id===selectedOfId)||manufacturingOrders[0],bom=bomModels.find(x=>x.model===o.model)||bomModels[0],build=vehicleBuilds.find(x=>x.ofId===o.id)||vehicleBuilds[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Ordre de fabrication</div><div style="font-size:20px;font-weight:800">${o.id}</div><div class="sub">${o.model} • ${o.line}</div></div><div><div class="kpi-l">VIN</div><div>${o.vin}</div><div class="sub">Statut ${o.status}</div></div><div><div class="kpi-l">Début / fin</div><div>${o.start}</div><div class="sub">Fin prévue ${o.end}</div></div><div><div class="kpi-l">BOM</div><div style="font-size:22px;font-weight:800">${num(o.bom)}</div><div class="sub">pièces / véhicule</div></div><div><div class="kpi-l">Consommation du modèle</div><div style="font-size:22px;font-weight:800">${num(bom.consumptionDay)}</div><div class="sub">pièces / jour</div></div><div><div class="kpi-l">Étape actuelle</div><div>${badge(build.stage)}</div><div class="sub">ETA ligne ${build.etaLine}</div></div></div>`;
+  document.getElementById('partsConsumptionDetail').innerHTML=body;
+  if(open){openSlide(`OF ${o.id}`, `${o.model} • VIN ${o.vin}`, body);}
+}
+function renderVehicleBuildDetail(open=false){
+  const v=vehicleBuilds.find(x=>x.vin===selectedVin)||vehicleBuilds[0],of=manufacturingOrders.find(x=>x.id===v.ofId)||manufacturingOrders[0],order=vehicleOrders.find(x=>x.vin===v.vin);
+  const body=`<div class="detail-grid"><div><div class="kpi-l">VIN</div><div style="font-size:20px;font-weight:800">${v.vin}</div><div class="sub">${v.model} • ${v.color}</div></div><div><div class="kpi-l">Ordre de fabrication</div><div>${v.ofId}</div><div class="sub">${v.line}</div></div><div><div class="kpi-l">Étape usine</div><div>${badge(v.stage)}</div><div class="sub">ETA ${v.etaLine}</div></div><div><div class="kpi-l">Statut distribution</div><div>${order?badge(order.status):badge('Aucun ordre dealer')}</div><div class="sub">${order?order.dealer:'Non affecté'}</div></div><div><div class="kpi-l">BOM utilisée</div><div style="font-size:22px;font-weight:800">${num(of.bom)}</div></div><div><div class="kpi-l">Fenêtre de production</div><div>${of.start}</div><div class="sub">${of.end}</div></div></div>`;
+  if(open){openSlide(`Véhicule ${v.vin}`, `${v.model} • ${v.color}`, body);}
+}
+function renderBomDetail(open=false){
+  const b=bomModels.find(x=>x.model===selectedBomModel)||bomModels[0];
+  const rows=b.topParts.map((p,i)=>`<div class="timeline-row"><div class="sub">Famille ${i+1}</div><div><strong>${p}</strong><div class="sub">Consommation planifiée ${num(Math.round(b.consumptionDay/(i+2)))}/jour</div></div></div>`).join('');
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Modèle</div><div style="font-size:20px;font-weight:800">${b.model}</div><div class="sub">Nomenclature principale</div></div><div><div class="kpi-l">Familles</div><div style="font-size:22px;font-weight:800">${num(b.families)}</div></div><div><div class="kpi-l">Pièces BOM</div><div style="font-size:22px;font-weight:800">${num(b.bomParts)}</div></div><div><div class="kpi-l">Consommation/jour</div><div style="font-size:22px;font-weight:800">${num(b.consumptionDay)}</div></div><div><div class="kpi-l">Articles critiques</div><div>${badge(b.critical)}</div></div><div><div class="kpi-l">Risque</div><div>${b.critical>5?'Surveiller approvisionnement':'Niveau acceptable'}</div></div></div><div style="margin-top:12px">${rows}</div>`;
+  if(open){openSlide(`BOM ${b.model}`, `Nomenclature et consommation`, body);}
+}
+
+
+
+function recalcItem(item){
+  item.stock=Math.max(0,(item.available||0)+(item.reserved||0)+(item.quarantine||0));
+  item.value=item.stock*item.price;
+  item.alert=item.available<40?'Critique':item.available<90?'A surveiller':'OK';
+}
+function addUserAction(message){
+  userActionsData.unshift({date:new Date().toISOString().slice(0,16).replace('T',' '),user:'Mathieu AEC',action:message,module:'WMS'});
+  if(userActionsData.length>80) userActionsData.pop();
+}
+function getAdjustmentReason(){
+  return document.getElementById('stockAdjustReason')?.value || 'Ajustement inventaire';
+}
+
+function stockAction(type){
+  const item=inventory.find(x=>x.sku===selectedInventorySku);
+  if(!item) return;
+  const qty=Math.max(0,parseInt(document.getElementById('stockActionQty')?.value||'0',10));
+  if(!qty){alert('Entre une quantité valide');return;}
+  const previousAlert=item.alert;
+  if(type==='add'){
+    item.available+=qty;
+    addUserAction(`Ajout de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='adjust_plus'){
+    const reason=getAdjustmentReason();
+    item.available+=qty;
+    addUserAction(`Ajustement +${qty} sur ${item.sku} • ${reason}`);
+  }
+  if(type==='remove'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty;
+    addUserAction(`Retrait de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='adjust_minus'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    const reason=getAdjustmentReason();
+    item.available-=qty;
+    addUserAction(`Ajustement -${qty} sur ${item.sku} • ${reason}`);
+  }
+  if(type==='reserve'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty; item.reserved+=qty;
+    addUserAction(`Réservation de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='release'){
+    if(item.reserved<qty){alert('Stock réservé insuffisant');return;}
+    item.reserved-=qty; item.available+=qty;
+    addUserAction(`Libération de ${qty} unités réservées sur ${item.sku}`);
+  }
+  if(type==='quarantine'){
+    if(item.available<qty){alert('Stock disponible insuffisant');return;}
+    item.available-=qty; item.quarantine+=qty;
+    addUserAction(`Quarantaine de ${qty} unités sur ${item.sku}`);
+  }
+  if(type==='dequarantine'){
+    if(item.quarantine<qty){alert('Stock quarantaine insuffisant');return;}
+    item.quarantine-=qty; item.available+=qty;
+    addUserAction(`Sortie de quarantaine de ${qty} unités sur ${item.sku}`);
+  }
+  recalcItem(item);
+  pushInventoryAlert(item,previousAlert,type,qty);
+  renderAll();
+  renderInventoryDetail(true);
+}
+function renderInventoryDetail(open=false){
+  const item=inventory.find(x=>x.sku===selectedInventorySku)||inventory[0];
+  if(!item) return;
+  const related=userActionsData.filter(a=>a.action.includes(item.sku)).slice(0,6);
+  const history=related.length?related.map(a=>`<div class="timeline-row"><div class="sub">${a.date}</div><div><strong>${a.action}</strong><div class="sub">${a.user} • ${a.module}</div></div></div>`).join(''):`<div class="sub">Aucune action récente pour ce SKU.</div>`;
+  const body=`<div class="detail-grid">
+    <div><div class="kpi-l">SKU</div><div style="font-size:20px;font-weight:800">${item.sku}</div><div class="sub">${item.description}</div></div>
+    <div><div class="kpi-l">Catégorie</div><div>${item.category}</div><div class="sub">${item.supplier}</div></div>
+    <div><div class="kpi-l">Stock total</div><div style="font-size:22px;font-weight:800">${num(item.stock)}</div></div>
+    <div><div class="kpi-l">Disponible</div><div style="font-size:22px;font-weight:800">${num(item.available)}</div></div>
+    <div><div class="kpi-l">Réservé</div><div style="font-size:22px;font-weight:800">${num(item.reserved)}</div></div>
+    <div><div class="kpi-l">Quarantaine</div><div style="font-size:22px;font-weight:800">${num(item.quarantine)}</div></div>
+    <div><div class="kpi-l">Alerte</div><div>${badge(item.alert)}</div><div class="sub">Emplacement ${item.location}</div></div>
+    <div><div class="kpi-l">Lot</div><div>${item.lot}</div><div class="sub">${currency(item.value)}</div></div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+    <div class="section-title">Actions de stock</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+      <input id="stockActionQty" type="number" min="1" value="5" style="max-width:120px" placeholder="Qté">
+      <select id="stockAdjustReason" style="max-width:220px">
+        <option value="Erreur de comptage">Erreur de comptage</option>
+        <option value="Casse / perte">Casse / perte</option>
+        <option value="Correction système">Correction système</option>
+        <option value="Réception oubliée">Réception oubliée</option>
+        <option value="Autre ajustement">Autre ajustement</option>
+      </select>
+      <button onclick="stockAction('add')">Ajouter stock</button>
+      <button onclick="stockAction('remove')">Retirer stock</button>
+      <button onclick="stockAction('reserve')">Réserver</button>
+      <button onclick="stockAction('release')">Libérer réservation</button>
+      <button onclick="stockAction('quarantine')">Mettre en quarantaine</button>
+      <button onclick="stockAction('dequarantine')">Sortir de quarantaine</button>
+      <button onclick="stockAction('adjust_plus')">Ajustement +</button>
+      <button onclick="stockAction('adjust_minus')">Ajustement -</button>
+    </div>
+    <div class="sub">Actions de stock complètes : ajout, retrait, réservation, libération, quarantaine, sortie de quarantaine et ajustements d’inventaire avec motif. Les KPI et l’inventaire se mettent à jour immédiatement dans la session.</div>
+  </div>
+  <div style="margin-top:14px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+    <div class="section-title">Historique récent</div>${history}
+  </div>`;
+  if(open){openSlide(`Article ${item.sku}`, `${item.description}`, body);}
+}
+function renderUserDetail(open=false){
+  const u=govUsersData.find(x=>x.id===selectedUserId)||govUsersData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Utilisateur</div><div style="font-size:20px;font-weight:800">${u.name}</div><div class="sub">${u.id}</div></div><div><div class="kpi-l">Rôle</div><div>${u.role}</div><div class="sub">${u.department}</div></div><div><div class="kpi-l">Dernière action</div><div>${u.lastAction}</div><div class="sub">${u.status}</div></div><div><div class="kpi-l">Portée</div><div>${u.department==='Direction'?'Inter-départements':'Opérationnelle'}</div></div></div>`;
+  if(open){openSlide(`Utilisateur ${u.id}`, u.name, body);}
+}
+function renderApprovalDetail(open=false){
+  const a=govApprovalsData.find(x=>x.id===selectedApprovalId)||govApprovalsData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Approbation</div><div style="font-size:20px;font-weight:800">${a.id}</div><div class="sub">${a.type}</div></div><div><div class="kpi-l">Département</div><div>${a.department}</div><div class="sub">Responsable ${a.owner}</div></div><div><div class="kpi-l">Statut</div><div>${badge(a.status)}</div></div><div><div class="kpi-l">Prochaine action</div><div>${a.status==='Approuvé'?'Aucune':'Validation requise'}</div></div></div>`;
+  if(open){openSlide(`Approbation ${a.id}`, a.type, body);}
+}
+function renderNotificationDetail(open=false){
+  const n=govNotificationsData.find(x=>x.id===selectedNotificationId)||govNotificationsData[0];
+  const body=`<div class="detail-grid"><div><div class="kpi-l">Notification</div><div style="font-size:20px;font-weight:800">${n.id}</div><div class="sub">${n.date}</div></div><div><div class="kpi-l">Source</div><div>${n.source}</div><div class="sub">${badge(n.priority)}</div></div><div><div class="kpi-l">Message</div><div>${n.message}</div></div><div><div class="kpi-l">Action suggérée</div><div>${n.priority==='Élevée'?'Escalader immédiatement':'Suivi standard'}</div></div></div>`;
+  if(open){openSlide(`Notification ${n.id}`, n.source, body);}
+}
+
+function chartOptions(percent=false){return{responsive:true,maintainAspectRatio:false,animation:false,scales:{x:{ticks:{color:'#aeb8ea'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#aeb8ea',callback:v=>percent?v+'%':v},grid:{color:'rgba(255,255,255,.09)'}}},plugins:{legend:{labels:{color:'#eef2ff'}}}}}
+function destroyIf(chart){if(chart)chart.destroy();}
+function renderDashboardCharts(){destroyIf(inventoryChart);destroyIf(vehicleStatusChart);const top=[...inventory].sort((a,b)=>b.value-a.value).slice(0,10);inventoryChart=new Chart(document.getElementById('inventoryChart'),{type:'bar',data:{labels:top.map(x=>x.sku),datasets:[{label:'Valeur',data:top.map(x=>x.value),backgroundColor:'rgba(96,200,255,.72)',borderRadius:4}]},options:chartOptions(false)});const statuses=['Prévue','En production','À quai','Expédié','Livré'];vehicleStatusChart=new Chart(document.getElementById('vehicleStatusChart'),{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>vehicleOrders.filter(x=>x.status===s).length),backgroundColor:['#f3bb4d','#60c8ff','#9e8dff','#22d96b','#1fb861'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eef2ff'}}}}});}
+function renderProductionCharts(){destroyIf(trsChart);destroyIf(modelsChart);trsChart=new Chart(document.getElementById('trsChart'),{type:'bar',data:{labels:productionLines.map(x=>x.name),datasets:[{label:'TRS',data:productionLines.map(x=>x.trs),backgroundColor:'rgba(34,217,107,.72)',borderRadius:4}]},options:chartOptions(true)});modelsChart=new Chart(document.getElementById('modelsChart'),{type:'bar',data:{labels:modelPlan.map(x=>x.model),datasets:[{label:'Unités planifiées',data:modelPlan.map(x=>x.units),backgroundColor:'rgba(158,141,255,.72)',borderRadius:4}]},options:chartOptions(false)});}
+function resizeCharts(){[inventoryChart,trsChart,modelsChart,vehicleStatusChart].forEach(c=>{if(c){c.resize();c.update('none');}})}
+function refreshVisibleVisuals(){if(activePage==='dashboard')renderDashboardCharts();if(activePage==='production')renderProductionCharts();if(activePage==='map')initMap();setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},220)}
+async function initMap(){if(!networkMap){networkMap=L.map('networkMap').setView([47.2,-74.7],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(networkMap);}networkMap.eachLayer(layer=>{if(!(layer instanceof L.TileLayer))networkMap.removeLayer(layer);});L.circleMarker([plant.lat,plant.lng],{radius:9,color:'#60c8ff',fillColor:'#60c8ff',fillOpacity:1}).addTo(networkMap).bindPopup('<strong>Usine Volvo</strong><br>Montréal');dealers.forEach(d=>L.circleMarker([d.lat,d.lng],{radius:7,color:'#22d96b',fillColor:'#22d96b',fillOpacity:1}).addTo(networkMap).bindPopup(`<strong>${d.name}</strong><br>${d.city}, ${d.province}<br>Commandes ouvertes: ${d.pending}`));for(const r of routes){const color=r.status==='Retard'?'#ff5b73':'#9e8dff';try{const url=`https://router.project-osrm.org/route/v1/driving/${plant.lng},${plant.lat};${r.lng},${r.lat}?overview=full&geometries=geojson`;const res=await fetch(url);const data=await res.json();const coords=data?.routes?.[0]?.geometry?.coordinates;if(coords){L.polyline(coords.map(c=>[c[1],c[0]]),{color,weight:4,opacity:.82}).addTo(networkMap).bindPopup(`<strong>${r.id}</strong><br>${r.dealer}<br>${r.transporteur}<br>ETA ${r.eta}`);}}catch(e){L.polyline([[plant.lat,plant.lng],[r.lat,r.lng]],{color,weight:3,opacity:.55,dashArray:'6 6'}).addTo(networkMap);}}setTimeout(()=>networkMap.invalidateSize(),150)}
+function setPage(page){activePage=page;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.nav-btn[data-page="${page}"]`).classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));document.getElementById('page-'+page).classList.remove('hidden');document.getElementById('pageTitle').textContent=pages[page].title;document.getElementById('pageSub').textContent=pages[page].sub;refreshVisibleVisuals();}
+function createPO(){const sku=document.getElementById('poSkuInput').value.trim().toUpperCase();if(!sku)return;const item=inventory.find(x=>x.sku===sku);if(!item){alert('SKU introuvable');return;}const qty=Math.max(10,Math.ceil((90-item.available)+Math.max(10,item.reserved)));purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty,qtySuggested:qty,value:qty*item.price,status:'BROUILLON',priority:item.alert==='Critique'?'Haute':'Moyenne',urgency:item.alert==='Critique'?'Critique':'Normale',leadDays:item.alert==='Critique'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null});document.getElementById('poSkuInput').value='';renderAll();setPage('procurement');}
+function advancePOStatus(id){
+  const po=purchaseOrders.find(x=>x.id===id);
+  if(!po || po.status==='FERMÉE') return;
+  const current=po.status;
+  const next=current==='BROUILLON'?'OUVERTE':current==='OUVERTE'?'ENVOYÉE':'FERMÉE';
+  po.status=next;
+  if(next==='ENVOYÉE' && !po.sentAt) po.sentAt=nowStamp();
+  if(next==='FERMÉE') po.closedAt=nowStamp();
+  govNotificationsData.unshift({id:`NOT-POST-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Approvisionnement',message:`${po.id} : ${current} → ${next}`,priority:next==='FERMÉE'?'Faible':next==='ENVOYÉE'?'Moyenne':'Élevée',module:'Procurement'});
+  addUserAction(`Transition PO ${po.id} : ${current} → ${next}`);
+  renderAll();
+  setPage('procurement');
+}
+
+document.querySelectorAll('.nav-btn').forEach(btn=>btn.addEventListener('click',()=>setPage(btn.dataset.page)));
+function openSlide(title,sub,body){document.getElementById('slideTitle').textContent=title;document.getElementById('slideSub').textContent=sub;document.getElementById('slideBody').innerHTML=body;document.getElementById('slideover').classList.add('open');document.getElementById('slideoverBackdrop').classList.add('open');}
+function closeSlide(){document.getElementById('slideover').classList.remove('open');document.getElementById('slideoverBackdrop').classList.remove('open');}
+document.getElementById('closeSlide').addEventListener('click',closeSlide);
+document.getElementById('slideoverBackdrop').addEventListener('click',closeSlide);
+document.getElementById('createPoBtn').addEventListener('click',createPO);
+document.getElementById('regenBtn').addEventListener('click',()=>{generateData();saveToLocalStorage();renderAll();setPage('dashboard');});
+document.getElementById('saveBtn').addEventListener('click',()=>saveToLocalStorage(true));
+document.getElementById('exportExcelBtn').addEventListener('click',exportDatabaseToExcel);
+document.getElementById('importExcelBtn').addEventListener('click',()=>document.getElementById('excelImportInput').click());
+document.getElementById('excelImportInput').addEventListener('change',importDatabaseFromExcel);
+if(!loadFromLocalStorage()){generateData();saveToLocalStorage();}
 renderAll();
+setPage(activePage||'dashboard');
 window.addEventListener('beforeunload',()=>saveToLocalStorage());
-
-window.addEventListener('resize',()=>setTimeout(()=>{for(const k in charts){charts[k].resize()} if(networkMap)networkMap.invalidateSize();},150));
-window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
+window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
 </script>
 </body>
 </html>
