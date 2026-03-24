@@ -85,7 +85,13 @@ body.presentation .panel{padding:10px}
         <div class="card small-card"><div class="section-title">Répartition statuts véhicules</div><canvas id="vehicleStatusChart"></canvas></div>
       </div>
       <div class="grid-2">
-        <div class="card chart-card"><div class="section-title">Diagramme gestion des exceptions inventaire</div><canvas id="exceptionChart"></canvas></div>
+        <div class="card chart-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">
+            <div class="section-title" style="margin-bottom:0">Diagramme gestion des exceptions inventaire</div>
+            <button id="openExceptionManagerBtn">Gérer les exceptions</button>
+          </div>
+          <canvas id="exceptionChart"></canvas>
+        </div>
         <div class="card"><div class="section-title">Exceptions inventaire prioritaires</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Disponible</th><th>Quar.</th><th>Réservé</th><th>Exception</th></tr></thead><tbody id="dashboardExceptionBody"></tbody></table></div></div>
       </div>
     </section>
@@ -283,7 +289,7 @@ function showToast(title,message,level='info',onClick=null){
   const wrap=document.getElementById('toastWrap'); if(!wrap) return;
   const el=document.createElement('div');
   el.className=`toast ${level==='Critique'?'crit':level==='A surveiller'?'warn':''}`.trim();
-  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div><div class="toast-sub" style="margin-top:8px;font-weight:700;color:var(--txt)">Cliquer pour créer une PO</div>`;
+  el.innerHTML=`<div class="toast-title">${title}</div><div class="toast-sub">${message}</div>${typeof onClick==='function'?'<div class="toast-sub" style="margin-top:8px;font-weight:700;color:var(--txt)">Cliquer pour ouvrir l’action</div>':''}`;
   if(typeof onClick==='function'){
     el.addEventListener('click',()=>{ onClick(); el.remove(); });
   }
@@ -894,6 +900,54 @@ function addUserAction(message){
 function getAdjustmentReason(){
   return document.getElementById('stockAdjustReason')?.value || 'Ajustement inventaire';
 }
+function openExceptionManager(prefillSku=''){
+  const priorityItems=inventory.filter(x=>x.alert!=='OK' || x.quarantine>0 || (x.stock>0 && (x.reserved/x.stock)>=0.25));
+  const fallbackSku=prefillSku || selectedInventorySku || priorityItems[0]?.sku || inventory[0]?.sku || '';
+  const skuOptions=inventory.map(item=>`<option value="${item.sku}" ${item.sku===fallbackSku?'selected':''}>${item.sku} — ${item.description}</option>`).join('');
+  const body=`<div class="detail-grid">
+    <div><div class="kpi-l">SKU concerné</div><select id="exceptionSku" style="width:100%">${skuOptions}</select><div class="sub" style="margin-top:8px">Choisir l'article à corriger directement depuis le dashboard.</div></div>
+    <div><div class="kpi-l">Type d’ajustement</div><select id="exceptionDirection" style="width:100%"><option value="minus">Diminuer l’inventaire</option><option value="plus">Augmenter l’inventaire</option></select><div class="sub" style="margin-top:8px">L’ajustement agit sur le stock disponible.</div></div>
+    <div><div class="kpi-l">Quantité</div><input id="exceptionQty" type="number" min="1" value="1" style="width:100%" placeholder="Qté"></div>
+    <div><div class="kpi-l">Cause</div><select id="exceptionCause" style="width:100%"><option value="Vol">Vol</option><option value="Casse">Casse</option><option value="Erreur de comptage">Erreur de comptage</option><option value="Perte en manutention">Perte en manutention</option><option value="Erreur de réception">Erreur de réception</option><option value="Correction système">Correction système</option><option value="Autre">Autre</option></select></div>
+  </div>
+  <div style="margin-top:14px">
+    <div class="kpi-l">Notes complémentaires</div>
+    <input id="exceptionNote" type="text" style="width:100%" placeholder="Ex. palette endommagée, écart au cycle count, etc.">
+  </div>
+  <div style="margin-top:16px;border-top:1px solid rgba(255,255,255,.08);padding-top:14px">
+    <div class="sub" style="margin-bottom:12px">Le motif est obligatoire. L’ajustement mettra à jour l’inventaire, les KPI, le dashboard et l’historique utilisateur.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="submitExceptionAdjustment()">Appliquer l’ajustement</button>
+      <button onclick="closeSlide()">Annuler</button>
+    </div>
+  </div>`;
+  openSlide('Gestion des exceptions inventaire','Ajustement contrôlé avec cause obligatoire',body);
+}
+function submitExceptionAdjustment(){
+  const sku=document.getElementById('exceptionSku')?.value;
+  const direction=document.getElementById('exceptionDirection')?.value || 'minus';
+  const qty=Math.max(0,parseInt(document.getElementById('exceptionQty')?.value||'0',10));
+  const cause=(document.getElementById('exceptionCause')?.value || '').trim();
+  const note=(document.getElementById('exceptionNote')?.value || '').trim();
+  const item=inventory.find(x=>x.sku===sku);
+  if(!item){alert('SKU introuvable');return;}
+  if(!qty){alert('Entre une quantité valide');return;}
+  if(!cause){alert('La cause de l’ajustement est obligatoire');return;}
+  if(direction==='minus' && item.available<qty){alert('Stock disponible insuffisant pour cet ajustement');return;}
+  const previousAlert=item.alert;
+  if(direction==='plus') item.available+=qty;
+  if(direction==='minus') item.available-=qty;
+  recalcItem(item);
+  selectedInventorySku=item.sku;
+  const detail=note?`${cause} • ${note}`:cause;
+  addUserAction(`Exception inventaire ${direction==='plus'?'+':'-'}${qty} sur ${item.sku} • ${detail}`);
+  govNotificationsData.unshift({id:`NOT-EX-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'Gestion des exceptions',message:`${item.sku} ajusté ${direction==='plus'?'+':'-'}${qty} • Cause: ${detail}`,priority:cause==='Vol'||cause==='Casse'?'Élevée':'Moyenne',module:'WMS'});
+  if(govNotificationsData.length>80) govNotificationsData.pop();
+  pushInventoryAlert(item,previousAlert,direction==='plus'?'adjust_plus':'adjust_minus',qty);
+  renderAll();
+  closeSlide();
+  showToast(`Ajustement appliqué • ${item.sku}`,`Variation ${direction==='plus'?'+':'-'}${num(qty)} • Cause : ${detail}`,'info');
+}
 
 function stockAction(type){
   const item=inventory.find(x=>x.sku===selectedInventorySku);
@@ -1037,6 +1091,7 @@ document.getElementById('regenBtn').addEventListener('click',()=>{generateData()
 document.getElementById('saveBtn').addEventListener('click',()=>saveToLocalStorage(true));
 document.getElementById('exportExcelBtn').addEventListener('click',exportDatabaseToExcel);
 document.getElementById('importExcelBtn').addEventListener('click',()=>document.getElementById('excelImportInput').click());
+document.getElementById('openExceptionManagerBtn').addEventListener('click',()=>openExceptionManager());
 document.getElementById('excelImportInput').addEventListener('change',importDatabaseFromExcel);
 if(!loadFromLocalStorage()){generateData();saveToLocalStorage();}
 renderAll();
