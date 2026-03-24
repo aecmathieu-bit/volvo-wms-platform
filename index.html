@@ -1093,11 +1093,22 @@ document.getElementById('exportExcelBtn').addEventListener('click',exportDatabas
 document.getElementById('importExcelBtn').addEventListener('click',()=>document.getElementById('excelImportInput').click());
 document.getElementById('openExceptionManagerBtn').addEventListener('click',()=>openExceptionManager());
 document.getElementById('excelImportInput').addEventListener('change',importDatabaseFromExcel);
-if(!loadFromLocalStorage()){generateData();saveToLocalStorage();}
-renderAll();
+if(!loadFromLocalStorage()){
+  generateData();
+  saveToLocalStorage();
+}
 setPage(activePage||'dashboard');
+renderAll();
+refreshVisibleVisuals();
+setTimeout(()=>refreshVisibleVisuals(),120);
+setTimeout(()=>refreshVisibleVisuals(),320);
 window.addEventListener('beforeunload',()=>saveToLocalStorage());
-window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));window.addEventListener('load',()=>setTimeout(()=>refreshVisibleVisuals(),250));
+window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));
+window.addEventListener('load',()=>{
+  refreshVisibleVisuals();
+  setTimeout(()=>refreshVisibleVisuals(),180);
+  setTimeout(()=>refreshVisibleVisuals(),420);
+});
 </script>
 </body>
 </html>
