@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>SupplyPilot Volvo V1.6.1 - Conformité académique sécurisée</title>
+<title>SupplyPilot Volvo V1.6 - Base stable + conformité académique</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin=""/>
@@ -51,7 +51,7 @@ body.presentation .panel{padding:10px}
 <body class="premium">
 <div class="app">
   <aside class="sidebar">
-    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.6.1</div></div></div>
+    <div class="logo"><div class="logo-badge"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Volvo-Iron-Mark-Black.svg/120px-Volvo-Iron-Mark-Black.svg.png" alt="Volvo" style="width:34px;height:34px;object-fit:contain"></div><div><div class="logo-title">VOLVO</div><div class="logo-sub">SupplyPilot V1.6</div></div></div>
     <div class="side-label">Modules</div>
     <div class="nav">
       <button class="nav-btn active" data-page="dashboard"><span>Dashboard</span><span class="count" id="navDashboard">400</span></button>
@@ -69,14 +69,14 @@ body.presentation .panel{padding:10px}
     <div class="panel"><h4>Résumé</h4><div class="panel-line"><span>SKU</span><strong id="sideSku">0</strong></div><div class="panel-line"><span>PO</span><strong id="sidePO">0</strong></div><div class="panel-line"><span>TRS</span><strong id="sideTRS">0%</strong></div><div class="panel-line"><span>Dealers</span><strong id="sideDealers">0</strong></div><div class="panel-line"><span>Routes</span><strong id="sideRoutes">0</strong></div></div>
   </aside>
   <main class="main">
-    <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable Volvo avec modules rétablis + conformité académique visible.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button><button id="saveBtn">Sauvegarder</button><button id="importExcelBtn">Importer Excel</button><button id="exportExcelBtn">Exporter Excel</button><input type="file" id="excelImportInput" accept=".xlsx,.xls" style="display:none"></div></div>
+    <div class="header"><div><h1 class="title" id="pageTitle">Dashboard</h1><div class="sub" id="pageSub">Base stable avec distribution complète + exceptions inventaire au dashboard.</div></div><div class="toolbar"><button id="regenBtn">Régénérer données</button><button id="saveBtn">Sauvegarder</button><button id="importExcelBtn">Importer Excel</button><button id="exportExcelBtn">Exporter Excel</button><input type="file" id="excelImportInput" accept=".xlsx,.xls" style="display:none"></div></div>
 
     <section class="page" id="page-dashboard">
       <div class="hero-grid">
         <div class="card hero-card">
-          <div class="section-title">Nouveautés visibles V1.6</div>
-          <div style="font-size:24px;font-weight:800;line-height:1.2;max-width:760px">Version académique stabilisée sans refonte des modules de base.</div>
-          <div class="sub" style="margin-top:10px">BNMP, ABC/XYZ, EOQ, UML, TRS pédagogique, règles, audit et automatisation ajoutés en gardant la base existante.</div>
+          <div class="section-title">Pilotage académique</div>
+          <div style="font-size:24px;font-weight:800;line-height:1.2;max-width:760px">Vue d’ensemble des modules stables et des compléments demandés par le travail.</div>
+          <div class="sub" style="margin-top:10px">BNMP, messages, KPI, ABC/XYZ, EOQ, UML AS-IS / TO-BE et TRS pédagogique, sans refonte des modules déjà fonctionnels.</div>
           <div class="hero-actions">
             <button onclick="setPage('optimization')">Ouvrir Optimisation</button>
             <button onclick="setPage('compliance')">Ouvrir Conformité</button>
@@ -84,14 +84,14 @@ body.presentation .panel{padding:10px}
           </div>
         </div>
         <div class="card">
-          <div class="section-title">Résumé</div>
+          <div class="section-title">Couverture des exigences</div>
           <div class="status-strip">
-            <span class="note-chip">BNMP net disponible</span>
+            <span class="note-chip">BNMP</span>
+            <span class="note-chip">Messages</span>
+            <span class="note-chip">KPI</span>
             <span class="note-chip">ABC / XYZ / EOQ</span>
-            <span class="note-chip">UML swimlanes</span>
-            <span class="note-chip">TRS + levier</span>
-            <span class="note-chip">5 Why + UAT</span>
-            <span class="note-chip">Transport groupage</span>
+            <span class="note-chip">UML</span>
+            <span class="note-chip">TRS pédagogique</span>
           </div>
           <div id="dashboardComplianceSummary" class="sub"></div>
         </div>
@@ -126,46 +126,33 @@ body.presentation .panel{padding:10px}
 
     <section class="page hidden" id="page-inventory">
       <div class="card" style="margin-bottom:12px">
-        <div class="section-title">Page “Articles” — CRUD simple</div>
-        <div class="sub" style="margin-bottom:12px">Cette zone ferme l’exigence académique : ajouter, modifier et supprimer un article avec les champs BNMP demandés.</div>
+        <div class="section-title">Articles — CRUD simple</div>
         <div class="detail-grid">
-          <div><div class="kpi-l">SKU</div><input id="articleSkuInput" placeholder="VOL-0401"></div>
-          <div><div class="kpi-l">Description</div><input id="articleDescInput" placeholder="Nouvel article"></div>
-          <div><div class="kpi-l">Stock physique</div><input id="articlePhysicalInput" type="number" min="0" value="0"></div>
-          <div><div class="kpi-l">Transit</div><input id="articleTransitInput" type="number" min="0" value="0"></div>
-          <div><div class="kpi-l">Réservé</div><input id="articleReservedInput" type="number" min="0" value="0"></div>
-          <div><div class="kpi-l">Seuil mini</div><input id="articleThresholdInput" type="number" min="0" value="25"></div>
-          <div><div class="kpi-l">Coût unitaire</div><input id="articlePriceInput" type="number" min="0" value="250"></div>
-          <div><div class="kpi-l">Consommation / jour</div><input id="articleDailyInput" type="number" min="0" step="0.1" value="4"></div>
-          <div><div class="kpi-l">Coût commande (S)</div><input id="articleOrderCostInput" type="number" min="1" value="120"></div>
-          <div><div class="kpi-l">Coût possession (H)</div><input id="articleCarryCostInput" type="number" min="1" value="35"></div>
+          <div><div class="kpi-l">SKU</div><input id="articleSkuInput" placeholder="VOL-0901"></div>
+          <div><div class="kpi-l">Description</div><input id="articleDescriptionInput" placeholder="Nouvel article"></div>
+          <div><div class="kpi-l">Catégorie</div><input id="articleCategoryInput" placeholder="Électrique"></div>
+          <div><div class="kpi-l">Fournisseur</div><input id="articleSupplierInput" placeholder="Bosch"></div>
+          <div><div class="kpi-l">stock_physique</div><input id="articlePhysicalInput" type="number" min="0" value="0"></div>
+          <div><div class="kpi-l">transit</div><input id="articleTransitInput" type="number" min="0" value="0"></div>
+          <div><div class="kpi-l">réservé</div><input id="articleReservedInput" type="number" min="0" value="0"></div>
+          <div><div class="kpi-l">seuil_min</div><input id="articleThresholdInput" type="number" min="0" value="25"></div>
+          <div><div class="kpi-l">coût_unitaire</div><input id="articlePriceInput" type="number" min="0" value="100"></div>
+          <div><div class="kpi-l">demande_annuelle (D)</div><input id="articleDemandInput" type="number" min="0" value="240"></div>
+          <div><div class="kpi-l">S coût commande</div><input id="articleOrderCostInput" type="number" min="0" value="120"></div>
+          <div><div class="kpi-l">H coût possession</div><input id="articleHoldingCostInput" type="number" min="1" value="30"></div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:14px">
-          <button onclick="saveArticleCrud()">Ajouter / Modifier</button>
-          <button onclick="loadSelectedArticleIntoForm()">Charger la sélection</button>
-          <button onclick="deleteSelectedArticle()">Supprimer</button>
-          <button onclick="clearArticleForm()">Vider le formulaire</button>
-        </div>
-      </div>
-      <div class="grid-2">
-        <div class="card">
-          <div class="section-title">Articles — BNMP visible</div>
-          <div class="table-wrap"><table><thead><tr><th>SKU</th><th>Physique</th><th>Transit</th><th>Réservé</th><th>Net</th><th>Seuil</th><th>Statut</th><th>Message</th></tr></thead><tbody id="articlesCrudBody"></tbody></table></div>
-        </div>
-        <div class="card">
-          <div class="section-title">Inventaire opérationnel</div>
-          <div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Catégorie</th><th>Fournisseur</th><th>Total</th><th>Disponible</th><th>Réservé</th><th>Quar.</th><th>Prix</th><th>Valeur</th><th>Alerte</th><th>Emplacement</th></tr></thead><tbody id="inventoryBody"></tbody></table></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button id="articleSaveBtn">Ajouter / enregistrer</button>
+          <button id="articleClearBtn">Vider le formulaire</button>
         </div>
       </div>
+      <div class="card" style="margin-bottom:12px"><div class="section-title">Articles BNMP</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Physique</th><th>Transit</th><th>Réservé</th><th>Net</th><th>Seuil mini</th><th>Statut</th><th>Actions</th></tr></thead><tbody id="articlesBody"></tbody></table></div></div>
+      <div class="card"><div class="section-title">Inventaire opérationnel</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Description</th><th>Catégorie</th><th>Fournisseur</th><th>Total</th><th>Disponible</th><th>Réservé</th><th>Quar.</th><th>Prix</th><th>Valeur</th><th>Alerte</th><th>Emplacement</th></tr></thead><tbody id="inventoryBody"></tbody></table></div></div>
     </section>
 
     <section class="page hidden" id="page-procurement">
-      <div class="card" style="margin-bottom:12px"><div class="section-title">Créer une PO</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="poSkuInput" placeholder="SKU ex: VOL-0001"><button id="createPoBtn" onclick="createPO()">Créer PO</button></div></div>
-      <div class="card" style="margin-bottom:12px">
-        <div class="section-title">Messages BNMP → Demandes achat (PO Draft)</div>
-        <div class="sub" style="margin-bottom:10px">Chaque ligne ci-dessous matérialise le “message” académique avec SKU, quantité suggérée, date et statut Brouillon. La conversion en PO applique les garde-fous anti-doublon et anti-surcommande.</div>
-        <div class="table-wrap"><table><thead><tr><th>Message</th><th>SKU</th><th>Qté suggérée</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead><tbody id="bnmpMessagesBody"></tbody></table></div>
-      </div>
+      <div class="card" style="margin-bottom:12px"><div class="section-title">Créer une PO</div><div style="display:flex;gap:8px;flex-wrap:wrap"><input id="poSkuInput" placeholder="SKU ex: VOL-0001"><button id="createPoBtn">Créer PO</button></div></div>
+      <div class="card" style="margin-bottom:12px"><div class="section-title">Messages BNMP → Demandes achat</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Net</th><th>Seuil</th><th>Qté suggérée</th><th>Date</th><th>Statut</th><th>Action</th></tr></thead><tbody id="bnmpMessagesBody"></tbody></table></div></div>
       <div class="grid-2">
         <div class="card"><div class="section-title">Purchase Orders actives</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Qté</th><th>Priorité</th><th>Urgence</th><th>Délai</th><th>Créée</th><th>Statut</th></tr></thead><tbody id="poBody"></tbody></table></div></div>
         <div class="card"><div class="section-title">Historique PO fermées</div><div class="table-wrap"><table class="clickable"><thead><tr><th>PO</th><th>SKU</th><th>Fournisseur</th><th>Valeur</th><th>Créée</th><th>Fermée</th><th>Statut</th></tr></thead><tbody id="poClosedBody"></tbody></table></div></div>
@@ -280,14 +267,14 @@ body.presentation .panel{padding:10px}
         <div class="card"><div class="kpi-l">EOQ moyen</div><div class="kpi-v" id="optAvgEoq">0</div><div class="kpi-s">Wilson sur A + B</div></div>
         <div class="card"><div class="kpi-l">Messages BNMP</div><div class="kpi-v" id="optMessages">0</div><div class="kpi-s">Brouillons potentiels</div></div>
       </div>
-      <div class="grid-kpi">
-        <div class="card"><div class="kpi-l">Rupture</div><div class="kpi-v" id="kpiRuptureAcademic">0</div><div class="kpi-s">Nombre d’articles Net &lt; 0</div></div>
-        <div class="card"><div class="kpi-l">Couverture</div><div class="kpi-v" id="kpiCoverageAcademic">0</div><div class="kpi-s">Net / consommation journalière</div></div>
-        <div class="card"><div class="kpi-l">Taux service interne</div><div class="kpi-v" id="kpiServiceAcademic">0%</div><div class="kpi-s">% SKU avec Net ≥ seuil_min</div></div>
+      <div class="grid-3">
+        <div class="card"><div class="kpi-l">Rupture</div><div class="kpi-v" id="optRupture">0</div><div class="kpi-s">Nombre d’articles Net &lt; 0</div></div>
+        <div class="card"><div class="kpi-l">Couverture</div><div class="kpi-v" id="optCoverage">0</div><div class="kpi-s">Net / consommation journalière</div></div>
+        <div class="card"><div class="kpi-l">Taux service interne</div><div class="kpi-v" id="optServiceRate">0%</div><div class="kpi-s">% SKU avec Net ≥ seuil_min</div></div>
       </div>
       <div class="grid-2">
         <div class="card"><div class="section-title">BNMP — net disponible et statut</div><div class="sub" style="margin-bottom:10px">Formule visible : stock_physique + transit − réservé. Les seuils mini et la demande sont affichés article par article.</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Physique</th><th>Transit</th><th>Réservé</th><th>Net</th><th>Seuil mini</th><th>Demande</th><th>Statut</th><th>Message</th></tr></thead><tbody id="bnmpBody"></tbody></table></div></div>
-        <div class="card"><div class="section-title">ABC / XYZ / EOQ</div><div class="sub" style="margin-bottom:10px">La valeur annuelle = coût × demande annuelle. Le classement A/B/C est basé sur la contribution cumulée, et l’EOQ est affiché pour les classes A et B.</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Valeur annuelle</th><th>% contrib.</th><th>% cumulé</th><th>ABC</th><th>XYZ</th><th>EOQ</th><th>Politique</th></tr></thead><tbody id="eoqBody"></tbody></table></div></div>
+        <div class="card"><div class="section-title">ABC / XYZ / EOQ</div><div class="sub" style="margin-bottom:10px">La valeur annuelle = coût × demande annuelle. Le classement ABC est basé sur la contribution cumulée, et l’EOQ est affiché pour les classes A et B.</div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Valeur annuelle</th><th>% contrib.</th><th>% cumulé</th><th>ABC</th><th>XYZ</th><th>EOQ</th><th>Politique</th></tr></thead><tbody id="eoqBody"></tbody></table></div></div>
       </div>
       <div class="split-4">
         <div class="policy-card"><h4>Classe A</h4><div>Contrôle strict, validation requise, suivi serré du seuil mini et cycle counting renforcé.</div></div>
@@ -309,35 +296,41 @@ body.presentation .panel{padding:10px}
       <div class="grid-2">
         <div class="card">
           <div class="section-title">Processus UML simplifié — AS-IS vs TO-BE</div>
-          <div class="sub" style="margin-bottom:10px">Les deux versions sont affichées explicitement avec swimlanes Magasinier / Système / Acheteur pour répondre au livrable académique.</div>
-          <div class="section-title" style="font-size:12px;margin-top:4px">AS-IS</div>
-          <div class="uml-board" style="margin-bottom:12px">
-            <div class="uml-lane">Magasinier</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Constater manque</div><div class="uml-arrow">→</div><div class="uml-step">Informer l’acheteur</div></div></div>
-            <div class="uml-lane">Système</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Mise à jour manuelle</div><div class="uml-arrow">→</div><div class="uml-step">Pas d’alerte automatique</div></div></div>
-            <div class="uml-lane">Acheteur</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Créer PO manuellement</div><div class="uml-arrow">→</div><div class="uml-step">Suivre fournisseur</div></div></div>
-          </div>
-          <div class="section-title" style="font-size:12px;margin-top:4px">TO-BE</div>
-          <div class="uml-board">
-            <div class="uml-lane">Magasinier</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Réception / consultation article</div><div class="uml-arrow">→</div><div class="uml-step">Confirmer mouvement</div></div></div>
-            <div class="uml-lane">Système</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Calcul BNMP</div><div class="uml-arrow">→</div><div class="uml-step">Détecter Net &lt; seuil</div><div class="uml-arrow">→</div><div class="uml-step">Créer message / brouillon PO</div><div class="uml-arrow">→</div><div class="uml-step">Tracer l’action</div></div></div>
-            <div class="uml-lane">Acheteur</div>
-            <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Valider</div><div class="uml-arrow">→</div><div class="uml-step">Convertir en PO</div><div class="uml-arrow">→</div><div class="uml-step">Suivre réception / clôture</div></div></div>
+          <div class="sub" style="margin-bottom:10px">Version académique minimale avec swimlanes Magasinier / Système / Acheteur.</div>
+          <div class="grid-2">
+            <div>
+              <div class="section-title" style="font-size:12px">AS-IS</div>
+              <div class="uml-board">
+                <div class="uml-lane">Magasinier</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Consulter stock</div><div class="uml-arrow">→</div><div class="uml-step">Constater manque</div></div></div>
+                <div class="uml-lane">Système</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Mettre à jour inventaire</div><div class="uml-arrow">→</div><div class="uml-step">Pas de message auto</div></div></div>
+                <div class="uml-lane">Acheteur</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Vérifier manuellement</div><div class="uml-arrow">→</div><div class="uml-step">Créer PO</div></div></div>
+              </div>
+            </div>
+            <div>
+              <div class="section-title" style="font-size:12px">TO-BE</div>
+              <div class="uml-board">
+                <div class="uml-lane">Magasinier</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Réception / ajustement</div><div class="uml-arrow">→</div><div class="uml-step">Confirmer</div></div></div>
+                <div class="uml-lane">Système</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Calcul BNMP</div><div class="uml-arrow">→</div><div class="uml-step">Créer message</div><div class="uml-arrow">→</div><div class="uml-step">Préparer brouillon PO</div></div></div>
+                <div class="uml-lane">Acheteur</div>
+                <div class="uml-flow"><div class="uml-steps"><div class="uml-step">Valider</div><div class="uml-arrow">→</div><div class="uml-step">Envoyer PO</div><div class="uml-arrow">→</div><div class="uml-step">Suivre réception</div></div></div>
+              </div>
+            </div>
           </div>
         </div>
         <div class="card">
           <div class="section-title">TRS — version pédagogique</div>
           <div class="detail-grid">
-            <div><div class="kpi-l">Temps planifié</div><input id="trsPlannedInput" type="number" min="1" value="480"></div>
-            <div><div class="kpi-l">Arrêts</div><input id="trsDowntimeInput" type="number" min="0" value="45"></div>
-            <div><div class="kpi-l">Cadence théorique / h</div><input id="trsRateInput" type="number" min="1" value="32"></div>
-            <div><div class="kpi-l">Quantité totale</div><input id="trsTotalInput" type="number" min="0" value="210"></div>
-            <div><div class="kpi-l">Quantité mauvaise</div><input id="trsBadInput" type="number" min="0" value="8"></div>
-            <div style="display:flex;align-items:end"><button onclick="calculateTrsInterpretation()">Calculer le TRS</button></div>
+            <div><div class="kpi-l">temps_planifié</div><input id="trsPlannedInput" type="number" min="1" value="480"></div>
+            <div><div class="kpi-l">arrêts</div><input id="trsStopsInput" type="number" min="0" value="60"></div>
+            <div><div class="kpi-l">cadence_théorique/h</div><input id="trsCadenceInput" type="number" min="1" value="55"></div>
+            <div><div class="kpi-l">quantité_totale</div><input id="trsTotalQtyInput" type="number" min="0" value="320"></div>
+            <div><div class="kpi-l">quantité_mauvaise</div><input id="trsBadQtyInput" type="number" min="0" value="12"></div>
+            <div style="display:flex;align-items:end"><button onclick="calculateTrsPedagogic()">Calculer le TRS</button></div>
           </div>
           <div id="trsExplain" style="margin-top:14px"></div>
         </div>
@@ -423,10 +416,9 @@ body.presentation .panel{padding:10px}
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
-const pages={dashboard:{title:"Dashboard",sub:"Base stable Volvo avec modules rétablis + conformité académique visible."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées. Cliquer sur le statut pour le faire avancer."},receiving:{title:"Réception plus intelligente",sub:"Réception partielle, inspection, écarts et mise en stock intelligente."},putaway:{title:"Putaway intelligent",sub:"Rangement suggéré après réception postée et confirmation de mise en emplacement."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},optimization:{title:"Optimisation stock",sub:"BNMP visible, KPI académiques, ABC/XYZ, EOQ et politiques de gestion par classe."},compliance:{title:"Conformité fonctionnelle",sub:"UML AS-IS / TO-BE, TRS pédagogique, règles IF/THEN, audit, 5 Why, UAT et transport."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
-let inventory=[],purchaseOrders=[],receipts=[],putawayTasks=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,exceptionChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null,selectedPoId=null,selectedReceiptId=null,selectedPutawayId=null;
-const LOCAL_SAVE_KEY='supplypilot_volvo_v1_6_local_save';
-const LEGACY_SAVE_KEYS=['supplypilot_volvo_v1_5_local_save','supplypilot_volvo_v1_3_local_save'];
+const pages={dashboard:{title:"Dashboard",sub:"Base stable avec distribution complète + exceptions inventaire au dashboard."},inventory:{title:"Inventaire",sub:"Données inventaire toujours non vides."},procurement:{title:"Approvisionnement",sub:"Création de PO branchée sur les données intégrées. Cliquer sur le statut pour le faire avancer."},receiving:{title:"Réception plus intelligente",sub:"Réception partielle, inspection, écarts et mise en stock intelligente."},putaway:{title:"Putaway intelligent",sub:"Rangement suggéré après réception postée et confirmation de mise en emplacement."},production:{title:"Manufacture avancée",sub:"OF, BOM, VIN, consommation pièces et planification détaillée."},distribution:{title:"Distribution complète",sub:"Dealers, véhicules, transporteurs, routes, ETA et POD."},map:{title:"Carte réseau",sub:"Carte Leaflet avec usine, concessionnaires et routes réelles."},optimization:{title:"Optimisation stock",sub:"BNMP visible, ABC/XYZ, EOQ et politiques de gestion par classe."},compliance:{title:"Conformité fonctionnelle",sub:"UML, TRS interprété, règles IF/THEN, audit, 5 Why, UAT et transport."},governance:{title:"Gestion / Gouvernance",sub:"Utilisateurs, rôles, approbations, notifications et journal d’actions."}};
+let inventory=[],purchaseOrders=[],receipts=[],putawayTasks=[],productionLines=[],modelPlan=[],manufacturingOrders=[],dealers=[],transporters=[],routes=[],vehicleOrders=[],deliveryHistory=[],govUsersData=[],govApprovalsData=[],govNotificationsData=[],deptKpiData=[],userActionsData=[],networkMap=null,inventoryChart=null,trsChart=null,modelsChart=null,vehicleStatusChart=null,exceptionChart=null,activePage='dashboard',selectedDealerCode=null,selectedRouteId=null,selectedOrderId=null,selectedUserId=null,selectedApprovalId=null,selectedNotificationId=null,selectedInventorySku=null,selectedAlertSku=null,selectedPoId=null,selectedReceiptId=null,selectedPutawayId=null,editingArticleSku=null;
+const LOCAL_SAVE_KEY='supplypilot_volvo_v1_3_local_save';
 const plant={name:"Usine Volvo",city:"Montréal",lat:45.5017,lng:-73.5673};
 function rand(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
 function pick(arr){return arr[rand(0,arr.length-1)];}
@@ -506,11 +498,6 @@ function normalizeDataAfterImport(){
     item.price=toNumber(item.price,0);
     item.location=(item.location||'BIN-01-01').toString();
     item.lot=(item.lot||'').toString();
-    item.transitManual=toNumber(item.transitManual, item.transit || 0);
-    item.thresholdMin=toNumber(item.thresholdMin, item.seuil_min || item.threshold || 0);
-    item.consumptionDaily=toNumber(item.consumptionDaily, item.consommation_journaliere || item.dailyConsumption || 0);
-    item.orderCost=toNumber(item.orderCost, item.S || 0);
-    item.carryingCost=toNumber(item.carryingCost, item.H || 0);
     recalcItem(item);
     return item;
   });
@@ -578,6 +565,7 @@ function normalizeDataAfterImport(){
   masterPlan=ensureArray(masterPlan).map(x=>({...x,model:(x.model||'').toString(),units:toNumber(x.units,0),line:(x.line||'').toString(),priority:(x.priority||'').toString(),start:(x.start||'').toString(),end:(x.end||'').toString()}));
   dealers=ensureArray(dealers).map(x=>({...x,code:(x.code||'').toString(),name:(x.name||'').toString(),city:(x.city||'').toString(),province:(x.province||'').toString(),lat:toNumber(x.lat,0),lng:toNumber(x.lng,0),pending:toNumber(x.pending,0),delivered30:toNumber(x.delivered30,0),otd:toNumber(x.otd,0),contact:(x.contact||'').toString(),email:(x.email||'').toString(),phone:(x.phone||'').toString()}));
   transporters=ensureArray(transporters).map(x=>({...x,name:(x.name||'').toString(),type:(x.type||'').toString(),capacity:toNumber(x.capacity,0),otd:toNumber(x.otd,0),late:toNumber(x.late,0)}));
+  inventory=ensureArray(inventory).map(normalizeAcademicItem);
   routes=ensureArray(routes).map((x,i)=>({...x,id:(x.id||`RTE-${String(i+1).padStart(3,'0')}`).toString(),dealer:(x.dealer||'').toString(),dealerCode:(x.dealerCode||'').toString(),transporteur:(x.transporteur||'').toString(),carrierType:(x.carrierType||'').toString(),capacity:toNumber(x.capacity,0),utilization:toNumber(x.utilization,0),truck:(x.truck||'').toString(),eta:(x.eta||'').toString(),status:(x.status||'Planifiée').toString(),lat:toNumber(x.lat,0),lng:toNumber(x.lng,0),stopCount:toNumber(x.stopCount,0),alert:(x.alert||'Aucune').toString()}));
   vehicleOrders=ensureArray(vehicleOrders).map((x,i)=>({...x,id:(x.id||`SO-${String(3001+i).padStart(5,'0')}`).toString(),vin:(x.vin||'').toString(),model:(x.model||'').toString(),color:(x.color||'').toString(),dealerCode:(x.dealerCode||'').toString(),dealer:(x.dealer||'').toString(),routeId:(x.routeId||'').toString(),eta:(x.eta||'').toString(),status:(x.status||'Prévue').toString(),pod:(x.pod||'En attente').toString(),carrier:(x.carrier||'').toString(),price:toNumber(x.price,0)}));
   deliveryHistory=ensureArray(deliveryHistory).map(x=>({...x,date:(x.date||'').toString(),dealer:(x.dealer||'').toString(),vin:(x.vin||'').toString(),routeId:(x.routeId||'').toString(),status:(x.status||'').toString()}));
@@ -605,7 +593,7 @@ function getAppState(){
     govUsersData,govApprovalsData,govNotificationsData,deptKpiData,userActionsData,
     selectedInventorySku,selectedPoId,selectedReceiptId,selectedPutawayId,selectedDealerCode,selectedRouteId,
     selectedOrderId,selectedUserId,selectedApprovalId,selectedNotificationId,activePage,
-    savedAt:new Date().toISOString(),version:'V1.6'
+    savedAt:new Date().toISOString(),version:'V1.3'
   };
 }
 function saveToLocalStorage(showMessage=false){
@@ -621,13 +609,7 @@ function saveToLocalStorage(showMessage=false){
 }
 function loadFromLocalStorage(){
   try{
-    let raw=localStorage.getItem(LOCAL_SAVE_KEY), migrated=false;
-    if(!raw){
-      for(const legacyKey of LEGACY_SAVE_KEYS){
-        const legacyRaw=localStorage.getItem(legacyKey);
-        if(legacyRaw){ raw=legacyRaw; migrated=true; break; }
-      }
-    }
+    const raw=localStorage.getItem(LOCAL_SAVE_KEY);
     if(!raw) return false;
     const state=JSON.parse(raw);
     if(!state || !Array.isArray(state.inventory) || !state.inventory.length) return false;
@@ -663,8 +645,6 @@ function loadFromLocalStorage(){
     selectedNotificationId=state.selectedNotificationId||null;
     activePage=state.activePage||'dashboard';
     normalizeDataAfterImport();
-    ensureDataIntegrity();
-    if(migrated) saveToLocalStorage();
     return true;
   }catch(err){
     console.error(err);
@@ -700,7 +680,7 @@ function exportDatabaseToExcel(){
     const sheet=XLSX.utils.json_to_sheet(Array.isArray(data)?data:[]);
     XLSX.utils.book_append_sheet(workbook,sheet,name);
   });
-  XLSX.writeFile(workbook,`SupplyPilot_V1.6.1_Base_${new Date().toISOString().slice(0,10)}.xlsx`);
+  XLSX.writeFile(workbook,`SupplyPilot_V1.3_Base_${new Date().toISOString().slice(0,10)}.xlsx`);
   addUserAction('Export Excel de la base de données');
   renderAll();
 }
@@ -755,76 +735,11 @@ function importDatabaseFromExcel(event){
   reader.readAsArrayBuffer(file);
 }
 
-function ensureDataIntegrity(){
-  if(!Array.isArray(inventory) || !inventory.length){
-    generateData();
-    return;
-  }
-  normalizeDataAfterImport();
-  if(!Array.isArray(purchaseOrders)) purchaseOrders=[];
-  if(!Array.isArray(receipts) || !receipts.length) receipts=activePurchaseOrdersForReceipts();
-  if(!Array.isArray(putawayTasks)) putawayTasks=[];
-  if(!putawayTasks.length) putawayTasks=buildPutawayTasks();
-  if(!Array.isArray(productionLines) || !productionLines.length){
-    productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
-  }
-  if(!Array.isArray(modelPlan) || !modelPlan.length) modelPlan=[{model:'VNL',units:24},{model:'VNR',units:18},{model:'FH',units:16},{model:'FMX',units:12},{model:'XC90 Fleet',units:10}];
-  if(!Array.isArray(manufacturingOrders) || !manufacturingOrders.length){
-    manufacturingOrders=Array.from({length:12},(_,i)=>({id:`OF-${String(i+1).padStart(4,'0')}`,model:modelPlan[i%modelPlan.length].model,vin:makeVin(500+i),status:['Planifiée','Assemblage','Inspection','Complété'][i%4],bom:96+(i%5)*7,line:productionLines[i%productionLines.length].name,start:`2026-03-${String(10+(i%10)).padStart(2,'0')}`,end:`2026-03-${String(11+(i%10)).padStart(2,'0')}`}));
-  }
-  if(!Array.isArray(bomModels) || !bomModels.length){
-    bomModels=modelPlan.map((m,i)=>({model:m.model,families:10+i,bomParts:95+i*6,consumptionDay:140+i*18,critical:3+(i%4),topParts:[`MOT-${i+1}`,`CAB-${i+1}`,`TRN-${i+1}`]}));
-  }
-  if(!Array.isArray(vehicleBuilds) || !vehicleBuilds.length){
-    vehicleBuilds=manufacturingOrders.map((o,i)=>({vin:o.vin,model:o.model,color:['Blanc','Noir','Bleu','Rouge','Gris'][i%5],ofId:o.id,stage:['Kitting','Assemblage','Peinture','Inspection finale'][i%4],etaLine:`${4+(i%8)} h`,line:o.line}));
-  }
-  if(!Array.isArray(masterPlan) || !masterPlan.length){
-    masterPlan=modelPlan.map((m,i)=>({model:m.model,units:m.units,line:productionLines[i%productionLines.length].name,priority:['Haute','Moyenne','Basse'][i%3],start:`2026-03-${String(12+i).padStart(2,'0')}`,end:`2026-03-${String(13+i).padStart(2,'0')}`}));
-  }
-  if(!Array.isArray(dealers) || !dealers.length){
-    dealers=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972]].map((d,i)=>({code:d[0],name:d[1],city:d[2],province:d[3],lat:d[4],lng:d[5],pending:5+i*2,delivered30:12+i*3,otd:94+i,contact:`${d[1]} Service`,email:`${d[0].toLowerCase()}@dealer.volvo.local`,phone:`+1 514-555-0${String(i+10).padStart(3,'0')}`}));
-  }
-  if(!Array.isArray(transporters) || !transporters.length){
-    transporters=[{name:'TransNord',type:'Porte-autos 8',capacity:8,otd:96,late:1},{name:'Volvo Fleet',type:'Porte-autos 6',capacity:6,otd:98,late:0},{name:'CargoPlus',type:'Porte-autos 10',capacity:10,otd:92,late:2}];
-  }
-  if(!Array.isArray(routes) || !routes.length){
-    routes=dealers.map((d,i)=>({id:`RTE-${String(i+1).padStart(3,'0')}`,dealer:d.name,dealerCode:d.code,transporteur:transporters[i%transporters.length].name,carrierType:transporters[i%transporters.length].type,capacity:transporters[i%transporters.length].capacity,utilization:72+i*6,truck:`TRK-${String(200+i).padStart(3,'0')}`,eta:`${8+i*4} h`,status:i%3===0?'Retard':'En transit',lat:d.lat,lng:d.lng,stopCount:1,alert:i%3===0?'Retard météo / trafic':'Aucune'}));
-  }
-  if(!Array.isArray(vehicleOrders) || !vehicleOrders.length){
-    vehicleOrders=Array.from({length:Math.max(8,dealers.length*2)},(_,i)=>{const dealer=dealers[i%dealers.length],route=routes[i%routes.length];return{id:`SO-${String(3001+i).padStart(5,'0')}`,vin:makeVin(800+i),model:modelPlan[i%modelPlan.length].model,color:['Blanc','Noir','Bleu','Rouge','Gris'][i%5],dealerCode:dealer.code,dealer:dealer.name,routeId:route.id,eta:route.eta,status:['Prévue','En production','À quai','Expédié','Livré'][i%5],pod:i%5===4?'Reçue':'En attente',carrier:route.transporteur,price:185000+(i%5)*9000};});
-  }
-  if(!Array.isArray(deliveryHistory) || !deliveryHistory.length){
-    deliveryHistory=vehicleOrders.slice(0,12).map((o,i)=>({date:`2026-03-${String((i%12)+1).padStart(2,'0')}`,dealer:o.dealer,vin:o.vin,routeId:o.routeId,status:i%3===0?'Livré':'En transit'}));
-  }
-  if(!Array.isArray(govUsersData) || !govUsersData.length){
-    govUsersData=[{id:'USR-001',name:'Mathieu AEC',role:'Estimateur / Admin',department:'Direction',lastAction:'Validation transport',status:'Actif'},{id:'USR-002',name:'Julie Tremblay',role:'Planificatrice',department:'Manufacture',lastAction:'Ordre OF-0004',status:'Actif'},{id:'USR-003',name:'Marc Gagnon',role:'Superviseur WMS',department:'Entrepôt',lastAction:'Réallocation lot 2026-041',status:'Actif'}];
-  }
-  if(!Array.isArray(govApprovalsData) || !govApprovalsData.length){
-    govApprovalsData=[{id:'APP-001',type:'PO > 250k$',department:'Approvisionnement',owner:'Mathieu AEC',status:'Ouvert'},{id:'APP-002',type:'Déblocage qualité',department:'Qualité',owner:'Éric Boucher',status:'En revue'}];
-  }
-  if(!Array.isArray(govNotificationsData) || !govNotificationsData.length){
-    govNotificationsData=[{id:'NTF-001',date:'2026-03-21 08:10',source:'Distribution',message:'RTE-003 sous surveillance météo',priority:'Moyenne',module:'Distribution'},{id:'NTF-002',date:'2026-03-21 08:22',source:'Qualité',message:'LOT-2026-0041 en quarantaine',priority:'Élevée',module:'Qualité'}];
-  }
-  if(!Array.isArray(deptKpiData) || !deptKpiData.length){
-    deptKpiData=[{department:'Manufacture',kpi:'TRS',value:'89.2%',trend:'Stable'},{department:'Entrepôt',kpi:'Articles critiques',value:num(inventory.filter(x=>x.alert==='Critique').length),trend:'À réduire'}];
-  }
-  if(!Array.isArray(userActionsData) || !userActionsData.length){
-    userActionsData=[{date:nowStamp(),user:'System',action:'Initialisation',module:'Application',detail:'Données complétées automatiquement'}];
-  }
-  selectedReceiptId=selectedReceiptId||receipts[0]?.id||null;
-  selectedPutawayId=selectedPutawayId||putawayTasks[0]?.id||null;
-  selectedDealerCode=selectedDealerCode||dealers[0]?.code||null;
-  selectedRouteId=selectedRouteId||routes[0]?.id||null;
-  selectedOrderId=selectedOrderId||vehicleOrders[0]?.id||null;
-  selectedUserId=selectedUserId||govUsersData[0]?.id||null;
-  selectedApprovalId=selectedApprovalId||govApprovalsData[0]?.id||null;
-  selectedNotificationId=selectedNotificationId||govNotificationsData[0]?.id||null;
-}
 function generateData(){
   const categories=['Moteur','Freinage','Suspension','Électrique','Transmission','Cabine'],suppliers=['SKF','Bosch','Valeo','Magna','Cummins','ZF'],models=['VNL','VNR','FH','FMX','XC90 Fleet'],colors=['Blanc','Noir','Bleu','Rouge','Gris'],dealerSeeds=[['DLR-001','Volvo Laval','Laval','QC',45.6066,-73.7124],['DLR-002','Volvo Québec','Québec','QC',46.8139,-71.2080],['DLR-003','Volvo Toronto','Toronto','ON',43.6532,-79.3832],['DLR-004','Volvo Ottawa','Ottawa','ON',45.4215,-75.6972],['DLR-005','Volvo Halifax','Halifax','NS',44.6488,-63.5752],['DLR-006','Volvo Moncton','Moncton','NB',46.0878,-64.7782],['DLR-007','Volvo Winnipeg','Winnipeg','MB',49.8954,-97.1385],['DLR-008','Volvo Calgary','Calgary','AB',51.0447,-114.0719]];
   inventory=[]; purchaseOrders=[]; receipts=[]; putawayTasks=[]; productionLines=[]; modelPlan=[]; manufacturingOrders=[]; dealers=[]; transporters=[]; routes=[]; vehicleOrders=[]; deliveryHistory=[]; govUsersData=[]; govApprovalsData=[]; govNotificationsData=[]; deptKpiData=[]; userActionsData=[];
-  for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);const reserved=rand(0,Math.max(1,Math.floor(stock*0.18))),quarantine=rand(0,Math.max(1,Math.floor(stock*0.08))),available=Math.max(0,stock-reserved-quarantine),transitManual=rand(0,30),consumptionDaily=rand(1,12),thresholdMin=Math.max(20,Math.round(consumptionDaily*7)),orderCost=rand(90,180),carryingCost=rand(20,60);
-  inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,available,reserved,quarantine,price,value:stock*price,alert:available<40?'Critique':available<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`,transitManual,thresholdMin,consumptionDaily,orderCost,carryingCost});}
+  for(let i=1;i<=400;i++){const stock=rand(5,350),price=rand(80,8500);const reserved=rand(0,Math.max(1,Math.floor(stock*0.18))),quarantine=rand(0,Math.max(1,Math.floor(stock*0.08))),available=Math.max(0,stock-reserved-quarantine);
+  inventory.push({sku:`VOL-${String(i).padStart(4,'0')}`,description:`Pièce ${i}`,category:categories[i%categories.length],supplier:suppliers[i%suppliers.length],stock,available,reserved,quarantine,price,value:stock*price,alert:available<40?'Critique':available<90?'A surveiller':'OK',location:`BIN-${String((i%12)+1).padStart(2,'0')}-${String((i%5)+1).padStart(2,'0')}`,lot:`LOT-${2026}-${String(i).padStart(4,'0')}`,transit:rand(0,40),thresholdMin:Math.max(20,Math.round((120 + (i%17)*35 + (price>3000?240:0))/12)),demandAnnual:120 + (i%17)*35 + (price>3000?240:0),consumptionDaily:Math.max(1,Math.round((120 + (i%17)*35 + (price>3000?240:0))/250)),orderCost:95 + ((i)%7)*15,holdingCost:Math.max(18,Math.round(price*0.18))});}
   purchaseOrders=inventory.filter(x=>x.alert!=='OK').slice(0,28).map((x,i)=>{const qty=rand(10,80),status=i%7===0?'FERMÉE':i%5===0?'ENVOYÉE':i%3===0?'BROUILLON':'OUVERTE',priority=x.alert==='Critique'?'Haute':i%2===0?'Moyenne':'Basse',urgency=x.alert==='Critique'?'Critique':status==='BROUILLON'?'Normale':'Élevée',createdAt=`2026-03-${String(rand(10,22)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`,sentAt=['ENVOYÉE','FERMÉE'].includes(status)?`2026-03-${String(rand(12,23)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,closedAt=status==='FERMÉE'?`2026-03-${String(rand(18,24)).padStart(2,'0')} ${String(rand(8,17)).padStart(2,'0')}:${String(rand(0,59)).padStart(2,'0')}`:null,leadDays=rand(3,14);return{id:`PO-${String(i+1).padStart(4,'0')}`,sku:x.sku,description:x.description,supplier:x.supplier,qty,qtySuggested:qty,priority,urgency,leadDays,createdAt,sentAt,closedAt,value:qty*x.price,status};});
   productionLines=[{name:'Assemblage Châssis',availability:91,performance:88,quality:97},{name:'Cabine',availability:89,performance:86,quality:96},{name:'Moteur',availability:93,performance:91,quality:98},{name:'Transmission',availability:87,performance:84,quality:95},{name:'Peinture',availability:85,performance:82,quality:94},{name:'Inspection Finale',availability:96,performance:93,quality:99}].map(x=>({...x,trs:Math.round((x.availability*x.performance*x.quality/10000)*10)/10}));
   modelPlan=models.map(m=>({model:m,units:rand(12,54)}));
@@ -920,20 +835,18 @@ function receiptStatusNext(current){
 }
 
 function renderAll(){
-  ensureDataIntegrity();
   const activePO=purchaseOrders.filter(x=>x.status!=='FERMÉE'),closedPO=purchaseOrders.filter(x=>x.status==='FERMÉE'),totalInv=inventory.reduce((s,x)=>s+x.value,0),avgTRS=productionLines.reduce((s,x)=>s+x.trs,0)/productionLines.length,shipped=vehicleOrders.filter(x=>['Expédié','Livré'].includes(x.status)).length,pod=vehicleOrders.filter(x=>['Reçue','Signée'].includes(x.pod)).length,late=routes.filter(x=>x.status==='Retard').length,util=routes.length?routes.reduce((s,x)=>s+x.utilization,0)/routes.length:0;
   document.getElementById('kpiSku').textContent=num(inventory.length);document.getElementById('kpiInv').textContent=currency(totalInv);document.getElementById('kpiPO').textContent=num(activePO.length);document.getElementById('kpiTRS').textContent=pct(avgTRS);document.getElementById('kpiDealers').textContent=num(dealers.length);document.getElementById('kpiRoutes').textContent=num(routes.length);
   document.getElementById('sideSku').textContent=num(inventory.length);document.getElementById('sidePO').textContent=num(activePO.length);document.getElementById('sideTRS').textContent=pct(avgTRS);document.getElementById('sideDealers').textContent=num(dealers.length);document.getElementById('sideRoutes').textContent=num(routes.length);
   document.getElementById('navDashboard').textContent=num(inventory.length);document.getElementById('navInventory').textContent=num(inventory.filter(x=>x.alert==='Critique').length);document.getElementById('navPO').textContent=num(activePO.length);document.getElementById('navReceiving').textContent=num(receipts.filter(x=>x.status!=='Postée').length);document.getElementById('navPutaway').textContent=num(putawayTasks.filter(x=>x.status!=='Rangé').length);document.getElementById('navProd').textContent=pct(avgTRS);document.getElementById('navDist').textContent=num(vehicleOrders.length);document.getElementById('navMap').textContent=num(routes.length);
   document.getElementById('distOrders').textContent=num(vehicleOrders.length);document.getElementById('distShipped').textContent=num(shipped);document.getElementById('distCarriers').textContent=num(transporters.length);document.getElementById('distLate').textContent=num(late);document.getElementById('distPod').textContent=num(pod);document.getElementById('distUtil').textContent=pct(util);
   document.getElementById('inventoryBody').innerHTML=inventory.slice(0,120).map(x=>`<tr onclick="selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${x.category}</td><td>${x.supplier}</td><td>${num(x.stock)}</td><td>${num(x.available)}</td><td>${num(x.reserved)}</td><td>${num(x.quarantine)}</td><td>${currency(x.price)}</td><td>${currency(x.value)}</td><td>${badge(x.alert)}</td><td>${x.location}</td></tr>`).join('');
-  const articlesCrud=document.getElementById('articlesCrudBody'); if(articlesCrud){ const rows=getOptimizationRows(); articlesCrud.innerHTML=rows.slice(0,120).map(r=>`<tr onclick="selectedInventorySku='${r.sku}';loadSelectedArticleIntoForm()" style="cursor:pointer"><td>${r.sku}</td><td>${num(r.physical)}</td><td>${num(r.transit)}</td><td>${num(r.reserved)}</td><td>${num(r.net)}</td><td>${num(r.threshold)}</td><td>${badge(r.status)}</td><td>${r.message==='Aucun'?'—':`Msg ${num(r.messageQty)}`}</td></tr>`).join(''); }
+  renderArticlesModule();
   document.getElementById('dashboardPoBody').innerHTML=activePO.slice(0,20).map(x=>`<tr><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.status)}</td></tr>`).join('');
   const inventoryExceptions=inventory.filter(x=>x.alert!=='OK' || x.quarantine>0 || (x.stock>0 && (x.reserved/x.stock)>=0.25)).sort((a,b)=>{const scoreA=(a.alert==='Critique'?100:a.alert==='A surveiller'?60:0)+(a.quarantine>0?25:0)+(a.stock>0&&(a.reserved/a.stock)>=0.25?15:0);const scoreB=(b.alert==='Critique'?100:b.alert==='A surveiller'?60:0)+(b.quarantine>0?25:0)+(b.stock>0&&(b.reserved/b.stock)>=0.25?15:0);return scoreB-scoreA;});
   document.getElementById('dashboardExceptionBody').innerHTML=inventoryExceptions.slice(0,20).map(x=>{const exceptionLabel=x.alert==='Critique'?'Rupture / sous seuil':x.alert==='A surveiller'?'Sous surveillance':x.quarantine>0?'Quarantaine':'Réservé élevé';return `<tr onclick="setPage('inventory');selectedInventorySku='${x.sku}';renderInventoryDetail(true)" style="cursor:pointer"><td>${x.sku}</td><td>${x.description}</td><td>${num(x.available)}</td><td>${num(x.quarantine)}</td><td>${num(x.reserved)}</td><td>${badge(exceptionLabel)}</td></tr>`;}).join('');
   document.getElementById('poBody').innerHTML=activePO.map(x=>`<tr data-po="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.qty)}</td><td>${badge(x.priority)}</td><td>${badge(x.urgency)}</td><td>${num(x.leadDays)} j</td><td>${(x.createdAt||'—').slice(0,16)}</td><td><span style="cursor:pointer" title="Cliquer pour passer au statut suivant" onclick="event.stopPropagation();advancePOStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
   document.getElementById('poClosedBody').innerHTML=closedPO.slice().reverse().map(x=>`<tr data-po="${x.id}"><td>${x.id}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${currency(x.value)}</td><td>${(x.createdAt||'—').slice(0,16)}</td><td>${x.closedAt||'—'}</td><td>${badge(x.status)}</td></tr>`).join('');
-  const bnmpMsgBody=document.getElementById('bnmpMessagesBody'); if(bnmpMsgBody){ const messages=getBnmpMessageRows(); bnmpMsgBody.innerHTML=messages.map(m=>`<tr><td>${m.id}</td><td>${m.sku}</td><td>${num(m.qty)}</td><td>${m.date}</td><td>${badge(m.status)}</td><td>${m.status==='Déjà couvert'?'—':`<button onclick="convertBnmpMessageToPo('${m.id}')">Convertir en PO</button>`}</td></tr>`).join(''); }
   document.getElementById('recCount').textContent=num(receipts.length);document.getElementById('recExpected').textContent=num(receipts.filter(x=>x.status==='Attendue').length);document.getElementById('recPartial').textContent=num(receipts.filter(x=>x.status==='Partielle').length);document.getElementById('recInspect').textContent=num(receipts.filter(x=>x.status==='Inspection').length);document.getElementById('recComplete').textContent=num(receipts.filter(x=>x.status==='Complète').length);document.getElementById('recPosted').textContent=num(receipts.filter(x=>x.status==='Postée').length);
   document.getElementById('receiptsBody').innerHTML=receipts.map(x=>`<tr data-receipt="${x.id}"><td>${x.id}</td><td>${x.poId}</td><td>${x.sku}</td><td>${x.supplier}</td><td>${num(x.expected)}</td><td>${num(x.received)}</td><td>${num(x.variance)}</td><td>${x.putaway}</td><td><span style="cursor:pointer" title="Cliquer pour passer à l'étape suivante" onclick="event.stopPropagation();advanceReceiptStatus('${x.id}')">${badge(x.status)}</span></td></tr>`).join('');
   document.getElementById('putCount').textContent=num(putawayTasks.length);document.getElementById('putOpen').textContent=num(putawayTasks.filter(x=>x.status==='À ranger').length);document.getElementById('putProgress').textContent=num(putawayTasks.filter(x=>x.status==='En cours').length);document.getElementById('putDone').textContent=num(putawayTasks.filter(x=>x.status==='Rangé').length);
@@ -1121,13 +1034,36 @@ function renderBomDetail(open=false){
 
 
 
+function normalizeAcademicItem(item){
+  item.sku=(item.sku||'').toString().trim().toUpperCase();
+  item.description=(item.description||'Article').toString();
+  item.category=(item.category||'Non classée').toString();
+  item.supplier=(item.supplier||'Inconnu').toString();
+  item.stock=Math.max(0,Number(item.stock||0));
+  item.available=Math.max(0,Number((item.available ?? item.stock) || 0));
+  item.reserved=Math.max(0,Number(item.reserved||0));
+  item.quarantine=Math.max(0,Number(item.quarantine||0));
+  item.price=Math.max(0,Number(item.price||0));
+  item.transit=Math.max(0,Number(item.transit||0));
+  item.thresholdMin=Math.max(0,Number(item.thresholdMin ?? item.seuil_min ?? 0));
+  item.demandAnnual=Math.max(0,Number(item.demandAnnual||0));
+  item.consumptionDaily=Math.max(0,Number(item.consumptionDaily||0));
+  item.orderCost=Math.max(0,Number(item.orderCost||0));
+  item.holdingCost=Math.max(1,Number(item.holdingCost||0));
+  if(!item.thresholdMin) item.thresholdMin=Math.max(20,Math.round((item.demandAnnual||120)/12));
+  if(!item.demandAnnual) item.demandAnnual=120;
+  if(!item.consumptionDaily) item.consumptionDaily=Math.max(1,Math.round(item.demandAnnual/250));
+  if(!item.orderCost) item.orderCost=120;
+  if(!item.holdingCost) item.holdingCost=Math.max(18,Math.round(item.price*0.18)||18);
+  recalcItem(item);
+  return item;
+}
 function recalcItem(item){
-  item.stock=Math.max(0,(item.available||0)+(item.reserved||0)+(item.quarantine||0));
+  item.available=Math.max(0,Number(item.available||0));
+  item.reserved=Math.max(0,Number(item.reserved||0));
+  item.quarantine=Math.max(0,Number(item.quarantine||0));
+  item.stock=Math.max(0,Number(item.stock||((item.available||0)+(item.reserved||0)+(item.quarantine||0))));
   item.value=item.stock*item.price;
-  if(!Number(item.thresholdMin||0)) item.thresholdMin=Math.max(20,Math.round((Number(item.consumptionDaily||0)||4)*7));
-  if(!Number(item.consumptionDaily||0)) item.consumptionDaily=Math.max(0.1,Math.round((item.thresholdMin/7)*10)/10);
-  if(!Number(item.orderCost||0)) item.orderCost=120;
-  if(!Number(item.carryingCost||0)) item.carryingCost=Math.max(35,Math.round((Number(item.price)||0)*0.18));
   item.alert=item.available<40?'Critique':item.available<90?'A surveiller':'OK';
 }
 function addUserAction(message){
@@ -1296,63 +1232,148 @@ function renderNotificationDetail(open=false){
 }
 
 
-function demandDaily(item){return Math.max(0.1, Number(item.consumptionDaily||0)||((parseInt((item.sku||'0').replace(/\D/g,''),10)||1)%12)+1);} 
-function demandAnnual(item){return Math.round(demandDaily(item)*365);} 
-function carryingCost(item){return Math.max(1,Number(item.carryingCost||0)||Math.max(18,Math.round((Number(item.price)||0)*0.18)));}
-function orderCost(item){return Math.max(1,Number(item.orderCost||0)||(95 + (((item.sku||'A').charCodeAt((item.sku||'A').length-1)||65)%7)*15));}
-function bnmpTransit(item){const manual=Number(item.transitManual||0); const openPo=purchaseOrders.filter(po=>po.sku===item.sku && !['FERMÉE','FERMEE','CLOS','CLOSE'].includes((po.status||'').toUpperCase())).reduce((s,po)=>s+(Number(po.qty)||0),0); return Math.max(manual,openPo);} 
-function messageSuggestedQty(item){return Math.max(1,Math.ceil(Math.max(0,bnmpThreshold(item)-bnmpNet(item))+Math.max(5,demandDaily(item)*3)));} 
+function demandAnnual(item){return Math.max(0,Number(item.demandAnnual||0)) || (120 + ((parseInt((item.sku||'0').replace(/\D/g,''),10)||1)%17)*35 + (item.price>3000?240:0));} 
+function carryingCost(item){return Math.max(1,Number(item.holdingCost||0)) || Math.max(18,Math.round(item.price*0.18));}
+function orderCost(item){return Math.max(0,Number(item.orderCost||0)) || (95 + ((item.sku.charCodeAt(item.sku.length-1)||65)%7)*15);}
+function bnmpTransit(item){const poTransit=purchaseOrders.filter(po=>po.sku===item.sku && !['FERMÉE','FERMEE','CLOS','CLOSE'].includes((po.status||'').toUpperCase())).reduce((s,po)=>s+(Number(po.qty)||0),0); return Math.max(0,Number(item.transit||0))+poTransit;} 
 function bnmpPhysical(item){return Number(item.stock||((item.available||0)+(item.reserved||0)+(item.quarantine||0))||0);} 
-function bnmpThreshold(item){return Math.max(20,Math.round(demandAnnual(item)/12));}
-function bnmpNet(item){return bnmpPhysical(item)+bnmpTransit(item)-(Number(item.reserved)||0);} 
+function bnmpThreshold(item){return Math.max(0,Number(item.thresholdMin||0)) || Math.max(20,Math.round(demandAnnual(item)/12));}
+function bnmpNet(item){return bnmpPhysical(item)+Math.max(0,Number(item.transit||0))-(Number(item.reserved)||0);} 
 function bnmpStatus(item){const net=bnmpNet(item), min=bnmpThreshold(item); return net<0?'Stockout':net<min?'À commander':'OK';}
 function annualValue(item){return demandAnnual(item)*(Number(item.price)||0);} 
 function xyzClass(item){const q=(Number(item.quarantine)||0), r=(Number(item.reserved)||0), s=Math.max(1,bnmpPhysical(item)); const ratio=(q+r)/s; return ratio<0.12?'X':ratio<0.24?'Y':'Z'; }
 function eoq(item){return Math.max(1,Math.round(Math.sqrt((2*demandAnnual(item)*orderCost(item))/carryingCost(item))));}
+function dailyConsumption(item){return Math.max(1,Number(item.consumptionDaily||0)) || Math.max(1,Math.round(demandAnnual(item)/250));}
+function coverageDays(item){return Math.round((bnmpNet(item)/dailyConsumption(item))*10)/10;}
+function suggestedQtyFromItem(item){return Math.max(1, Math.round(Math.max(bnmpThreshold(item)-bnmpNet(item)+10,eoq(item))));}
 function getOptimizationRows(){
   const rows=inventory.map(item=>({item, annualValue:annualValue(item)})).sort((a,b)=>b.annualValue-a.annualValue);
   const total=rows.reduce((s,r)=>s+r.annualValue,0)||1; let cum=0;
-  return rows.map((row,idx)=>{cum+=row.annualValue; const share=row.annualValue/total; const cumulativeShare=cum/total; const abc=cumulativeShare<=0.80?'A':cumulativeShare<=0.95?'B':'C'; const x=row.item; return {sku:x.sku,description:x.description,physical:bnmpPhysical(x),transit:bnmpTransit(x),reserved:Number(x.reserved)||0,net:bnmpNet(x),threshold:bnmpThreshold(x),demand:demandAnnual(x),status:bnmpStatus(x),message:bnmpStatus(x)==='OK'?'Aucun':'Créer brouillon',messageQty:messageSuggestedQty(x),annualValue:row.annualValue,share, cumulativeShare, abc,xyz:xyzClass(x),eoq:eoq(x),policy:abc==='A'?'Contrôle strict':abc==='B'?'Pilotage périodique':'Gestion simplifiée',supplier:x.supplier,price:x.price};});
+  return rows.map((row)=>{cum+=row.annualValue; const cumShare=cum/total; const contrib=row.annualValue/total; const abc=cumShare<=0.80?'A':cumShare<=0.95?'B':'C'; const x=normalizeAcademicItem(row.item); const qtySuggested=suggestedQtyFromItem(x); return {sku:x.sku,description:x.description,physical:bnmpPhysical(x),transit:Number(x.transit)||0,reserved:Number(x.reserved)||0,net:bnmpNet(x),threshold:bnmpThreshold(x),demand:demandAnnual(x),status:bnmpStatus(x),message:bnmpStatus(x)==='OK'?'Aucun':'Créer brouillon',annualValue:row.annualValue,contribution:contrib,cumContribution:cumShare,abc,xyz:xyzClass(x),eoq:eoq(x),policy:abc==='A'?'Contrôle strict':abc==='B'?'Pilotage périodique':'Gestion simplifiée',supplier:x.supplier,price:x.price,orderCost:orderCost(x),holdingCost:carryingCost(x),coverage:coverageDays(x),qtySuggested,date:nowStamp().slice(0,10)};});
 }
 function createBnmpDrafts(){
   const rows=getOptimizationRows().filter(r=>r.status!=='OK'); let created=0;
-  rows.forEach(r=>{if(hasOpenDraftForSku(r.sku)) return; const qty=Math.min(r.messageQty, Math.max(r.eoq, r.threshold*2)); purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:r.sku,description:r.description,supplier:r.supplier,qty,qtySuggested:qty,value:qty*r.price,status:'BROUILLON',priority:r.abc==='A'?'Haute':'Moyenne',urgency:r.status==='Stockout'?'Critique':'Élevée',leadDays:r.abc==='A'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null,source:'BNMP',messageId:`MSG-${r.sku}`}); created++; addUserAction(`Message BNMP transformé en brouillon PO pour ${r.sku}`);});
+  rows.forEach(r=>{const existing=purchaseOrders.some(po=>po.sku===r.sku && !['FERMÉE','FERMEE','CLOS','CLOSE'].includes((po.status||'').toUpperCase())); if(existing) return; purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:r.sku,description:r.description,supplier:r.supplier,qty:r.qtySuggested,qtySuggested:r.qtySuggested,value:r.qtySuggested*r.price,status:'BROUILLON',priority:r.abc==='A'?'Haute':'Moyenne',urgency:r.status==='Stockout'?'Critique':'Élevée',leadDays:r.abc==='A'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null,sourceMessage:'BNMP'}); created++; addUserAction(`Message BNMP transformé en brouillon PO pour ${r.sku}`);});
   govNotificationsData.unshift({id:`NOT-BNMP-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'BNMP',message:`${created} brouillon(s) PO généré(s) depuis le module Optimisation`,priority:created?'Élevée':'Faible',module:'Optimisation'});
-  renderAll(); setPage('optimization');
+  renderAll(); setPage('procurement');
 }
-function calculateTrsInterpretation(){
+function calculateTrsPedagogic(){
   const planned=Math.max(1,Number(document.getElementById('trsPlannedInput')?.value||0));
-  const downtime=Math.max(0,Number(document.getElementById('trsDowntimeInput')?.value||0));
-  const rate=Math.max(1,Number(document.getElementById('trsRateInput')?.value||0));
-  const totalQty=Math.max(0,Number(document.getElementById('trsTotalInput')?.value||0));
-  const badQty=Math.max(0,Number(document.getElementById('trsBadInput')?.value||0));
-  const runtime=Math.max(1,planned-downtime);
+  const stops=Math.max(0,Number(document.getElementById('trsStopsInput')?.value||0));
+  const cadence=Math.max(1,Number(document.getElementById('trsCadenceInput')?.value||0));
+  const totalQty=Math.max(0,Number(document.getElementById('trsTotalQtyInput')?.value||0));
+  const badQty=Math.max(0,Number(document.getElementById('trsBadQtyInput')?.value||0));
+  const runtime=Math.max(1,planned-stops);
   const goodQty=Math.max(0,totalQty-badQty);
-  const availability=((planned-downtime)/planned)*100;
-  const performance=(totalQty/Math.max(1,(rate*(runtime/60))))*100;
-  const quality=totalQty>0?(goodQty/totalQty)*100:0;
-  const trs=((availability/100)*(performance/100)*(quality/100)*100);
-  const factors=[['Disponibilité',availability],['Performance',performance],['Qualité',quality]].sort((a,b)=>a[1]-b[1]);
-  const lever=factors[0][0];
-  const el=document.getElementById('trsExplain'); 
-  if(el) el.innerHTML=`<div class="detail-grid"><div><div class="kpi-l">Disponibilité</div><div style="font-size:26px;font-weight:800">${availability.toFixed(1)}%</div><div class="sub">(${planned} − ${downtime}) / ${planned}</div></div><div><div class="kpi-l">Performance</div><div style="font-size:26px;font-weight:800">${performance.toFixed(1)}%</div><div class="sub">${totalQty} / (${rate} × ${runtime/60} h)</div></div><div><div class="kpi-l">Qualité</div><div style="font-size:26px;font-weight:800">${quality.toFixed(1)}%</div><div class="sub">${goodQty} bonnes / ${totalQty} totales</div></div><div><div class="kpi-l">TRS</div><div style="font-size:30px;font-weight:800">${trs.toFixed(1)}%</div><div class="sub">Le problème principal est : ${lever}</div></div></div>`;
+  const availability=((planned-stops)/planned)*100;
+  const performance=(totalQty/Math.max(1,(cadence*(runtime/60))))*100;
+  const quality=totalQty===0?0:(goodQty/totalQty)*100;
+  const trs=(availability*performance*quality)/10000;
+  const min=Math.min(availability,performance,quality);
+  const lever=min===availability?'Disponibilité':min===performance?'Performance':'Qualité';
+  const el=document.getElementById('trsExplain');
+  if(el) el.innerHTML=`<div class="detail-grid"><div><div class="kpi-l">Disponibilité</div><div style="font-size:26px;font-weight:800">${availability.toFixed(1)}%</div><div class="mini">(temps_planifié − arrêts) / temps_planifié</div></div><div><div class="kpi-l">Performance</div><div style="font-size:26px;font-weight:800">${performance.toFixed(1)}%</div><div class="mini">quantité_totale / (cadence × temps_fonctionnement)</div></div><div><div class="kpi-l">Qualité</div><div style="font-size:26px;font-weight:800">${quality.toFixed(1)}%</div><div class="mini">quantité_bonne / quantité_totale</div></div><div><div class="kpi-l">TRS</div><div style="font-size:26px;font-weight:800">${trs.toFixed(1)}%</div><div class="mini">Levier principal : ${lever}</div></div></div>`;
+}
+function calculateTrsInterpretation(){ calculateTrsPedagogic(); }
+function renderArticlesModule(){
+  const tbody=document.getElementById('articlesBody');
+  if(tbody){
+    const rows=getOptimizationRows().slice(0,80);
+    tbody.innerHTML=rows.map(r=>`<tr><td>${r.sku}</td><td>${num(r.physical)}</td><td>${num(r.transit)}</td><td>${num(r.reserved)}</td><td>${num(r.net)}</td><td>${num(r.threshold)}</td><td>${badge(r.status)}</td><td><button onclick="event.stopPropagation();editArticle('${r.sku}')">Modifier</button> <button onclick="event.stopPropagation();deleteArticle('${r.sku}')">Supprimer</button></td></tr>`).join('');
+  }
+}
+function clearArticleForm(){
+  editingArticleSku=null;
+  ['articleSkuInput','articleDescriptionInput','articleCategoryInput','articleSupplierInput'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
+  [['articlePhysicalInput',0],['articleTransitInput',0],['articleReservedInput',0],['articleThresholdInput',25],['articlePriceInput',100],['articleDemandInput',240],['articleOrderCostInput',120],['articleHoldingCostInput',30]].forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.value=val;});
+}
+function editArticle(sku){
+  const item=inventory.find(x=>x.sku===sku); if(!item) return;
+  editingArticleSku=sku;
+  document.getElementById('articleSkuInput').value=item.sku;
+  document.getElementById('articleDescriptionInput').value=item.description||'';
+  document.getElementById('articleCategoryInput').value=item.category||'';
+  document.getElementById('articleSupplierInput').value=item.supplier||'';
+  document.getElementById('articlePhysicalInput').value=bnmpPhysical(item);
+  document.getElementById('articleTransitInput').value=Number(item.transit||0);
+  document.getElementById('articleReservedInput').value=Number(item.reserved||0);
+  document.getElementById('articleThresholdInput').value=bnmpThreshold(item);
+  document.getElementById('articlePriceInput').value=Number(item.price||0);
+  document.getElementById('articleDemandInput').value=demandAnnual(item);
+  document.getElementById('articleOrderCostInput').value=orderCost(item);
+  document.getElementById('articleHoldingCostInput').value=carryingCost(item);
+}
+function saveArticle(){
+  const sku=(document.getElementById('articleSkuInput')?.value||'').trim().toUpperCase();
+  if(!sku) return alert('SKU requis');
+  let item=inventory.find(x=>x.sku===editingArticleSku)||inventory.find(x=>x.sku===sku);
+  const physical=Math.max(0,Number(document.getElementById('articlePhysicalInput')?.value||0));
+  const reserved=Math.max(0,Number(document.getElementById('articleReservedInput')?.value||0));
+  const quarantine=Math.max(0,Number(item?.quarantine||0));
+  const available=Math.max(0,physical-reserved-quarantine);
+  if(!item){ item={sku}; inventory.unshift(item); }
+  item.sku=sku;
+  item.description=(document.getElementById('articleDescriptionInput')?.value||'Article manuel').trim();
+  item.category=(document.getElementById('articleCategoryInput')?.value||'Non classée').trim();
+  item.supplier=(document.getElementById('articleSupplierInput')?.value||'Inconnu').trim();
+  item.stock=physical;
+  item.available=available;
+  item.reserved=reserved;
+  item.quarantine=quarantine;
+  item.transit=Math.max(0,Number(document.getElementById('articleTransitInput')?.value||0));
+  item.thresholdMin=Math.max(0,Number(document.getElementById('articleThresholdInput')?.value||0));
+  item.price=Math.max(0,Number(document.getElementById('articlePriceInput')?.value||0));
+  item.demandAnnual=Math.max(0,Number(document.getElementById('articleDemandInput')?.value||0));
+  item.consumptionDaily=Math.max(1,Math.round(item.demandAnnual/250));
+  item.orderCost=Math.max(0,Number(document.getElementById('articleOrderCostInput')?.value||0));
+  item.holdingCost=Math.max(1,Number(document.getElementById('articleHoldingCostInput')?.value||0));
+  item.location=item.location||'BIN-99-01';
+  item.lot=item.lot||`LOT-MAN-${Date.now().toString().slice(-6)}`;
+  normalizeAcademicItem(item);
+  selectedInventorySku=item.sku;
+  addUserAction(`Article ${item.sku} enregistré / mis à jour`);
+  clearArticleForm();
+  renderAll();
+  setPage('inventory');
+}
+function deleteArticle(sku){
+  const idx=inventory.findIndex(x=>x.sku===sku); if(idx<0) return;
+  inventory.splice(idx,1);
+  purchaseOrders=purchaseOrders.filter(po=>po.sku!==sku || ['FERMÉE','FERMEE','CLOS','CLOSE'].includes((po.status||'').toUpperCase()));
+  addUserAction(`Article ${sku} supprimé`);
+  if(selectedInventorySku===sku) selectedInventorySku=inventory[0]?.sku||null;
+  clearArticleForm();
+  renderAll();
+}
+function buildBnmpMessages(){
+  return getOptimizationRows().filter(r=>r.status!=='OK').map(r=>({sku:r.sku,net:r.net,threshold:r.threshold,qtySuggested:r.qtySuggested,date:r.date,status:'Brouillon',description:r.description,supplier:r.supplier,price:r.price,abc:r.abc,issue:r.status}));
+}
+function convertBnmpMessage(sku){
+  const msg=buildBnmpMessages().find(x=>x.sku===sku); if(!msg) return;
+  const existing=purchaseOrders.some(po=>po.sku===sku && !['FERMÉE','FERMEE','CLOS','CLOSE'].includes((po.status||'').toUpperCase()));
+  if(existing) return alert('Une PO active existe déjà pour ce SKU.');
+  purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:msg.sku,description:msg.description,supplier:msg.supplier,qty:msg.qtySuggested,qtySuggested:msg.qtySuggested,value:msg.qtySuggested*msg.price,status:'BROUILLON',priority:msg.abc==='A'?'Haute':'Moyenne',urgency:msg.issue==='Stockout'?'Critique':'Élevée',leadDays:msg.abc==='A'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null,sourceMessage:'BNMP'});
+  addUserAction(`Message BNMP converti en PO pour ${sku}`);
+  renderAll();
+  setPage('procurement');
 }
 function renderOptimizationAndCompliance(){
   const rows=getOptimizationRows();
   const toOrder=rows.filter(r=>r.status==='À commander').length, stockout=rows.filter(r=>r.status==='Stockout').length, ab=rows.filter(r=>['A','B'].includes(r.abc)).length, avgEoq=Math.round((rows.filter(r=>['A','B'].includes(r.abc)).reduce((s,r)=>s+r.eoq,0))/Math.max(1,ab));
-  const coverageValues=rows.map(r=>r.net/Math.max(0.1,demandDaily(inventory.find(x=>x.sku===r.sku)||{}))).filter(v=>Number.isFinite(v));
-  const avgCoverage=coverageValues.length?coverageValues.reduce((s,v)=>s+v,0)/coverageValues.length:0;
-  const serviceRate=rows.length?(rows.filter(r=>r.net>=r.threshold).length/rows.length)*100:0;
+  const rupture=rows.filter(r=>r.net<0).length;
+  const avgCoverage=rows.length?Math.round((rows.reduce((s,r)=>s+r.coverage,0)/rows.length)*10)/10:0;
+  const serviceRate=rows.length?Math.round((rows.filter(r=>r.net>=r.threshold).length/rows.length)*1000)/10:0;
   const bnmpBody=document.getElementById('bnmpBody'); if(bnmpBody) bnmpBody.innerHTML=rows.slice(0,24).map(r=>`<tr><td>${r.sku}</td><td>${num(r.physical)}</td><td>${num(r.transit)}</td><td>${num(r.reserved)}</td><td>${num(r.net)}</td><td>${num(r.threshold)}</td><td>${num(r.demand)}</td><td>${badge(r.status)}</td><td>${r.message}</td></tr>`).join('');
-  const eoqBody=document.getElementById('eoqBody'); if(eoqBody) eoqBody.innerHTML=rows.filter(r=>['A','B'].includes(r.abc)).slice(0,24).map(r=>`<tr><td>${r.sku}</td><td>${money(r.annualValue)}</td><td>${(r.share*100).toFixed(1)}%</td><td>${(r.cumulativeShare*100).toFixed(1)}%</td><td>${badge(r.abc)}</td><td>${badge(r.xyz)}</td><td>${num(r.eoq)}</td><td>${r.policy}</td></tr>`).join('');
+  const eoqBody=document.getElementById('eoqBody'); if(eoqBody) eoqBody.innerHTML=rows.filter(r=>['A','B'].includes(r.abc)).slice(0,24).map(r=>`<tr><td>${r.sku}</td><td>${money(r.annualValue)}</td><td>${(r.contribution*100).toFixed(1)}%</td><td>${(r.cumContribution*100).toFixed(1)}%</td><td>${badge(r.abc)}</td><td>${badge(r.xyz)}</td><td>${num(r.eoq)}</td><td>${r.policy}</td></tr>`).join('');
   const ids=['optBnmpCount','optToOrder','optStockout','optABCount','optAvgEoq','optMessages']; const vals=[rows.length,toOrder,stockout,ab,avgEoq,toOrder+stockout]; ids.forEach((id,i)=>{const el=document.getElementById(id); if(el) el.textContent=num(vals[i]);});
+  const ruptureEl=document.getElementById('optRupture'); if(ruptureEl) ruptureEl.textContent=num(rupture);
+  const coverageEl=document.getElementById('optCoverage'); if(coverageEl) coverageEl.textContent=String(avgCoverage);
+  const serviceEl=document.getElementById('optServiceRate'); if(serviceEl) serviceEl.textContent=serviceRate.toFixed(1)+'%';
   const navOpt=document.getElementById('navOpt'); if(navOpt) navOpt.textContent=`${toOrder+stockout}`;
-  const ruptureEl=document.getElementById('kpiRuptureAcademic'); if(ruptureEl) ruptureEl.textContent=num(stockout);
-  const coverageEl=document.getElementById('kpiCoverageAcademic'); if(coverageEl) coverageEl.textContent=`${avgCoverage.toFixed(1)} j`;
-  const serviceEl=document.getElementById('kpiServiceAcademic'); if(serviceEl) serviceEl.textContent=`${serviceRate.toFixed(1)}%`;
-  const messageBody=document.getElementById('bnmpMessagesBody'); if(messageBody){ const messages=getBnmpMessageRows(); messageBody.innerHTML=messages.map(m=>`<tr><td>${m.id}</td><td>${m.sku}</td><td>${num(m.qty)}</td><td>${m.date}</td><td>${badge(m.status)}</td><td>${m.status==='Déjà couvert'?'—':`<button onclick="convertBnmpMessageToPo('${m.id}')">Convertir en PO</button>`}</td></tr>`).join(''); }
-    const navCompliance=document.getElementById('navCompliance'); if(navCompliance) navCompliance.textContent='OK';
-  const dash=document.getElementById('dashboardComplianceSummary'); if(dash) dash.innerHTML=`<div class="okline">${rows.length} SKU analysés</div><div class="warnline">${toOrder} à commander • ${stockout} en rupture</div><div class="okline">${ab} articles A/B avec EOQ</div>`;
+  const navCompliance=document.getElementById('navCompliance'); if(navCompliance) navCompliance.textContent='OK';
+  const dash=document.getElementById('dashboardComplianceSummary'); if(dash) dash.innerHTML=`<div class="okline">BNMP actif sur ${rows.length} SKU</div><div class="warnline">${toOrder} à commander • ${stockout} stockout</div><div class="okline">KPI académiques, ABC / XYZ / EOQ, UML AS-IS / TO-BE et TRS pédagogique visibles</div>`;
+  const msgBody=document.getElementById('bnmpMessagesBody'); if(msgBody){ const messages=buildBnmpMessages(); msgBody.innerHTML=messages.map(m=>`<tr><td>${m.sku}</td><td>${num(m.net)}</td><td>${num(m.threshold)}</td><td>${num(m.qtySuggested)}</td><td>${m.date}</td><td>${badge(m.status)}</td><td><button onclick="convertBnmpMessage('${m.sku}')">Convertir en PO</button></td></tr>`).join(''); }
+  renderArticlesModule();
   const rules=[
     ['R1','Classe A ET Net < seuil mini ET fournisseur actif','Créer PO brouillon + tâche validation + log événement','Automatique'],
     ['R2','Net < 0','Escalade stockout + priorité critique + notification acheteur','Automatique'],
@@ -1361,7 +1382,7 @@ function renderOptimizationAndCompliance(){
     ['R5','Ajustement inventaire sans motif','Refuser la transaction et journaliser le rejet','Garde-fou']
   ];
   const rb=document.getElementById('rulesBody'); if(rb) rb.innerHTML=rules.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
-  const wf=document.getElementById('workflowBody'); if(wf) wf.innerHTML=`<div class="status-strip"><span class="note-chip">Brouillon</span><span class="note-chip">À valider</span><span class="note-chip">Envoyé</span><span class="note-chip">Reçu</span><span class="note-chip">Clos</span></div><div class="table-wrap"><table><thead><tr><th>supplier_id</th><th>Nom</th><th>lead_time</th><th>statut</th><th>conformité</th></tr></thead><tbody>${['SKF','Bosch','Valeo','Magna','Cummins','ZF'].map((s,i)=>`<tr><td>SUP-${String(i+1).padStart(3,'0')}</td><td>${s}</td><td>${3+i} j</td><td>${badge(i===4?'Surveiller':'Actif')}</td><td>${badge(i===2?'Audit planifié':'Conforme')}</td></tr>`).join('')}</tbody></table></div><div class="sub" style="margin-top:10px">Le workflow cible est affiché clairement ici sans casser le flux PO existant de l’application.</div>`;
+  const wf=document.getElementById('workflowBody'); if(wf) wf.innerHTML=`<div class="status-strip"><span class="note-chip">Brouillon</span><span class="note-chip">À valider</span><span class="note-chip">Envoyé</span><span class="note-chip">Reçu</span><span class="note-chip">Clos</span></div><div class="table-wrap"><table><thead><tr><th>supplier_id</th><th>Nom</th><th>lead_time</th><th>statut</th><th>conformité</th></tr></thead><tbody>${['SKF','Bosch','Valeo','Magna','Cummins','ZF'].map((s,i)=>`<tr><td>SUP-${String(i+1).padStart(3,'0')}</td><td>${s}</td><td>${3+i} j</td><td>${badge(i===4?'Surveiller':'Actif')}</td><td>${badge(i===2?'Audit planifié':'Conforme')}</td></tr>`).join('')}</tbody></table></div><div class="sub" style="margin-top:10px">Le workflow cible reste branché sur le flux PO existant.</div>`;
   const zoneMap={QC:[],ON:[],ATL:[],WEST:[]}; dealers.forEach(d=>{const zone=d.province==='QC'?'QC':d.province==='ON'?'ON':['NB','NS'].includes(d.province)?'ATL':'WEST'; zoneMap[zone].push(d);});
   const zoneRows=Object.entries(zoneMap).filter(([,list])=>list.length).map(([zone,list],i)=>{const baseline=list.length; const grouped=Math.max(1,Math.ceil(list.length/2)); const fillBase=68+(i*5); const fillGrouped=Math.min(96,fillBase+14); return {zone,baseline,grouped,fillBase,fillGrouped};});
   const tb=document.getElementById('transportOptimizationBody'); if(tb) tb.innerHTML=`<div class="table-wrap"><table><thead><tr><th>Zone</th><th>Baseline trips</th><th>Plan groupé</th><th>Fill baseline</th><th>Fill regroupé</th></tr></thead><tbody>${zoneRows.map(z=>`<tr><td>${z.zone}</td><td>${z.baseline}</td><td>${z.grouped}</td><td>${z.fillBase}%</td><td>${z.fillGrouped}%</td></tr>`).join('')}</tbody></table></div><div class="detail-grid" style="margin-top:12px"><div class="detail-box"><div class="kpi-l">Cross-docking</div><div style="font-weight:800">Option activable pour flux urgents</div><div class="sub">Impact attendu : moins de stockage intermédiaire, meilleure vitesse, plus de coordination quai.</div></div><div class="detail-box"><div class="kpi-l">Stockage classique</div><div style="font-weight:800">Option stable pour flux lissés</div><div class="sub">Impact attendu : tampon plus confortable, mais plus d’attente et de manutention.</div></div></div>`;
@@ -1389,104 +1410,18 @@ function renderOptimizationAndCompliance(){
     ['Transport compare baseline vs regroupé','KPI de fill visibles','Pass']
   ];
   const ub=document.getElementById('uatBody'); if(ub) ub.innerHTML=uat.map(t=>`<tr><td>${t[0]}</td><td>${t[1]}</td><td class="${t[2]==='Pass'?'test-pass':'test-fail'}">${t[2]}</td></tr>`).join('');
-  if(document.getElementById('trsExplain') && !document.getElementById('trsExplain').innerHTML.trim()) calculateTrsInterpretation();
-}
-
-function getBnmpMessageRows(){
-  return getOptimizationRows().filter(r=>r.status!=='OK').map((r,i)=>({
-    id:`MSG-${r.sku}`,
-    sku:r.sku,
-    qty:r.messageQty,
-    date:nowStamp().slice(0,10),
-    status:hasOpenDraftForSku(r.sku)?'Déjà couvert':'Brouillon',
-    supplier:r.supplier,
-    description:r.description,
-    priority:r.status==='Stockout'?'Critique':'Élevée'
-  }));
-}
-function convertBnmpMessageToPo(messageId){
-  const row=getOptimizationRows().find(r=>`MSG-${r.sku}`===messageId);
-  if(!row) return;
-  if(hasOpenDraftForSku(row.sku)){ alert('Un brouillon ou une PO ouverte existe déjà pour ce SKU.'); return; }
-  const qty=Math.min(row.messageQty, Math.max(row.eoq, row.threshold*2));
-  purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:row.sku,description:row.description,supplier:row.supplier,qty,qtySuggested:qty,value:qty*row.price,status:'BROUILLON',priority:row.abc==='A'?'Haute':'Moyenne',urgency:row.status==='Stockout'?'Critique':'Élevée',leadDays:row.abc==='A'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null,source:'BNMP',messageId});
-  govNotificationsData.unshift({id:`NOT-MSG-${Date.now().toString().slice(-6)}`,date:nowStamp(),source:'BNMP',message:`${messageId} converti en PO pour ${row.sku}`,priority:row.status==='Stockout'?'Élevée':'Moyenne',module:'Procurement'});
-  addUserAction(`Conversion du message ${messageId} en PO brouillon`);
-  renderAll();
-  setPage('procurement');
-}
-function clearArticleForm(){
-  ['articleSkuInput','articleDescInput'].forEach(id=>{const el=document.getElementById(id); if(el) el.value='';});
-  [['articlePhysicalInput',0],['articleTransitInput',0],['articleReservedInput',0],['articleThresholdInput',25],['articlePriceInput',250],['articleDailyInput',4],['articleOrderCostInput',120],['articleCarryCostInput',35]].forEach(([id,val])=>{const el=document.getElementById(id); if(el) el.value=val;});
-}
-function loadSelectedArticleIntoForm(){
-  const item=inventory.find(x=>x.sku===selectedInventorySku)||inventory[0];
-  if(!item) return;
-  document.getElementById('articleSkuInput').value=item.sku;
-  document.getElementById('articleDescInput').value=item.description||'';
-  document.getElementById('articlePhysicalInput').value=bnmpPhysical(item);
-  document.getElementById('articleTransitInput').value=Number(item.transitManual||0);
-  document.getElementById('articleReservedInput').value=Number(item.reserved||0);
-  document.getElementById('articleThresholdInput').value=bnmpThreshold(item);
-  document.getElementById('articlePriceInput').value=Number(item.price||0);
-  document.getElementById('articleDailyInput').value=Number(demandDaily(item)||0);
-  document.getElementById('articleOrderCostInput').value=Number(orderCost(item)||0);
-  document.getElementById('articleCarryCostInput').value=Number(carryingCost(item)||0);
-}
-function saveArticleCrud(){
-  const sku=(document.getElementById('articleSkuInput')?.value||'').trim().toUpperCase();
-  if(!sku){ alert('Le SKU est obligatoire'); return; }
-  const desc=(document.getElementById('articleDescInput')?.value||'Nouvel article').trim();
-  const physical=Math.max(0, Number(document.getElementById('articlePhysicalInput')?.value||0));
-  const transit=Math.max(0, Number(document.getElementById('articleTransitInput')?.value||0));
-  const reserved=Math.max(0, Math.min(physical, Number(document.getElementById('articleReservedInput')?.value||0)));
-  const threshold=Math.max(0, Number(document.getElementById('articleThresholdInput')?.value||0));
-  const price=Math.max(0, Number(document.getElementById('articlePriceInput')?.value||0));
-  const daily=Math.max(0.1, Number(document.getElementById('articleDailyInput')?.value||0));
-  const s=Math.max(1, Number(document.getElementById('articleOrderCostInput')?.value||0));
-  const h=Math.max(1, Number(document.getElementById('articleCarryCostInput')?.value||0));
-  let item=inventory.find(x=>x.sku===sku);
-  const isNew=!item;
-  if(!item){
-    item={sku,description:desc,category:'Académique',supplier:'Fournisseur académique',quarantine:0,location:'BIN-AC-01',lot:`LOT-AC-${Date.now().toString().slice(-6)}`};
-    inventory.unshift(item);
-  }
-  item.description=desc;
-  item.available=Math.max(0, physical-reserved-(Number(item.quarantine)||0));
-  item.reserved=reserved;
-  item.transitManual=transit;
-  item.thresholdMin=threshold;
-  item.price=price;
-  item.consumptionDaily=daily;
-  item.orderCost=s;
-  item.carryingCost=h;
-  recalcItem(item);
-  selectedInventorySku=sku;
-  addUserAction(`${isNew?'Ajout':'Modification'} article ${sku}`);
-  renderAll();
-}
-function deleteSelectedArticle(){
-  const sku=(document.getElementById('articleSkuInput')?.value||selectedInventorySku||'').trim().toUpperCase();
-  if(!sku){ alert('Aucun SKU sélectionné'); return; }
-  const idx=inventory.findIndex(x=>x.sku===sku);
-  if(idx<0){ alert('SKU introuvable'); return; }
-  inventory.splice(idx,1);
-  purchaseOrders=purchaseOrders.filter(po=>po.sku!==sku || !['BROUILLON'].includes((po.status||'').toUpperCase()));
-  selectedInventorySku=inventory[0]?.sku||null;
-  addUserAction(`Suppression article ${sku}`);
-  clearArticleForm();
-  renderAll();
+  if(document.getElementById('trsExplain') && !document.getElementById('trsExplain').innerHTML.trim()) calculateTrsPedagogic();
 }
 
 function chartOptions(percent=false){return{responsive:true,maintainAspectRatio:false,animation:false,scales:{x:{ticks:{color:'#aeb8ea'},grid:{color:'rgba(255,255,255,.06)'}},y:{ticks:{color:'#aeb8ea',callback:v=>percent?v+'%':v},grid:{color:'rgba(255,255,255,.09)'}}},plugins:{legend:{labels:{color:'#eef2ff'}}}}}
 function destroyIf(chart){if(chart)chart.destroy();}
-function renderDashboardCharts(){destroyIf(inventoryChart);destroyIf(vehicleStatusChart);destroyIf(exceptionChart);if(typeof Chart==='undefined') return;const top=[...inventory].sort((a,b)=>b.value-a.value).slice(0,10);inventoryChart=new Chart(document.getElementById('inventoryChart'),{type:'bar',data:{labels:top.map(x=>x.sku),datasets:[{label:'Valeur',data:top.map(x=>x.value),backgroundColor:'rgba(96,200,255,.72)',borderRadius:4}]},options:chartOptions(false)});const statuses=['Prévue','En production','À quai','Expédié','Livré'];vehicleStatusChart=new Chart(document.getElementById('vehicleStatusChart'),{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>vehicleOrders.filter(x=>x.status===s).length),backgroundColor:['#f3bb4d','#60c8ff','#9e8dff','#22d96b','#1fb861'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eef2ff'}}}}});const criticalCount=inventory.filter(x=>x.alert==='Critique').length;const watchCount=inventory.filter(x=>x.alert==='A surveiller').length;const quarantineCount=inventory.filter(x=>x.quarantine>0).length;const reservedHighCount=inventory.filter(x=>x.stock>0 && (x.reserved/x.stock)>=0.25).length;exceptionChart=new Chart(document.getElementById('exceptionChart'),{type:'doughnut',data:{labels:['Critique','À surveiller','Quarantaine','Réservé élevé'],datasets:[{data:[criticalCount,watchCount,quarantineCount,reservedHighCount],backgroundColor:['#ff5b73','#f3bb4d','#9e8dff','#60c8ff'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eef2ff'}},tooltip:{callbacks:{label:(ctx)=>`${ctx.label}: ${num(ctx.raw)}`}}}}});}
-function renderProductionCharts(){destroyIf(trsChart);destroyIf(modelsChart);if(typeof Chart==='undefined') return;trsChart=new Chart(document.getElementById('trsChart'),{type:'bar',data:{labels:productionLines.map(x=>x.name),datasets:[{label:'TRS',data:productionLines.map(x=>x.trs),backgroundColor:'rgba(34,217,107,.72)',borderRadius:4}]},options:chartOptions(true)});modelsChart=new Chart(document.getElementById('modelsChart'),{type:'bar',data:{labels:modelPlan.map(x=>x.model),datasets:[{label:'Unités planifiées',data:modelPlan.map(x=>x.units),backgroundColor:'rgba(158,141,255,.72)',borderRadius:4}]},options:chartOptions(false)});}
-function safeInvalidate(){try{resizeCharts();if(networkMap)networkMap.invalidateSize();}catch(e){}}
-function refreshVisibleVisuals(){try{if(activePage==='dashboard' && typeof Chart!=='undefined')renderDashboardCharts();if(activePage==='production' && typeof Chart!=='undefined')renderProductionCharts();if(activePage==='map' && typeof L!=='undefined')initMap();}catch(e){console.warn('refreshVisibleVisuals',e);}setTimeout(()=>{safeInvalidate();},220)}
-async function initMap(){if(typeof L==='undefined') return; if(!networkMap){networkMap=L.map('networkMap').setView([47.2,-74.7],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(networkMap);}networkMap.eachLayer(layer=>{if(!(layer instanceof L.TileLayer))networkMap.removeLayer(layer);});L.circleMarker([plant.lat,plant.lng],{radius:9,color:'#60c8ff',fillColor:'#60c8ff',fillOpacity:1}).addTo(networkMap).bindPopup('<strong>Usine Volvo</strong><br>Montréal');dealers.forEach(d=>L.circleMarker([d.lat,d.lng],{radius:7,color:'#22d96b',fillColor:'#22d96b',fillOpacity:1}).addTo(networkMap).bindPopup(`<strong>${d.name}</strong><br>${d.city}, ${d.province}<br>Commandes ouvertes: ${d.pending}`));for(const r of routes){const color=r.status==='Retard'?'#ff5b73':'#9e8dff';try{const url=`https://router.project-osrm.org/route/v1/driving/${plant.lng},${plant.lat};${r.lng},${r.lat}?overview=full&geometries=geojson`;const res=await fetch(url);const data=await res.json();const coords=data?.routes?.[0]?.geometry?.coordinates;if(coords){L.polyline(coords.map(c=>[c[1],c[0]]),{color,weight:4,opacity:.82}).addTo(networkMap).bindPopup(`<strong>${r.id}</strong><br>${r.dealer}<br>${r.transporteur}<br>ETA ${r.eta}`);}}catch(e){L.polyline([[plant.lat,plant.lng],[r.lat,r.lng]],{color,weight:3,opacity:.55,dashArray:'6 6'}).addTo(networkMap);}}setTimeout(()=>networkMap.invalidateSize(),150)}
-function setPage(page){activePage=page;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));const nav=document.querySelector(`.nav-btn[data-page="${page}"]`);if(nav) nav.classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));const pageEl=document.getElementById('page-'+page);if(pageEl) pageEl.classList.remove('hidden');document.getElementById('pageTitle').textContent=pages[page].title;document.getElementById('pageSub').textContent=pages[page].sub;setTimeout(()=>refreshVisibleVisuals(),0);}
-function createPO(){const sku=document.getElementById('poSkuInput').value.trim().toUpperCase();if(!sku)return;const item=inventory.find(x=>x.sku===sku);if(!item){alert('SKU introuvable');return;}if(hasOpenDraftForSku(sku)){alert('Une PO active existe déjà pour ce SKU.');return;}const qty=Math.min(messageSuggestedQty(item), Math.max(eoq(item), bnmpThreshold(item)*2));purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty,qtySuggested:qty,value:qty*item.price,status:'BROUILLON',priority:item.alert==='Critique'?'Haute':'Moyenne',urgency:item.alert==='Critique'?'Critique':'Normale',leadDays:item.alert==='Critique'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null,source:'MANUEL'});document.getElementById('poSkuInput').value='';renderAll();setPage('procurement');}
+function renderDashboardCharts(){destroyIf(inventoryChart);destroyIf(vehicleStatusChart);destroyIf(exceptionChart);const top=[...inventory].sort((a,b)=>b.value-a.value).slice(0,10);inventoryChart=new Chart(document.getElementById('inventoryChart'),{type:'bar',data:{labels:top.map(x=>x.sku),datasets:[{label:'Valeur',data:top.map(x=>x.value),backgroundColor:'rgba(96,200,255,.72)',borderRadius:4}]},options:chartOptions(false)});const statuses=['Prévue','En production','À quai','Expédié','Livré'];vehicleStatusChart=new Chart(document.getElementById('vehicleStatusChart'),{type:'doughnut',data:{labels:statuses,datasets:[{data:statuses.map(s=>vehicleOrders.filter(x=>x.status===s).length),backgroundColor:['#f3bb4d','#60c8ff','#9e8dff','#22d96b','#1fb861'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eef2ff'}}}}});const criticalCount=inventory.filter(x=>x.alert==='Critique').length;const watchCount=inventory.filter(x=>x.alert==='A surveiller').length;const quarantineCount=inventory.filter(x=>x.quarantine>0).length;const reservedHighCount=inventory.filter(x=>x.stock>0 && (x.reserved/x.stock)>=0.25).length;exceptionChart=new Chart(document.getElementById('exceptionChart'),{type:'doughnut',data:{labels:['Critique','À surveiller','Quarantaine','Réservé élevé'],datasets:[{data:[criticalCount,watchCount,quarantineCount,reservedHighCount],backgroundColor:['#ff5b73','#f3bb4d','#9e8dff','#60c8ff'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#eef2ff'}},tooltip:{callbacks:{label:(ctx)=>`${ctx.label}: ${num(ctx.raw)}`}}}}});}
+function renderProductionCharts(){destroyIf(trsChart);destroyIf(modelsChart);trsChart=new Chart(document.getElementById('trsChart'),{type:'bar',data:{labels:productionLines.map(x=>x.name),datasets:[{label:'TRS',data:productionLines.map(x=>x.trs),backgroundColor:'rgba(34,217,107,.72)',borderRadius:4}]},options:chartOptions(true)});modelsChart=new Chart(document.getElementById('modelsChart'),{type:'bar',data:{labels:modelPlan.map(x=>x.model),datasets:[{label:'Unités planifiées',data:modelPlan.map(x=>x.units),backgroundColor:'rgba(158,141,255,.72)',borderRadius:4}]},options:chartOptions(false)});}
+function resizeCharts(){[inventoryChart,trsChart,modelsChart,vehicleStatusChart,exceptionChart].forEach(c=>{if(c){c.resize();c.update('none');}})}
+function refreshVisibleVisuals(){if(activePage==='dashboard')renderDashboardCharts();if(activePage==='production')renderProductionCharts();if(activePage==='map')initMap();setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},220)}
+async function initMap(){if(!networkMap){networkMap=L.map('networkMap').setView([47.2,-74.7],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:18,attribution:'&copy; OpenStreetMap'}).addTo(networkMap);}networkMap.eachLayer(layer=>{if(!(layer instanceof L.TileLayer))networkMap.removeLayer(layer);});L.circleMarker([plant.lat,plant.lng],{radius:9,color:'#60c8ff',fillColor:'#60c8ff',fillOpacity:1}).addTo(networkMap).bindPopup('<strong>Usine Volvo</strong><br>Montréal');dealers.forEach(d=>L.circleMarker([d.lat,d.lng],{radius:7,color:'#22d96b',fillColor:'#22d96b',fillOpacity:1}).addTo(networkMap).bindPopup(`<strong>${d.name}</strong><br>${d.city}, ${d.province}<br>Commandes ouvertes: ${d.pending}`));for(const r of routes){const color=r.status==='Retard'?'#ff5b73':'#9e8dff';try{const url=`https://router.project-osrm.org/route/v1/driving/${plant.lng},${plant.lat};${r.lng},${r.lat}?overview=full&geometries=geojson`;const res=await fetch(url);const data=await res.json();const coords=data?.routes?.[0]?.geometry?.coordinates;if(coords){L.polyline(coords.map(c=>[c[1],c[0]]),{color,weight:4,opacity:.82}).addTo(networkMap).bindPopup(`<strong>${r.id}</strong><br>${r.dealer}<br>${r.transporteur}<br>ETA ${r.eta}`);}}catch(e){L.polyline([[plant.lat,plant.lng],[r.lat,r.lng]],{color,weight:3,opacity:.55,dashArray:'6 6'}).addTo(networkMap);}}setTimeout(()=>networkMap.invalidateSize(),150)}
+function setPage(page){activePage=page;document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));document.querySelector(`.nav-btn[data-page="${page}"]`).classList.add('active');document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));document.getElementById('page-'+page).classList.remove('hidden');document.getElementById('pageTitle').textContent=pages[page].title;document.getElementById('pageSub').textContent=pages[page].sub;refreshVisibleVisuals();}
+function createPO(){const sku=document.getElementById('poSkuInput').value.trim().toUpperCase();if(!sku)return;const item=inventory.find(x=>x.sku===sku);if(!item){alert('SKU introuvable');return;}const qty=Math.max(10,Math.ceil((90-item.available)+Math.max(10,item.reserved)));purchaseOrders.unshift({id:`PO-${String(purchaseOrders.length+1).padStart(4,'0')}`,sku:item.sku,description:item.description,supplier:item.supplier,qty,qtySuggested:qty,value:qty*item.price,status:'BROUILLON',priority:item.alert==='Critique'?'Haute':'Moyenne',urgency:item.alert==='Critique'?'Critique':'Normale',leadDays:item.alert==='Critique'?3:7,createdAt:nowStamp(),sentAt:null,closedAt:null});document.getElementById('poSkuInput').value='';renderAll();setPage('procurement');}
 function advancePOStatus(id){
   const po=purchaseOrders.find(x=>x.id===id);
   if(!po || po.status==='FERMÉE') return;
@@ -1507,6 +1442,8 @@ function closeSlide(){document.getElementById('slideover').classList.remove('ope
 document.getElementById('closeSlide').addEventListener('click',closeSlide);
 document.getElementById('slideoverBackdrop').addEventListener('click',closeSlide);
 document.getElementById('createPoBtn').addEventListener('click',createPO);
+if(document.getElementById('articleSaveBtn')) document.getElementById('articleSaveBtn').addEventListener('click',saveArticle);
+if(document.getElementById('articleClearBtn')) document.getElementById('articleClearBtn').addEventListener('click',clearArticleForm);
 document.getElementById('regenBtn').addEventListener('click',()=>{generateData();saveToLocalStorage();renderAll();setPage('dashboard');});
 document.getElementById('saveBtn').addEventListener('click',()=>saveToLocalStorage(true));
 document.getElementById('exportExcelBtn').addEventListener('click',exportDatabaseToExcel);
@@ -1515,22 +1452,19 @@ document.getElementById('openExceptionManagerBtn').addEventListener('click',()=>
 document.getElementById('excelImportInput').addEventListener('change',importDatabaseFromExcel);
 if(!loadFromLocalStorage()){
   generateData();
+  saveToLocalStorage();
 }
-ensureDataIntegrity();
-saveToLocalStorage();
 setPage(activePage||'dashboard');
 renderAll();
 refreshVisibleVisuals();
-setTimeout(()=>{ensureDataIntegrity(); renderAll(); refreshVisibleVisuals();},120);
-setTimeout(()=>{ensureDataIntegrity(); renderAll(); refreshVisibleVisuals();},420);
+setTimeout(()=>refreshVisibleVisuals(),120);
+setTimeout(()=>refreshVisibleVisuals(),320);
 window.addEventListener('beforeunload',()=>saveToLocalStorage());
 window.addEventListener('resize',()=>setTimeout(()=>{resizeCharts();if(networkMap)networkMap.invalidateSize();},150));
 window.addEventListener('load',()=>{
-  ensureDataIntegrity();
-  renderAll();
   refreshVisibleVisuals();
-  setTimeout(()=>{ensureDataIntegrity(); renderAll(); refreshVisibleVisuals();},180);
-  setTimeout(()=>{ensureDataIntegrity(); renderAll(); refreshVisibleVisuals();},420);
+  setTimeout(()=>refreshVisibleVisuals(),180);
+  setTimeout(()=>refreshVisibleVisuals(),420);
 });
 </script>
 </body>
